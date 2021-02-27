@@ -1,0 +1,13 @@
+[Unit]
+Description=Locksmith PKI Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+TimeoutStartSec=0
+ExecStart=/usr/local/bin/locksmith -config /etc/locksmith/config.yml
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

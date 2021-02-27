@@ -1,0 +1,8 @@
+locksmith
+config.yml
+config.yaml
+.generated
+.generated/
+.generated/*
+builds/
+builds/*
