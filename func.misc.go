@@ -16,11 +16,13 @@ func slugger(textToSlug string) string {
 	return slug.Make(textToSlug)
 }
 
+// readSerialNumberAsInt is a wrapper that converts the string serial number in a serial file to an int
 func readSerialNumberAsInt(rootSlugPath string) int {
 	i, _ := strconv.Atoi(readSerialNumber(rootSlugPath))
 	return i
 }
 
+// readSerialNumberAsInt64 converts an int converted serial number to int64
 func readSerialNumberAsInt64(rootSlugPath string) int64 {
 	return int64(readSerialNumberAsInt(rootSlugPath))
 }
@@ -50,14 +52,14 @@ func readSerialNumber(rootSlug string) string {
 
 // IncreaseSerialNumber just updates a root CAs serial
 func IncreaseSerialNumber(rootSlug string) (bool, error) {
-	var serNum int64
+	serNum := readSerialNumberAsInt64(rootSlug)
 
-	currentSerialNumString := readSerialNumber(rootSlug)
-	logStdOut("currentSerialNumString: " + currentSerialNumString)
+	//currentSerialNumString := readSerialNumber(rootSlug)
+	//logStdOut("currentSerialNumString: " + currentSerialNumString)
 
-	currentSerialNumber, _ := strconv.Atoi(currentSerialNumString)
+	//currentSerialNumber, _ := strconv.Atoi(currentSerialNumString)
 	//log.Printf("i=%d, type: %T\n", currentSerialNumber, currentSerialNumber)
-	serNum = int64(currentSerialNumber)
+	//serNum = int64(currentSerialNumber)
 
 	counter := Counter{serNum}
 	//log.Printf("i=%d, type: %T\n", counter.currentValue(), counter.currentValue())
@@ -75,9 +77,9 @@ func IncreaseSerialNumber(rootSlug string) (bool, error) {
 
 	serialFile, err := WriteFile(rootCACertSerialFilePath, fmt.Sprintf("%v", counter.currentValue()), 0600, true)
 	check(err)
-	if serialFile {
-		//logStdOut("Updated serial file")
-	}
+	//if serialFile {
+	//logStdOut("Updated serial file")
+	//}
 	return serialFile, err
 }
 

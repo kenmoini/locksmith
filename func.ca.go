@@ -98,7 +98,7 @@ func createNewCAFilesystem(rootSlug string, caName string, rsaPrivateKeyPassword
 	}
 
 	// Create CA Object
-	rootCA := setupCACert(readSerialNumberAsInt64(rootSlug), "Kemo Labs Root Certificate Authority", "Kemo Labs", "US", "NC", "Charlotte", "420 Thug Ln", "28204", []int{10, 0, 0})
+	rootCA := setupCACert(readSerialNumberAsInt64(rootSlug), "Kemo Labs Root Certificate Authority", "Kemo Labs", "Kemo Labs Cyber and Information Security", "US", "NC", "Charlotte", "420 Thug Ln", "28204", []int{10, 0, 0})
 
 	// Read in the Private key
 	privateKeyFilePath, err := filepath.Abs(rootSlugPath + "/keys/ca.priv.pem")
