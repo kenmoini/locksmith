@@ -44,6 +44,13 @@ type RootInfo struct {
 	Serial string `json:"serial"`
 }
 
+// CertificateInformation gives a general read out of a certificate file
+type CertificateInformation struct {
+	CommonName     string `json:"common_name"`
+	StartDate      string `json:"start_date"`
+	ExpirationDate string `json:"expiration_date"`
+}
+
 // Counter for serial number
 type Counter struct {
 	count int64

@@ -54,17 +54,18 @@ func NewRouter(basePath string) *http.ServeMux {
 				return
 			}
 
-			name := r.FormValue("name")
-			sluggedName := slugger(name)
+			caName := r.FormValue("name")
+			sluggedName := slugger(caName)
+			rsaPrivateKeyPassword := r.FormValue("rsaPrivateKeyPassword")
 
 			checkForRootPath, err := filepath.Abs(readConfig.Locksmith.PKIRoot + "/roots/" + sluggedName)
 			check(err)
 
-			checkForRoot, err := DirectoryExists(checkForRootPath)
+			caRootPathExists, err := DirectoryExists(checkForRootPath)
 			check(err)
 
-			if checkForRoot {
-				logNeworkRequestStdOut(name+" ("+sluggedName+") root-exists", r)
+			if caRootPathExists {
+				logNeworkRequestStdOut(caName+" ("+sluggedName+") root-exists", r)
 				returnData := &ReturnPostRoots{
 					Status:   "root-exists",
 					Errors:   []string{},
@@ -75,8 +76,8 @@ func NewRouter(basePath string) *http.ServeMux {
 				returnResponse, _ := json.Marshal(returnData)
 				fmt.Fprintf(w, string(returnResponse))
 			} else {
-				createNewCAFilesystem(sluggedName)
-				logNeworkRequestStdOut(name+" ("+sluggedName+") root-created", r)
+				createNewCAFilesystem(sluggedName, caName, rsaPrivateKeyPassword)
+				logNeworkRequestStdOut(caName+" ("+sluggedName+") root-created", r)
 				returnData := &ReturnPostRoots{
 					Status:   "root-created",
 					Errors:   []string{},

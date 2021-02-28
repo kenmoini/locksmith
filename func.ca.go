@@ -9,11 +9,12 @@ import (
 	"time"
 )
 
-func setupCACert(serialNumber int64, organization string, country string, province string, locality string, streetAddress string, postalCode string, addTime []int) *x509.Certificate {
+func setupCACert(serialNumber int64, commonName string, organization string, country string, province string, locality string, streetAddress string, postalCode string, addTime []int) *x509.Certificate {
 	// set up our CA certificate
 	return &x509.Certificate{
 		SerialNumber: big.NewInt(serialNumber),
 		Subject: pkix.Name{
+			CommonName:    commonName,
 			Organization:  []string{organization},
 			Country:       []string{country},
 			Province:      []string{province},
@@ -31,7 +32,7 @@ func setupCACert(serialNumber int64, organization string, country string, provin
 }
 
 // createNewRootCAFilesystem
-func createNewCAFilesystem(rootSlug string) {
+func createNewCAFilesystem(rootSlug string, caName string, rsaPrivateKeyPassword string) {
 	rootSlugPath := readConfig.Locksmith.PKIRoot + "/roots/" + rootSlug
 	//Create root CA directory
 	rootCAPath, err := filepath.Abs(rootSlugPath)
@@ -83,33 +84,43 @@ func createNewCAFilesystem(rootSlug string) {
 	check(err)
 	caKeyCheck, err := FileExists(caKeyPath)
 	check(err)
+
 	if !caKeyCheck {
 		rootPrivKey, rootPubKey, err := generateRSAKeypair(4096)
 		check(err)
 
-		rootPrivKeyFile, rootPubKeyFile, err := writeRSAKeyPair(pemEncodeRSAPrivateKey(rootPrivKey), pemEncodeRSAPublicKey(rootPubKey), rootCACertKeysPath+"/ca")
+		rootPrivKeyFile, rootPubKeyFile, err := writeRSAKeyPair(pemEncodeRSAPrivateKey(rootPrivKey, ""), pemEncodeRSAPublicKey(rootPubKey), rootCACertKeysPath+"/ca")
 		check(err)
 		if rootPrivKeyFile && rootPubKeyFile {
 			logStdOut("RSA Key Pair Created")
 		}
+	}
 
-		// Create CA Object
+	// Create CA Object
+	rootCA := setupCACert(readSerialNumberAsInt64(rootSlug), "Kemo Labs Root Certificate Authority", "Kemo Labs", "US", "NC", "Charlotte", "420 Thug Ln", "28204", []int{10, 0, 0})
 
-		rootCA := setupCACert(readSerialNumberAsInt64(rootSlug), "Kemo Labs", "US", "NC", "Charlotte", "420 Thug Ln", "28204", []int{10, 0, 0})
+	// Read in the Private key
+	privateKeyFilePath, err := filepath.Abs(rootSlugPath + "/keys/ca.priv.pem")
+	check(err)
+	privateKeyFromFile := GetPrivateKey(privateKeyFilePath, rsaPrivateKeyPassword)
 
-		// Byte Encode the Certificate
-		caBytes, err := x509.CreateCertificate(rand.Reader, rootCA, rootCA, rootPubKey, rootPrivKey)
+	// Read in the Public key
+	pubKeyFilePath, err := filepath.Abs(rootSlugPath + "/keys/ca.pub.pem")
+	check(err)
+	pubKeyFromFile := GetPublicKey(pubKeyFilePath)
+
+	// Byte Encode the Certificate
+	caBytes, err := x509.CreateCertificate(rand.Reader, rootCA, rootCA, pubKeyFromFile, privateKeyFromFile)
+	check(err)
+
+	// Check for certificate file
+	certificateFileCheck, err := FileExists(rootCACertsPath + "/ca.pem")
+	if !certificateFileCheck {
+		// Write Certificate file
+		certificateFile, err := writeCertificateFile(pemEncodeCertificate(caBytes), rootCACertsPath+"/ca.pem")
 		check(err)
-
-		// Check for certificate file
-		certificateFileCheck, err := FileExists(rootCACertsPath + "/ca.cert")
-		if !certificateFileCheck {
-			// Write Certificate file
-			certificateFile, err := writeCertificateFile(pemEncodeCertificate(caBytes), rootCACertsPath+"/ca.cert")
-			check(err)
-			if certificateFile {
-				logStdOut("Created Root CA Certificate file")
-			}
+		if certificateFile {
+			logStdOut("Created Root CA Certificate file")
 		}
 	}
 }
