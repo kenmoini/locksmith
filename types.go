@@ -33,7 +33,13 @@ type ReturnPostRoots struct {
 	Status   string   `json:"status"`
 	Errors   []string `json:"errors"`
 	Messages []string `json:"messages"`
-	Root     []string `json:"root"`
+	Root     RootInfo `json:"root"`
+}
+
+// RootInfo provides general root informations
+type RootInfo struct {
+	Slug   string `json:"slug"`
+	Serial string `json:"serial"`
 }
 
 // Server configures the HTTP server providing Ignition files

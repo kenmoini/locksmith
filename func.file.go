@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -255,4 +256,56 @@ func DeleteFile(path string) {
 	log.Printf("Deleting %s\n", path)
 	e := os.Remove(path)
 	check(e)
+}
+
+// WriteFile creates a file only if it's new and populates it
+func WriteFile(path string, content string, mode int, overwrite bool) (bool, error) {
+	fileMode := os.FileMode(0600)
+	if mode == 0 {
+		fileMode = os.FileMode(0600)
+	} else {
+		fileMode = os.FileMode(mode)
+	}
+	fileCheck, err := FileExists(path)
+	check(err)
+	// If not, create one with a starting digit
+	if !fileCheck {
+		d1 := []byte(content)
+		err = ioutil.WriteFile(path, d1, fileMode)
+		check(err)
+		return true, err
+	}
+	// If the file exists and we want to overwrite it
+	if fileCheck && overwrite {
+		d1 := []byte(content)
+		err = ioutil.WriteFile(path, d1, fileMode)
+		check(err)
+		return true, err
+	}
+	return false, nil
+}
+
+// WriteByteFile creates a file only if it's new and populates it
+func WriteByteFile(path string, content []byte, mode int, overwrite bool) (bool, error) {
+	fileMode := os.FileMode(0600)
+	if mode == 0 {
+		fileMode = os.FileMode(0600)
+	} else {
+		fileMode = os.FileMode(mode)
+	}
+	fileCheck, err := FileExists(path)
+	check(err)
+	// If not, create one with a starting digit
+	if !fileCheck {
+		err = ioutil.WriteFile(path, content, fileMode)
+		check(err)
+		return true, err
+	}
+	// If the file exists and we want to overwrite it
+	if fileCheck && overwrite {
+		err = ioutil.WriteFile(path, content, fileMode)
+		check(err)
+		return true, err
+	}
+	return false, nil
 }

@@ -39,9 +39,10 @@ func NewRouter(basePath string) *http.ServeMux {
 		case "GET":
 			rootListing := DirectoryListingNames(readConfig.Locksmith.PKIRoot + "/roots/")
 			returnData := &ReturnGetRoots{
-				Status: "success",
-				Errors: []string{},
-				Roots:  rootListing}
+				Status:   "success",
+				Errors:   []string{},
+				Messages: []string{},
+				Roots:    rootListing}
 			returnResponse, _ := json.Marshal(returnData)
 			fmt.Fprintf(w, string(returnResponse))
 			// http.ServeFile(w, r, "form.html")
@@ -65,18 +66,24 @@ func NewRouter(basePath string) *http.ServeMux {
 			if checkForRoot {
 				logNeworkRequestStdOut(name+" ("+sluggedName+") root-exists", r)
 				returnData := &ReturnPostRoots{
-					Status: "root-exists",
-					Errors: []string{},
-					Root:   []string{sluggedName}}
+					Status:   "root-exists",
+					Errors:   []string{},
+					Messages: []string{},
+					Root: RootInfo{
+						Slug:   sluggedName,
+						Serial: readSerialNumber(sluggedName)}}
 				returnResponse, _ := json.Marshal(returnData)
 				fmt.Fprintf(w, string(returnResponse))
 			} else {
 				createNewCAFilesystem(sluggedName)
 				logNeworkRequestStdOut(name+" ("+sluggedName+") root-created", r)
 				returnData := &ReturnPostRoots{
-					Status: "root-created",
-					Errors: []string{},
-					Root:   []string{sluggedName}}
+					Status:   "root-created",
+					Errors:   []string{},
+					Messages: []string{},
+					Root: RootInfo{
+						Slug:   sluggedName,
+						Serial: readSerialNumber(sluggedName)}}
 				returnResponse, _ := json.Marshal(returnData)
 				fmt.Fprintf(w, string(returnResponse))
 			}

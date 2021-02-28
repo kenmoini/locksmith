@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 	"path/filepath"
 
@@ -50,5 +49,5 @@ func PreflightSetup() {
 	checkAndFail(err)
 	CreateDirectory(PKIRootRootsPath)
 
-	log.Println("Preflight complete!")
+	logStdOut("Preflight complete!")
 }
