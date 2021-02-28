@@ -1,15 +1,33 @@
 package main
 
 import (
-	"io/ioutil"
+	"crypto/rand"
+	"crypto/x509"
+	"crypto/x509/pkix"
+	"math/big"
 	"path/filepath"
+	"time"
 )
 
-// readSerialNumber reads the serial.txt file out
-func readSerialNumber(rootSlug string) string {
-	dat, err := ioutil.ReadFile(readConfig.Locksmith.PKIRoot + "/roots/" + rootSlug + "/serial.txt")
-	check(err)
-	return string(dat)
+func setupCACert(organization string, country string, province string, locality string, streetAddress string, postalCode string, addTime []int) *x509.Certificate {
+	// set up our CA certificate
+	return &x509.Certificate{
+		SerialNumber: big.NewInt(2019),
+		Subject: pkix.Name{
+			Organization:  []string{organization},
+			Country:       []string{country},
+			Province:      []string{province},
+			Locality:      []string{locality},
+			StreetAddress: []string{streetAddress},
+			PostalCode:    []string{postalCode},
+		},
+		NotBefore:             time.Now(),
+		NotAfter:              time.Now().AddDate(addTime[0], addTime[1], addTime[2]),
+		IsCA:                  true,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
+		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
+		BasicConstraintsValid: true,
+	}
 }
 
 // createNewRootCAFilesystem
@@ -60,7 +78,25 @@ func createNewCAFilesystem(rootSlug string) {
 		rootPrivKeyFile, rootPubKeyFile, err := writeRSAKeyPair(pemEncodeRSAPrivateKey(rootPrivKey), pemEncodeRSAPublicKey(rootPubKey), rootCACertKeysPath+"/ca")
 		check(err)
 		if rootPrivKeyFile && rootPubKeyFile {
-			logStdOut("Private Key Created")
+			logStdOut("RSA Key Pair Created")
+		}
+
+		// Create CA Object
+		rootCA := setupCACert("Kemo Labs", "US", "NC", "Charlotte", "420 Thug Ln", "28204", []int{10, 0, 0})
+
+		// Byte Encode the Certificate
+		caBytes, err := x509.CreateCertificate(rand.Reader, rootCA, rootCA, rootPubKey, rootPrivKey)
+		check(err)
+
+		// Check for certificate file
+		certificateFileCheck, err := FileExists(rootCACertsPath + "/ca.cert")
+		if !certificateFileCheck {
+			// Write Certificate file
+			certificateFile, err := writeCertificateFile(pemEncodeCertificate(caBytes), rootCACertsPath+"/ca.cert")
+			check(err)
+			if certificateFile {
+				logStdOut("Created Root CA Certificate file")
+			}
 		}
 	}
 }

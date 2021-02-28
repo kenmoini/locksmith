@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/gosimple/slug"
 	"gopkg.in/yaml.v2"
@@ -11,6 +14,62 @@ import (
 // slugger slugs a string
 func slugger(textToSlug string) string {
 	return slug.Make(textToSlug)
+}
+
+// readSerialNumber reads the serial.txt file out
+func readSerialNumber(rootSlug string) string {
+	/*
+		dat, err := ioutil.ReadFile(readConfig.Locksmith.PKIRoot + "/roots/" + rootSlug + "/serial.txt")
+		check(err)
+
+		return strings.TrimSuffix(string(dat), "\n")
+	*/
+	filePath, err := filepath.Abs(readConfig.Locksmith.PKIRoot + "/roots/" + rootSlug + "/serial.txt")
+	check(err)
+	file, err := os.Open(filePath)
+	check(err)
+	defer file.Close()
+
+	s := bufio.NewScanner(file)
+	var serial string
+	for s.Scan() {
+		serial = s.Text()
+		break
+	}
+	return serial
+}
+
+// IncreaseSerialNumber just updates a root CAs serial
+func IncreaseSerialNumber(rootSlug string) (bool, error) {
+	var serNum int64
+
+	currentSerialNumString := readSerialNumber(rootSlug)
+	logStdOut("currentSerialNumString: " + currentSerialNumString)
+
+	currentSerialNumber, _ := strconv.Atoi(currentSerialNumString)
+	//log.Printf("i=%d, type: %T\n", currentSerialNumber, currentSerialNumber)
+	serNum = int64(currentSerialNumber)
+
+	counter := Counter{serNum}
+	//log.Printf("i=%d, type: %T\n", counter.currentValue(), counter.currentValue())
+
+	counter.increment()
+
+	//log.Printf("i=%d, type: %T\n", counter.currentValue(), counter.currentValue())
+
+	rootSlugPath := readConfig.Locksmith.PKIRoot + "/roots/" + rootSlug
+
+	rootCACertSerialFilePath, err := filepath.Abs(rootSlugPath + "/serial.txt")
+	check(err)
+
+	// Update serialFile
+
+	serialFile, err := WriteFile(rootCACertSerialFilePath, fmt.Sprintf("%v", counter.currentValue()), 0600, true)
+	check(err)
+	if serialFile {
+		//logStdOut("Updated serial file")
+	}
+	return serialFile, err
 }
 
 // NewConfig returns a new decoded Config struct

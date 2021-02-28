@@ -1,6 +1,8 @@
 package main
 
-import "time"
+import (
+	"time"
+)
 
 // Config struct for webapp config
 type Config struct {
@@ -40,6 +42,18 @@ type ReturnPostRoots struct {
 type RootInfo struct {
 	Slug   string `json:"slug"`
 	Serial string `json:"serial"`
+}
+
+// Counter
+type Counter struct {
+	count int64
+}
+
+func (self Counter) currentValue() int64 {
+	return self.count
+}
+func (self *Counter) increment() {
+	self.count++
 }
 
 // Server configures the HTTP server providing Ignition files
