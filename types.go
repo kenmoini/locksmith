@@ -13,12 +13,35 @@ type LocksmithYaml struct {
 	Server  Server `yaml:"server"`
 }
 
+// ReturnGenericMessage - Generic message
+type ReturnGenericMessage struct {
+	Status   string   `json:"status"`
+	Errors   []string `json:"errors"`
+	Messages []string `json:"messages"`
+}
+
+// ReturnGetRoots - GET /roots
+type ReturnGetRoots struct {
+	Status   string   `json:"status"`
+	Errors   []string `json:"errors"`
+	Messages []string `json:"messages"`
+	Roots    []string `json:"roots"`
+}
+
+// ReturnPostRoots - GET /roots
+type ReturnPostRoots struct {
+	Status   string   `json:"status"`
+	Errors   []string `json:"errors"`
+	Messages []string `json:"messages"`
+	Root     []string `json:"root"`
+}
+
 // Server configures the HTTP server providing Ignition files
 type Server struct {
 	// Host is the local machine IP Address to bind the HTTP Server to
 	Host string `yaml:"host"`
 
-	Path string `yaml:"base_path"`
+	BasePath string `yaml:"base_path"`
 
 	// Port is the local machine TCP Port to bind the HTTP Server to
 	Port    string `yaml:"port"`

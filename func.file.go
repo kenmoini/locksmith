@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 // ValidateConfigPath just makes sure, that the path provided is a file,
@@ -22,6 +23,71 @@ func ValidateConfigPath(path string) error {
 		return fmt.Errorf("'%s' is a directory, not a normal file", path)
 	}
 	return nil
+}
+
+// DirectoryListingNames lists just the name of files in a certain directory
+func DirectoryListingNames(path string) []string {
+	if path == "" {
+		path = "."
+	}
+
+	file, err := os.Open(path)
+	check(err)
+	defer file.Close()
+
+	list, _ := file.Readdirnames(0) // 0 to read all files and folders
+	var fileNames []string
+	for _, name := range list {
+		fileNames = append(fileNames, name)
+		//fmt.Println(name)
+	}
+	return fileNames
+}
+
+// FileExists checks if a file exists and returns a boolean or an erro
+func FileExists(fileName string) (bool, error) {
+	if _, err := os.Stat(fileName); err == nil {
+		// path/to/whatever exists
+		return true, nil
+	} else if os.IsNotExist(err) {
+		// path/to/whatever does *not* exist
+		return false, nil
+	} else {
+		// Schrodinger: file may or may not exist. See err for details.
+		// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
+		return false, err
+	}
+}
+
+// DirectoryExists checks if a file exists and returns a boolean or an erro
+func DirectoryExists(pathName string) (bool, error) {
+	if _, err := os.Stat(pathName); os.IsNotExist(err) {
+		// path/to/whatever does not exist
+		return false, nil
+	}
+	if _, err := os.Stat(pathName); !os.IsNotExist(err) {
+		// path/to/whatever exists
+		return true, nil
+	}
+	return false, nil
+}
+
+// TouchFile just creates a file if it doesn't exist already
+func TouchFile(fileName string, updateTime bool) {
+	_, err := os.Stat(fileName)
+	if os.IsNotExist(err) {
+		file, err := os.Create(fileName)
+		check(err)
+		defer file.Close()
+	} else {
+		if updateTime {
+			currentTime := time.Now().Local()
+			err = os.Chtimes(fileName, currentTime, currentTime)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	}
 }
 
 // CopyFile copies a file

@@ -2,34 +2,92 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 )
 
 // NewRouter generates the router used in the HTTP Server
-func NewRouter(generationPath string) *http.ServeMux {
-	if generationPath == "" {
-		generationPath = "/generate"
+func NewRouter(basePath string) *http.ServeMux {
+	if basePath == "" {
+		basePath = "/locksmith"
 	}
 	// Create router and define routes and return that router
 	router := http.NewServeMux()
 
-	router.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc(basePath+"/version", func(w http.ResponseWriter, r *http.Request) {
+		logNeworkRequestStdOut(r.Method+" "+basePath+"/version", r)
 		fmt.Fprintf(w, "Locksmith version: %s\n", locksmithVersion)
 	})
 
-	router.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc(basePath+"/healthz", func(w http.ResponseWriter, r *http.Request) {
+		logNeworkRequestStdOut(r.Method+" "+basePath+"/healthz", r)
 		fmt.Fprintf(w, "OK")
 	})
 
-	router.HandleFunc("/assets/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "OK")
+	router.HandleFunc(basePath+"/roots", func(w http.ResponseWriter, r *http.Request) {
+		logNeworkRequestStdOut(r.Method+" "+basePath+"/roots", r)
+		switch r.Method {
+		// index - get list of roots
+		case "GET":
+			rootListing := DirectoryListingNames(readConfig.Locksmith.PKIRoot + "/roots/")
+			returnData := &ReturnGetRoots{
+				Status: "success",
+				Errors: []string{},
+				Roots:  rootListing}
+			returnResponse, _ := json.Marshal(returnData)
+			fmt.Fprintf(w, string(returnResponse))
+			// http.ServeFile(w, r, "form.html")
+		case "POST":
+			// create - create new root
+
+			if err := r.ParseForm(); err != nil {
+				fmt.Fprintf(w, "ParseForm() err: %v", err)
+				return
+			}
+
+			name := r.FormValue("name")
+			sluggedName := slugger(name)
+
+			checkForRootPath, err := filepath.Abs(readConfig.Locksmith.PKIRoot + "/roots/" + sluggedName)
+			check(err)
+
+			checkForRoot, err := DirectoryExists(checkForRootPath)
+			check(err)
+
+			if checkForRoot {
+				logNeworkRequestStdOut(name+" ("+sluggedName+") root-exists", r)
+				returnData := &ReturnPostRoots{
+					Status: "root-exists",
+					Errors: []string{},
+					Root:   []string{sluggedName}}
+				returnResponse, _ := json.Marshal(returnData)
+				fmt.Fprintf(w, string(returnResponse))
+			} else {
+				createNewCAFilesystem(sluggedName)
+				logNeworkRequestStdOut(name+" ("+sluggedName+") root-created", r)
+				returnData := &ReturnPostRoots{
+					Status: "root-created",
+					Errors: []string{},
+					Root:   []string{sluggedName}}
+				returnResponse, _ := json.Marshal(returnData)
+				fmt.Fprintf(w, string(returnResponse))
+			}
+		default:
+			returnData := &ReturnGenericMessage{
+				Status:   "method-not-allowed",
+				Errors:   []string{},
+				Messages: []string{"method not allowed"}}
+			returnResponse, _ := json.Marshal(returnData)
+			fmt.Fprintf(w, string(returnResponse))
+		}
 	})
 
 	return router
@@ -51,7 +109,7 @@ func (config Config) RunHTTPServer() {
 	// Define server options
 	server := &http.Server{
 		Addr:         config.Locksmith.Server.Host + ":" + config.Locksmith.Server.Port,
-		Handler:      NewRouter(config.Locksmith.Server.Path),
+		Handler:      NewRouter(config.Locksmith.Server.BasePath),
 		ReadTimeout:  config.Locksmith.Server.Timeout.Read * time.Second,
 		WriteTimeout: config.Locksmith.Server.Timeout.Write * time.Second,
 		IdleTimeout:  config.Locksmith.Server.Timeout.Idle * time.Second,
