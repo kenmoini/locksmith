@@ -44,7 +44,7 @@ type RootInfo struct {
 	Serial string `json:"serial"`
 }
 
-// Counter
+// Counter for serial number
 type Counter struct {
 	count int64
 }

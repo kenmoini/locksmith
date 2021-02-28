@@ -16,6 +16,15 @@ func slugger(textToSlug string) string {
 	return slug.Make(textToSlug)
 }
 
+func readSerialNumberAsInt(rootSlugPath string) int {
+	i, _ := strconv.Atoi(readSerialNumber(rootSlugPath))
+	return i
+}
+
+func readSerialNumberAsInt64(rootSlugPath string) int64 {
+	return int64(readSerialNumberAsInt(rootSlugPath))
+}
+
 // readSerialNumber reads the serial.txt file out
 func readSerialNumber(rootSlug string) string {
 	/*

@@ -12,9 +12,9 @@ import (
 )
 
 // setupServerCert
-func setupServerCert(organization string, country string, province string, locality string, streetAddress string, postalCode string, addTime []int) *x509.Certificate {
+func setupServerCert(serialNumber int64, organization string, country string, province string, locality string, streetAddress string, postalCode string, addTime []int) *x509.Certificate {
 	return &x509.Certificate{
-		SerialNumber: big.NewInt(2019),
+		SerialNumber: big.NewInt(serialNumber),
 		Subject: pkix.Name{
 			Organization:  []string{organization},
 			Country:       []string{country},

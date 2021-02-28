@@ -5,8 +5,10 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/gob"
 	"encoding/pem"
 	"io/ioutil"
+	"os"
 )
 
 // generateRSAKeypair returns a private RSA key
@@ -74,4 +76,17 @@ func pemEncodeRSAPublicKey(caPubKey *rsa.PublicKey) *bytes.Buffer {
 		Bytes: x509.MarshalPKCS1PublicKey(caPubKey),
 	})
 	return caPubKeyPEM
+}
+
+// loadKeyFile - loads a private key PEM file
+func loadKeyFile(fileName string, key interface{}) {
+	inFile, err := os.Open(fileName)
+	check(err)
+	decoder := gob.NewDecoder(inFile)
+	err = decoder.Decode(key)
+	check(err)
+	inFile.Close()
+
+	// var key rsa.PrivateKey
+	// loadKey("private.key", &key)
 }

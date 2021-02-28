@@ -9,10 +9,10 @@ import (
 	"time"
 )
 
-func setupCACert(organization string, country string, province string, locality string, streetAddress string, postalCode string, addTime []int) *x509.Certificate {
+func setupCACert(serialNumber int64, organization string, country string, province string, locality string, streetAddress string, postalCode string, addTime []int) *x509.Certificate {
 	// set up our CA certificate
 	return &x509.Certificate{
-		SerialNumber: big.NewInt(2019),
+		SerialNumber: big.NewInt(serialNumber),
 		Subject: pkix.Name{
 			Organization:  []string{organization},
 			Country:       []string{country},
@@ -66,6 +66,18 @@ func createNewCAFilesystem(rootSlug string) {
 		logStdOut("Serial file exists")
 	}
 
+	rootCACrlnumFilePath, err := filepath.Abs(rootSlugPath + "/crlnumber.txt")
+	check(err)
+
+	// Check to see if there is a crlNum file
+	crlNumFile, err := WriteFile(rootCACrlnumFilePath, "1", 0600, false)
+	check(err)
+	if crlNumFile {
+		logStdOut("Created crlnum file")
+	} else {
+		logStdOut("crlnum file exists")
+	}
+
 	// Check for certificate authority key pair
 	caKeyPath, err := filepath.Abs(rootSlugPath + "/keys/ca.priv.pem")
 	check(err)
@@ -82,7 +94,8 @@ func createNewCAFilesystem(rootSlug string) {
 		}
 
 		// Create CA Object
-		rootCA := setupCACert("Kemo Labs", "US", "NC", "Charlotte", "420 Thug Ln", "28204", []int{10, 0, 0})
+
+		rootCA := setupCACert(readSerialNumberAsInt64(rootSlug), "Kemo Labs", "US", "NC", "Charlotte", "420 Thug Ln", "28204", []int{10, 0, 0})
 
 		// Byte Encode the Certificate
 		caBytes, err := x509.CreateCertificate(rand.Reader, rootCA, rootCA, rootPubKey, rootPrivKey)
