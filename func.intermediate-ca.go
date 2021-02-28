@@ -9,16 +9,17 @@ import (
 )
 
 // setupIntermediateCACert
-func setupIntermediateCACert(serialNumber int64, organization string, country string, province string, locality string, streetAddress string, postalCode string, addTime []int) *x509.Certificate {
+func setupIntermediateCACert(serialNumber int64, organization string, organizationalUnit string, country string, province string, locality string, streetAddress string, postalCode string, addTime []int) *x509.Certificate {
 	return &x509.Certificate{
 		SerialNumber: big.NewInt(serialNumber),
 		Subject: pkix.Name{
-			Organization:  []string{organization},
-			Country:       []string{country},
-			Province:      []string{province},
-			Locality:      []string{locality},
-			StreetAddress: []string{streetAddress},
-			PostalCode:    []string{postalCode},
+			Organization:       []string{organization},
+			OrganizationalUnit: []string{organizationalUnit},
+			Country:            []string{country},
+			Province:           []string{province},
+			Locality:           []string{locality},
+			StreetAddress:      []string{streetAddress},
+			PostalCode:         []string{postalCode},
 		},
 		IPAddresses:           []net.IP{net.IPv4(127, 0, 0, 1), net.IPv6loopback},
 		NotBefore:             time.Now(),

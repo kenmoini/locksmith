@@ -9,18 +9,19 @@ import (
 	"time"
 )
 
-func setupCACert(serialNumber int64, commonName string, organization string, country string, province string, locality string, streetAddress string, postalCode string, addTime []int) *x509.Certificate {
+func setupCACert(serialNumber int64, commonName string, organization string, organizationalUnit string, country string, province string, locality string, streetAddress string, postalCode string, addTime []int) *x509.Certificate {
 	// set up our CA certificate
 	return &x509.Certificate{
 		SerialNumber: big.NewInt(serialNumber),
 		Subject: pkix.Name{
-			CommonName:    commonName,
-			Organization:  []string{organization},
-			Country:       []string{country},
-			Province:      []string{province},
-			Locality:      []string{locality},
-			StreetAddress: []string{streetAddress},
-			PostalCode:    []string{postalCode},
+			CommonName:         commonName,
+			Organization:       []string{organization},
+			OrganizationalUnit: []string{organizationalUnit},
+			Country:            []string{country},
+			Province:           []string{province},
+			Locality:           []string{locality},
+			StreetAddress:      []string{streetAddress},
+			PostalCode:         []string{postalCode},
 		},
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().AddDate(addTime[0], addTime[1], addTime[2]),
