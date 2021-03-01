@@ -49,7 +49,7 @@ func writePublicKey(pem *bytes.Buffer, path string) (bool, error) {
 // writePrivateKey
 func writePrivateKey(pem *bytes.Buffer, path string) (bool, error) {
 	pemByte, _ := ioutil.ReadAll(pem)
-	keyFile, err := WriteByteFile(path, pemByte, 0600, false)
+	keyFile, err := WriteByteFile(path, pemByte, 0400, false)
 	if err != nil {
 		return false, err
 	}

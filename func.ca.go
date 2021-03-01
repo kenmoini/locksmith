@@ -40,27 +40,45 @@ func createNewCAFilesystem(rootSlug string, caName string, rsaPrivateKeyPassword
 	check(err)
 	CreateDirectory(rootCAPath)
 
-	rootCACertsPath, err := filepath.Abs(rootSlugPath + "/certs")
-	check(err)
+	// Create certs path
+	rootCACertsPath := rootCAPath + "/certs"
 	CreateDirectory(rootCACertsPath)
 
-	rootCACertRevListPath, err := filepath.Abs(rootSlugPath + "/crls")
-	check(err)
+	// Create newcerts path (wtf is newcerts for vs certs?!)
+	rootCANewCertsPath := rootCAPath + "/newcerts"
+	CreateDirectory(rootCANewCertsPath)
+
+	// Create crls path
+	rootCACertRevListPath := rootCAPath + "/crl"
 	CreateDirectory(rootCACertRevListPath)
 
-	rootCACertKeysPath, err := filepath.Abs(rootSlugPath + "/keys")
-	check(err)
+	// Create private path for CA keys
+	rootCACertKeysPath := rootCAPath + "/private"
 	CreateDirectory(rootCACertKeysPath)
 
-	rootCACertRequestsPath, err := filepath.Abs(rootSlugPath + "/reqs")
-	check(err)
+	// Create certificate requests (CSR) path
+	rootCACertRequestsPath := rootCAPath + "/certreqs"
 	CreateDirectory(rootCACertRequestsPath)
 
-	rootCACertSerialFilePath, err := filepath.Abs(rootSlugPath + "/serial.txt")
-	check(err)
+	// Create intermediate CA path
+	rootCAIntermediateCAPath := rootCAPath + "/intermed-ca"
+	CreateDirectory(rootCAIntermediateCAPath)
 
+	//  CREATE INDEX DATABASE FILE
+	rootCACertIndexFilePath := rootCAPath + "/ca.index"
+	// Check to see if there is an Index file
+	IndexFile, err := WriteFile(rootCACertIndexFilePath, "", 0600, false)
+	check(err)
+	if IndexFile {
+		logStdOut("Created Index file")
+	} else {
+		logStdOut("Index file exists")
+	}
+
+	//  CREATE SERIAL FILE
+	rootCACertSerialFilePath := rootCAPath + "/serial.txt"
 	// Check to see if there is a serial file
-	serialFile, err := WriteFile(rootCACertSerialFilePath, "1", 0600, false)
+	serialFile, err := WriteFile(rootCACertSerialFilePath, "01", 0600, false)
 	check(err)
 	if serialFile {
 		logStdOut("Created serial file")
@@ -68,11 +86,10 @@ func createNewCAFilesystem(rootSlug string, caName string, rsaPrivateKeyPassword
 		logStdOut("Serial file exists")
 	}
 
-	rootCACrlnumFilePath, err := filepath.Abs(rootSlugPath + "/crlnumber.txt")
-	check(err)
-
+	//  CREATE CERTIFICATE REVOKATION NUMBER FILE
+	rootCACrlnumFilePath := rootCAPath + "/crlnumber.txt"
 	// Check to see if there is a crlNum file
-	crlNumFile, err := WriteFile(rootCACrlnumFilePath, "1", 0600, false)
+	crlNumFile, err := WriteFile(rootCACrlnumFilePath, "00", 0600, false)
 	check(err)
 	if crlNumFile {
 		logStdOut("Created crlnum file")
@@ -81,9 +98,7 @@ func createNewCAFilesystem(rootSlug string, caName string, rsaPrivateKeyPassword
 	}
 
 	// Check for certificate authority key pair
-	caKeyPath, err := filepath.Abs(rootSlugPath + "/keys/ca.priv.pem")
-	check(err)
-	caKeyCheck, err := FileExists(caKeyPath)
+	caKeyCheck, err := FileExists(rootCACertKeysPath + "/ca.priv.pem")
 	check(err)
 
 	if !caKeyCheck {
@@ -101,14 +116,10 @@ func createNewCAFilesystem(rootSlug string, caName string, rsaPrivateKeyPassword
 	rootCA := setupCACert(readSerialNumberAsInt64(rootSlug), "Kemo Labs Root Certificate Authority", "Kemo Labs", "Kemo Labs Cyber and Information Security", "US", "NC", "Charlotte", "420 Thug Ln", "28204", []int{10, 0, 0})
 
 	// Read in the Private key
-	privateKeyFilePath, err := filepath.Abs(rootSlugPath + "/keys/ca.priv.pem")
-	check(err)
-	privateKeyFromFile := GetPrivateKey(privateKeyFilePath, rsaPrivateKeyPassword)
+	privateKeyFromFile := GetPrivateKey(rootCACertKeysPath+"/ca.priv.pem", rsaPrivateKeyPassword)
 
 	// Read in the Public key
-	pubKeyFilePath, err := filepath.Abs(rootSlugPath + "/keys/ca.pub.pem")
-	check(err)
-	pubKeyFromFile := GetPublicKey(pubKeyFilePath)
+	pubKeyFromFile := GetPublicKey(rootCACertKeysPath + "/ca.pub.pem")
 
 	// Byte Encode the Certificate
 	caBytes, err := x509.CreateCertificate(rand.Reader, rootCA, rootCA, pubKeyFromFile, privateKeyFromFile)
