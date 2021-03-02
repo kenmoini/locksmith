@@ -19,8 +19,7 @@ echo -e "Cleaning PKI Root..."
 rm -rf $PKI_ROOT_DIR
 
 echo -e "\n####################################################################"
-echo -e "\nSTART CREATING ROOT CA..."
-echo -e "\n####################################################################"
+echo -e "\n########### START CREATING ROOT CA..."
 
 echo -e "Creating PKI Root paths..."
 mkdir -p $PKI_ROOT_DIR/{certreqs,certs,crl,newcerts,private,intermed-ca} && chmod 700 $PKI_ROOT_DIR/private
@@ -42,7 +41,7 @@ cd $PKI_ROOT_DIR
 
 echo -e "\n####################################################################"
 echo -e "Creating PKI Root CA Private Key..."
-openssl genrsa -out $PKI_ROOT_DIR/private/ca.key.pem 4096
+openssl genrsa -out $PKI_ROOT_DIR/private/ca.key.pem 4096 &>/dev/null
 chmod 0400 $PKI_ROOT_DIR/private/ca.key.pem
 
 echo -e "\n####################################################################"
@@ -64,16 +63,13 @@ echo -e "\n####################################################################"
 echo -e "Creating PKI Root CA Certificate Revocation List..."
 openssl ca -gencrl -out $PKI_ROOT_DIR/crl/ca.crl
 
-echo -e "\n####################################################################"
-echo -e "\nFINISHED CREATING ROOT CA!"
-echo -e "\n####################################################################"
+echo -e "\n########### FINISHED CREATING ROOT CA!"
 
 ####################################################################
 ## Setup Intermediate Certificate Authority
 
 echo -e "\n####################################################################"
-echo -e "\nSTART CREATING INTERMEDIATE CA..."
-echo -e "\n####################################################################"
+echo -e "\n########### START CREATING INTERMEDIATE CA..."
 
 INTERMED_CA_PKI_ROOT_DIR="${PKI_ROOT_DIR}/intermed-ca"
 
@@ -97,7 +93,7 @@ cd $INTERMED_CA_PKI_ROOT_DIR
 
 echo -e "\n####################################################################"
 echo -e "Creating PKI Intermediate CA Private Key..."
-openssl genrsa -out $INTERMED_CA_PKI_ROOT_DIR/private/ca.key.pem 4096
+openssl genrsa -out $INTERMED_CA_PKI_ROOT_DIR/private/ca.key.pem 4096 &>/dev/null
 chmod 0400 $INTERMED_CA_PKI_ROOT_DIR/private/ca.key.pem
 
 echo -e "\n####################################################################"
@@ -132,16 +128,14 @@ echo -e "Creating PKI Intermediate CA Certificate Revocation List..."
 openssl ca -gencrl -out $INTERMED_CA_PKI_ROOT_DIR/crl/ca.crl
 
 echo -e "\n####################################################################"
-echo -e "\nFINISHED CREATING INTERMEDIATE CA!"
-echo -e "\n####################################################################"
+echo -e "\n########### FINISHED CREATING INTERMEDIATE CA!"
 
 echo -e "\n####################################################################"
-echo -e "\nSTART CREATING SERVER CERTIFICATE..."
-echo -e "\n####################################################################"
+echo -e "\n########### START CREATING SERVER CERTIFICATE..."
 
 echo -e "\n####################################################################"
 echo -e "Creating Server Certificate Private Key..."
-openssl genrsa -out $INTERMED_CA_PKI_ROOT_DIR/private/test.server.key.pem 4096
+openssl genrsa -out $INTERMED_CA_PKI_ROOT_DIR/private/test.server.key.pem 4096 &>/dev/null
 chmod 0400 $INTERMED_CA_PKI_ROOT_DIR/private/test.server.key.pem
 
 ####################################################################
@@ -168,11 +162,10 @@ tail -n +$CERT_START_LINE_NUM $INTERMED_CA_PKI_ROOT_DIR/certs/test.server.cert >
 
 echo -e "\n####################################################################"
 echo -e "Creating Server DH Params..."
-openssl dhparam -out $INTERMED_CA_PKI_ROOT_DIR/private/test.server.dhparams-1024.pem 1024
+openssl dhparam -out $INTERMED_CA_PKI_ROOT_DIR/private/test.server.dhparams-1024.pem 1024 &>/dev/null
 
 echo -e "\n####################################################################"
-echo -e "\nFINISHED CREATING SERVER CERTIFICATE..."
-echo -e "\n####################################################################"
+echo -e "\n########### FINISHED CREATING SERVER CERTIFICATE!"
 
 echo -e "\n####################################################################"
 echo -e "Creating Certificate Bundle File..."
@@ -180,5 +173,5 @@ cat ${PKI_ROOT_DIR}/ca.cert.pem > ${INTERMED_CA_PKI_ROOT_DIR}/ca-bundle.cert.pem
 cat ${INTERMED_CA_PKI_ROOT_DIR}/ca.cert.pem >> ${INTERMED_CA_PKI_ROOT_DIR}/ca-bundle.cert.pem
 
 echo -e "\n####################################################################"
-echo -e "\nTest PKI Created!"
-echo -e "\n####################################################################"
+echo -e "\n########### Test PKI Created!"
+echo -e "\n####################################################################\n"
