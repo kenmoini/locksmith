@@ -71,6 +71,7 @@ subjectAltName          = @subject_alt_name
 # Distinguished Name (DN)
 [ distinguished_name ]
 organizationName        = Example Labs
+organizationalUnitName  = Example Labs Cyber and Information Security
 commonName              = Example Labs Root Certificate Authority
 
 #
