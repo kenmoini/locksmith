@@ -23,10 +23,6 @@ rm -rf $PKI_ROOT_DIR
 echo -e "Creating PKI Root paths..."
 mkdir -p $PKI_ROOT_DIR/{certreqs,certs,crl,newcerts,private,intermed-ca} && chmod 700 $PKI_ROOT_DIR/private
 
-#  Create initial crlnum index
-echo -e "Creating PKI Root CA CRL Number file..."
-echo "00" > $PKI_ROOT_DIR/ca.crlnum
-
 # Create initial index db
 echo -e "Creating PKI Root CA Index DB file..."
 touch $PKI_ROOT_DIR/ca.index
@@ -34,6 +30,10 @@ touch $PKI_ROOT_DIR/ca.index
 # Create initial serial index
 echo -e "Creating PKI Root CA Serial Number file..."
 echo "01" > $PKI_ROOT_DIR/ca.serial
+
+#  Create initial crlnum index
+echo -e "Creating PKI Root CA CRL Number file..."
+echo "00" > $PKI_ROOT_DIR/ca.crlnum
 
 # Set global Root CA OpenSSL Configuration
 echo -e "\nSetting OpenSSL Configuration env var for Root CA...\n"
@@ -52,7 +52,7 @@ openssl req -new -batch -out $PKI_ROOT_DIR/certreqs/ca.req.pem -key $PKI_ROOT_DI
 
 # Create Root CA Certificate
 echo -e "\nCreating PKI Root CA Self-Signed Certificate..."
-openssl ca -selfsign -batch -in $PKI_ROOT_DIR/certreqs/ca.req.pem -out $PKI_ROOT_DIR/ca.cert -extensions root-ca_ext -startdate `date +%y%m%d000000Z -u -d -1day` -enddate `date +%y%m%d000000Z -u -d +10years+1day`
+openssl ca -selfsign -batch -in $PKI_ROOT_DIR/certreqs/ca.req.pem -out $PKI_ROOT_DIR/ca.cert -extensions root-ca_ext -startdate $(date -u -d "-1day" "+%y%m%d000000Z" 2>/dev/null || date -u -v "-1d" "+%y%m%d000000Z") -enddate `(date -u -d "+10years+1day" "+%y%m%d000000Z" 2>/dev/null || date -u -v "+10y" -v "+1d" "+%y%m%d000000Z")`
 
 CERT_START_LINE_NUM=$(awk '/BEGIN CERTIFICATE/{ print NR; exit }' $PKI_ROOT_DIR/ca.cert)
 CERT_END_LINE_NUM=$(awk '/END CERTIFICATE/{ print NR; exit }' $PKI_ROOT_DIR/ca.cert)

@@ -76,7 +76,7 @@ func NewRouter(basePath string) *http.ServeMux {
 				returnResponse, _ := json.Marshal(returnData)
 				fmt.Fprintf(w, string(returnResponse))
 			} else {
-				createNewCAFilesystem(sluggedName, caName, rsaPrivateKeyPassword)
+				createNewCA(sluggedName, caName, rsaPrivateKeyPassword)
 				logNeworkRequestStdOut(caName+" ("+sluggedName+") root-created", r)
 				returnData := &ReturnPostRoots{
 					Status:   "root-created",

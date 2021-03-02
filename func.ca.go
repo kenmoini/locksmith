@@ -32,33 +32,33 @@ func setupCACert(serialNumber int64, commonName string, organization string, org
 	}
 }
 
-// createNewRootCAFilesystem
-func createNewCAFilesystem(rootSlug string, caName string, rsaPrivateKeyPassword string) {
+// createNewCA - creates a new Certificate Authority
+func createNewCA(rootSlug string, caName string, rsaPrivateKeyPassword string) {
 	rootSlugPath := readConfig.Locksmith.PKIRoot + "/roots/" + rootSlug
 	//Create root CA directory
 	rootCAPath, err := filepath.Abs(rootSlugPath)
 	check(err)
 	CreateDirectory(rootCAPath)
 
+	// Create certificate requests (CSR) path
+	rootCACertRequestsPath := rootCAPath + "/certreqs"
+	CreateDirectory(rootCACertRequestsPath)
+
 	// Create certs path
 	rootCACertsPath := rootCAPath + "/certs"
 	CreateDirectory(rootCACertsPath)
-
-	// Create newcerts path (wtf is newcerts for vs certs?!)
-	rootCANewCertsPath := rootCAPath + "/newcerts"
-	CreateDirectory(rootCANewCertsPath)
 
 	// Create crls path
 	rootCACertRevListPath := rootCAPath + "/crl"
 	CreateDirectory(rootCACertRevListPath)
 
+	// Create newcerts path (wtf is newcerts for vs certs?!)
+	rootCANewCertsPath := rootCAPath + "/newcerts"
+	CreateDirectory(rootCANewCertsPath)
+
 	// Create private path for CA keys
 	rootCACertKeysPath := rootCAPath + "/private"
 	CreateDirectory(rootCACertKeysPath)
-
-	// Create certificate requests (CSR) path
-	rootCACertRequestsPath := rootCAPath + "/certreqs"
-	CreateDirectory(rootCACertRequestsPath)
 
 	// Create intermediate CA path
 	rootCAIntermediateCAPath := rootCAPath + "/intermed-ca"
