@@ -7,6 +7,7 @@ RUN go build
 FROM scratch AS bin
 
 COPY --from=build /opt/app-root/src/locksmith /usr/local/bin/
+COPY container_root/ /
 
 EXPOSE 8080
 

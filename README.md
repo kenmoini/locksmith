@@ -27,3 +27,28 @@ Running Locksmith will do the following:
 The API is served at the HTTP endpoint base path as defined in the configuration YAML.
 
 *OpenAPI Spec v3 coming soon...*
+
+## Deployment - As a Container
+
+Locksmith comes with a `Containerfile` that can be built with Docker or Podman with the following command:
+
+```bash
+podman build -f Containerfile -t locksmith .
+podman run -p 8080:8080 -v config/:/etc/locksmith locksmith
+```
+
+## Deployment - Building From Source
+
+Since this is just a Golang application, as long as you have Golang v1.15+ then the following commands will do the job:
+
+```bash
+cp config.yml.example config.yml
+go build
+./locksmith
+```
+
+## FAQs
+
+- **Does this include any sort of authentication, rate limiting, etc?**
+
+  No, that's the job of an API Gateway - this is more of a microservice so manage and secure accordingly.
