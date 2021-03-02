@@ -108,7 +108,7 @@ cd $PKI_ROOT_DIR
 
 echo -e "\n####################################################################"
 echo -e "Creating PKI Intermediate CA Certificate, signed by Root CA..."
-openssl ca -batch -in $INTERMED_CA_PKI_ROOT_DIR/certreqs/ca.req.pem -out $INTERMED_CA_PKI_ROOT_DIR/ca.cert -extensions intermed-ca_ext -startdate $(date -u -d "-1day" "+%y%m%d000000Z" 2>/dev/null || date -u -v "-1d" "+%y%m%d000000Z") -enddate `(date -u -d "+10years+1day" "+%y%m%d000000Z" 2>/dev/null || date -u -v "+10y" -v "+1d" "+%y%m%d000000Z")`
+openssl ca -batch -in $INTERMED_CA_PKI_ROOT_DIR/certreqs/ca.req.pem -out $INTERMED_CA_PKI_ROOT_DIR/ca.cert -extensions intermed-ca_ext -startdate $(date -u -d "-1day" "+%y%m%d000000Z" 2>/dev/null || date -u -v "-1d" "+%y%m%d000000Z") -enddate `(date -u -d "+3years+1day" "+%y%m%d000000Z" 2>/dev/null || date -u -v "+3y" -v "+1d" "+%y%m%d000000Z")`
 
 CERT_START_LINE_NUM=$(awk '/BEGIN CERTIFICATE/{ print NR; exit }' $INTERMED_CA_PKI_ROOT_DIR/ca.cert)
 CERT_END_LINE_NUM=$(awk '/END CERTIFICATE/{ print NR; exit }' $INTERMED_CA_PKI_ROOT_DIR/ca.cert)
