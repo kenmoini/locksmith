@@ -91,6 +91,19 @@ type Server struct {
 	} `yaml:"timeout"`
 }
 
+// CertificateConfiguration is a struct to pass Certificate Config Information into the setup functions
+type CertificateConfiguration struct {
+	CommonName         string `json:"common_name"`
+	Organization       string `json:"organization"`
+	OrganizationalUnit string `json:"organizational_unit,omitempty"`
+	Country            string `json:"country,omitempty"`
+	Province           string `json:"province,omitempty"`
+	Locality           string `json:"locality,omitempty"`
+	StreetAddress      string `json:"street_address,omitempty"`
+	PostalCode         string `json:"postal_code,omitempty"`
+	ExpirationDate     []int  `json:"expiration_date,omitempty"`
+}
+
 // errorString is a trivial implementation of error.
 type errorString struct {
 	s string

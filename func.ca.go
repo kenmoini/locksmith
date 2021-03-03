@@ -33,7 +33,25 @@ func setupCACert(serialNumber int64, commonName string, organization string, org
 }
 
 // createNewCA - creates a new Certificate Authority
-func createNewCA(rootSlug string, caName string, rsaPrivateKeyPassword string) {
+func createNewCA(rootSlug string, caName string, rsaPrivateKeyPassword string, certConfig CertificateConfiguration) (bool, []string, error) {
+	checkInputError := false
+	var checkInputErrors []string
+	if certConfig.CommonName == "" {
+		checkInputError = true
+		checkInputErrors = append(checkInputErrors, "Missing common name field")
+	}
+	if certConfig.Organization == "" {
+		checkInputError = true
+		checkInputErrors = append(checkInputErrors, "Missing Organization field")
+	}
+	if len(certConfig.ExpirationDate) != 3 {
+		checkInputError = true
+		checkInputErrors = append(checkInputErrors, "Missing Expiration Date field")
+	}
+	if checkInputError {
+		return false, checkInputErrors, Stoerr("cert-config-error")
+	}
+
 	rootSlugPath := readConfig.Locksmith.PKIRoot + "/roots/" + rootSlug
 	//Create root CA directory
 	rootCAPath, err := filepath.Abs(rootSlugPath)
@@ -135,4 +153,5 @@ func createNewCA(rootSlug string, caName string, rsaPrivateKeyPassword string) {
 			logStdOut("Created Root CA Certificate file")
 		}
 	}
+	return true, []string{"Finished"}, nil
 }

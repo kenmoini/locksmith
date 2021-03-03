@@ -22,16 +22,19 @@ func NewRouter(basePath string) *http.ServeMux {
 	// Create router and define routes and return that router
 	router := http.NewServeMux()
 
+	// Version Output - reads from variables.go
 	router.HandleFunc(basePath+"/version", func(w http.ResponseWriter, r *http.Request) {
 		logNeworkRequestStdOut(r.Method+" "+basePath+"/version", r)
 		fmt.Fprintf(w, "Locksmith version: %s\n", locksmithVersion)
 	})
 
+	// Healthz endpoint for kubernetes platforms
 	router.HandleFunc(basePath+"/healthz", func(w http.ResponseWriter, r *http.Request) {
 		logNeworkRequestStdOut(r.Method+" "+basePath+"/healthz", r)
 		fmt.Fprintf(w, "OK")
 	})
 
+	// Root CA Manipulation - Listing, Creating, Deleting
 	router.HandleFunc(basePath+"/roots", func(w http.ResponseWriter, r *http.Request) {
 		logNeworkRequestStdOut(r.Method+" "+basePath+"/roots", r)
 		switch r.Method {
@@ -57,6 +60,12 @@ func NewRouter(basePath string) *http.ServeMux {
 			caName := r.FormValue("name")
 			sluggedName := slugger(caName)
 			rsaPrivateKeyPassword := r.FormValue("rsaPrivateKeyPassword")
+			certInfoRaw := r.FormValue("cert_info")
+			certInfoBytes := []byte(certInfoRaw)
+
+			certInfo := CertificateConfiguration{}
+			err := json.Unmarshal(certInfoBytes, &certInfo)
+			check(err)
 
 			checkForRootPath, err := filepath.Abs(readConfig.Locksmith.PKIRoot + "/roots/" + sluggedName)
 			check(err)
@@ -76,15 +85,35 @@ func NewRouter(basePath string) *http.ServeMux {
 				returnResponse, _ := json.Marshal(returnData)
 				fmt.Fprintf(w, string(returnResponse))
 			} else {
-				createNewCA(sluggedName, caName, rsaPrivateKeyPassword)
-				logNeworkRequestStdOut(caName+" ("+sluggedName+") root-created", r)
-				returnData := &ReturnPostRoots{
-					Status:   "root-created",
-					Errors:   []string{},
-					Messages: []string{},
-					Root: RootInfo{
-						Slug:   sluggedName,
-						Serial: readSerialNumber(sluggedName)}}
+				/*
+					certInfo := CertificateInfo{
+						Organization:       "Example Labs",
+						OrganizationalUnit: "Example Labs Cyber and Information Security",
+						CommonName:         "Example Labs Root Certificate Authority",
+					}
+				*/
+				newCAState, newCA, err := createNewCA(sluggedName, caName, rsaPrivateKeyPassword, certInfo)
+				check(err)
+				returnData := &ReturnPostRoots{}
+				if newCAState {
+					logNeworkRequestStdOut(caName+" ("+sluggedName+") root-created", r)
+					returnData = &ReturnPostRoots{
+						Status:   "root-created",
+						Errors:   []string{},
+						Messages: []string{},
+						Root: RootInfo{
+							Slug:   sluggedName,
+							Serial: readSerialNumber(sluggedName)}}
+				} else {
+					logNeworkRequestStdOut(caName+" ("+sluggedName+") root-creation-error", r)
+					returnData = &ReturnPostRoots{
+						Status:   "root-creation-error",
+						Errors:   newCA,
+						Messages: []string{},
+						Root: RootInfo{
+							Slug:   sluggedName,
+							Serial: readSerialNumber(sluggedName)}}
+				}
 				returnResponse, _ := json.Marshal(returnData)
 				fmt.Fprintf(w, string(returnResponse))
 			}
