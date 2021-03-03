@@ -93,15 +93,22 @@ type Server struct {
 
 // CertificateConfiguration is a struct to pass Certificate Config Information into the setup functions
 type CertificateConfiguration struct {
-	CommonName         string `json:"common_name"`
-	Organization       string `json:"organization"`
-	OrganizationalUnit string `json:"organizational_unit,omitempty"`
-	Country            string `json:"country,omitempty"`
-	Province           string `json:"province,omitempty"`
-	Locality           string `json:"locality,omitempty"`
-	StreetAddress      string `json:"street_address,omitempty"`
-	PostalCode         string `json:"postal_code,omitempty"`
-	ExpirationDate     []int  `json:"expiration_date,omitempty"`
+	Subject                 CertificateConfigurationSubject `json:"subject"`
+	ExpirationDate          []int                           `json:"expiration_date,omitempty"`
+	RSAPrivateKeyPassphrase string                          `json:"rsa_private_key_passphrase,omitempty"`
+	SerialNumber            string                          `json:"serial_number,omitempty"`
+}
+
+// CertificateConfigurationSubject is simply a redefinition
+type CertificateConfigurationSubject struct {
+	CommonName         string   `json:"common_name"`
+	Organization       []string `json:"organization"`
+	OrganizationalUnit []string `json:"organizational_unit,omitempty"`
+	Country            []string `json:"country,omitempty"`
+	Province           []string `json:"province,omitempty"`
+	Locality           []string `json:"locality,omitempty"`
+	StreetAddress      []string `json:"street_address,omitempty"`
+	PostalCode         []string `json:"postal_code,omitempty"`
 }
 
 // errorString is a trivial implementation of error.
@@ -111,4 +118,9 @@ type errorString struct {
 
 func (e *errorString) Error() string {
 	return e.s
+}
+
+type basicConstraints struct {
+	IsCA       bool `asn1:"optional"`
+	MaxPathLen int  `asn1:"optional,default:-1"`
 }

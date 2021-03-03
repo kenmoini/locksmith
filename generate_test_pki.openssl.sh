@@ -11,6 +11,18 @@ set -e
 ##  however this is used primarily to test the Golang generated
 ##  PKI against a known working PKI generated via OpenSSL
 
+function checkForProgramAndExit() {
+    command -v $1
+    if [[ $? -eq 0 ]]; then
+        printf '%-72s %-7s\n' $1 "PASSED!";
+    else
+        printf '%-72s %-7s\n' $1 "FAILED!";
+        exit 1
+    fi
+}
+
+checkForProgramAndExit openssl
+
 ####################################################################
 ## Set up variables
 

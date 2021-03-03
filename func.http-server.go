@@ -57,9 +57,6 @@ func NewRouter(basePath string) *http.ServeMux {
 				return
 			}
 
-			caName := r.FormValue("name")
-			sluggedName := slugger(caName)
-			rsaPrivateKeyPassword := r.FormValue("rsaPrivateKeyPassword")
 			certInfoRaw := r.FormValue("cert_info")
 			certInfoBytes := []byte(certInfoRaw)
 
@@ -67,13 +64,21 @@ func NewRouter(basePath string) *http.ServeMux {
 			err := json.Unmarshal(certInfoBytes, &certInfo)
 			check(err)
 
+			caName := certInfo.Subject.CommonName
+			sluggedName := slugger(caName)
+			logStdOut("caName " + caName)
+			logStdOut("sluggedName " + sluggedName)
+
+			// Find absolute path
 			checkForRootPath, err := filepath.Abs(readConfig.Locksmith.PKIRoot + "/roots/" + sluggedName)
 			check(err)
 
+			// Check if the directory exists
 			caRootPathExists, err := DirectoryExists(checkForRootPath)
 			check(err)
 
 			if caRootPathExists {
+				// If the root path exists, don't regenerate a CA
 				logNeworkRequestStdOut(caName+" ("+sluggedName+") root-exists", r)
 				returnData := &ReturnPostRoots{
 					Status:   "root-exists",
@@ -85,14 +90,8 @@ func NewRouter(basePath string) *http.ServeMux {
 				returnResponse, _ := json.Marshal(returnData)
 				fmt.Fprintf(w, string(returnResponse))
 			} else {
-				/*
-					certInfo := CertificateInfo{
-						Organization:       "Example Labs",
-						OrganizationalUnit: "Example Labs Cyber and Information Security",
-						CommonName:         "Example Labs Root Certificate Authority",
-					}
-				*/
-				newCAState, newCA, err := createNewCA(sluggedName, caName, rsaPrivateKeyPassword, certInfo)
+				// Generate a new Certificate Authority
+				newCAState, newCA, err := createNewCA(certInfo)
 				check(err)
 				returnData := &ReturnPostRoots{}
 				if newCAState {

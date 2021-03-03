@@ -9,3 +9,4 @@ builds/*
 .test_pki_root
 .test_pki_root/
 .test_pki_root/*
+nohup.out

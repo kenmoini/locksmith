@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/rand"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"math/big"
@@ -9,19 +8,19 @@ import (
 	"time"
 )
 
-func setupCACert(serialNumber int64, commonName string, organization string, organizationalUnit string, country string, province string, locality string, streetAddress string, postalCode string, addTime []int) *x509.Certificate {
+func setupCACert(serialNumber int64, commonName string, organization []string, organizationalUnit []string, country []string, province []string, locality []string, streetAddress []string, postalCode []string, addTime []int) *x509.Certificate {
 	// set up our CA certificate
 	return &x509.Certificate{
 		SerialNumber: big.NewInt(serialNumber),
 		Subject: pkix.Name{
 			CommonName:         commonName,
-			Organization:       []string{organization},
-			OrganizationalUnit: []string{organizationalUnit},
-			Country:            []string{country},
-			Province:           []string{province},
-			Locality:           []string{locality},
-			StreetAddress:      []string{streetAddress},
-			PostalCode:         []string{postalCode},
+			Organization:       organization,
+			OrganizationalUnit: organizationalUnit,
+			Country:            country,
+			Province:           province,
+			Locality:           locality,
+			StreetAddress:      streetAddress,
+			PostalCode:         postalCode,
 		},
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().AddDate(addTime[0], addTime[1], addTime[2]),
@@ -33,14 +32,21 @@ func setupCACert(serialNumber int64, commonName string, organization string, org
 }
 
 // createNewCA - creates a new Certificate Authority
-func createNewCA(rootSlug string, caName string, rsaPrivateKeyPassword string, certConfig CertificateConfiguration) (bool, []string, error) {
+func createNewCA(certConfig CertificateConfiguration) (bool, []string, error) {
 	checkInputError := false
 	var checkInputErrors []string
-	if certConfig.CommonName == "" {
+	var rootSlug string
+	var caName string
+	var rsaPrivateKeyPassword string
+
+	if certConfig.Subject.CommonName == "" {
 		checkInputError = true
 		checkInputErrors = append(checkInputErrors, "Missing common name field")
+	} else {
+		caName = certConfig.Subject.CommonName
+		rootSlug = slugger(caName)
 	}
-	if certConfig.Organization == "" {
+	if len(certConfig.Subject.Organization) == 0 {
 		checkInputError = true
 		checkInputErrors = append(checkInputErrors, "Missing Organization field")
 	}
@@ -53,6 +59,8 @@ func createNewCA(rootSlug string, caName string, rsaPrivateKeyPassword string, c
 	}
 
 	rootSlugPath := readConfig.Locksmith.PKIRoot + "/roots/" + rootSlug
+	rsaPrivateKeyPassword = certConfig.RSAPrivateKeyPassphrase
+
 	//Create root CA directory
 	rootCAPath, err := filepath.Abs(rootSlugPath)
 	check(err)
@@ -120,6 +128,7 @@ func createNewCA(rootSlug string, caName string, rsaPrivateKeyPassword string, c
 	check(err)
 
 	if !caKeyCheck {
+		// if there is no private key, create one
 		rootPrivKey, rootPubKey, err := generateRSAKeypair(4096)
 		check(err)
 
@@ -131,7 +140,7 @@ func createNewCA(rootSlug string, caName string, rsaPrivateKeyPassword string, c
 	}
 
 	// Create CA Object
-	rootCA := setupCACert(readSerialNumberAsInt64(rootSlug), "Kemo Labs Root Certificate Authority", "Kemo Labs", "Kemo Labs Cyber and Information Security", "US", "NC", "Charlotte", "420 Thug Ln", "28204", []int{10, 0, 0})
+	rootCA := setupCACert(readSerialNumberAsInt64(rootSlug), certConfig.Subject.CommonName, certConfig.Subject.Organization, certConfig.Subject.OrganizationalUnit, certConfig.Subject.Country, certConfig.Subject.Province, certConfig.Subject.Locality, certConfig.Subject.StreetAddress, certConfig.Subject.PostalCode, certConfig.ExpirationDate)
 
 	// Read in the Private key
 	privateKeyFromFile := GetPrivateKey(rootCACertKeysPath+"/ca.priv.pem", rsaPrivateKeyPassword)
@@ -139,8 +148,8 @@ func createNewCA(rootSlug string, caName string, rsaPrivateKeyPassword string, c
 	// Read in the Public key
 	pubKeyFromFile := GetPublicKey(rootCACertKeysPath + "/ca.pub.pem")
 
-	// Byte Encode the Certificate
-	caBytes, err := x509.CreateCertificate(rand.Reader, rootCA, rootCA, pubKeyFromFile, privateKeyFromFile)
+	// Byte Encode the Certificate - https://golang.org/pkg/crypto/x509/#CreateCertificate
+	caBytes, err := CreateCert(rootCA, rootCA, pubKeyFromFile, privateKeyFromFile)
 	check(err)
 
 	// Check for certificate file

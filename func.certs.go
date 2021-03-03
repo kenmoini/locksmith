@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/rand"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
@@ -50,4 +51,9 @@ func writeCertificateFile(certPem *bytes.Buffer, path string) (bool, error) {
 		return false, err
 	}
 	return keyFile, nil
+}
+
+// CreateCert is a wrapper for x509.CreateCertificate to switch between parent certificates through the chain
+func CreateCert(certTemplate, signingCert *x509.Certificate, certPubkey, signingPrivKey interface{}) (cert []byte, err error) {
+	return x509.CreateCertificate(rand.Reader, certTemplate, signingCert, certPubkey, signingPrivKey)
 }

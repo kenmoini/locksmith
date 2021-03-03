@@ -52,3 +52,31 @@ go build
 - **Does this include any sort of authentication, rate limiting, etc?**
 
   No, that's the job of an API Gateway - this is more of a microservice so manage and secure accordingly.
+
+## Testing
+
+For the purposes of checking the generation of PKI via Locksmith/Golang against a standard OpenSSL generated PKI there are a set of resources to generate and compare the chains.
+
+### 1. Generate OpenSSL PKI Chain
+
+This can easily be done by running the following command:
+
+```bash
+./generate_test_pki.openssl.sh
+```
+
+With the default settings it will create a PKI chain with a Root CA, Intermediate CA, and Server Certificate with CRL in the `.test_pki_root` directory.
+
+The OpenSSL configuration files used to generate this PKI can be found in the `openssl_extras/` directory.
+
+### 2. Launch Locksmith & Generate PKI Chain
+
+There is also a quick and easy way to generate a comparable chain via Locksmith by running the following:
+
+```bash
+./generate_test_pki.locksmith.sh
+```
+
+***NOTE***: This requires Locksmith to be available in the local directory - you can build it from source by running `go build`
+
+Running that script will start Locksmith with the `config.yml.example` configuration, listening on port 8080.  It will then run the required cURL requests locally to generate the PKI Chain that is available in the `./.generated` directory.
