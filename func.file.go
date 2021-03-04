@@ -309,3 +309,80 @@ func WriteByteFile(path string, content []byte, mode int, overwrite bool) (bool,
 	}
 	return false, nil
 }
+
+// setupCAFileStructure creates the basic directories and files required by a new CA
+func setupCAFileStructure(basePath string) CertificateAuthorityPaths {
+	//Create root CA directory
+	rootCAPath := basePath
+	CreateDirectory(rootCAPath)
+
+	// Create certificate requests (CSR) path
+	rootCACertRequestsPath := rootCAPath + "/certreqs"
+	CreateDirectory(rootCACertRequestsPath)
+
+	// Create certs path
+	rootCACertsPath := rootCAPath + "/certs"
+	CreateDirectory(rootCACertsPath)
+
+	// Create crls path
+	rootCACertRevListPath := rootCAPath + "/crl"
+	CreateDirectory(rootCACertRevListPath)
+
+	// Create newcerts path (wtf is newcerts for vs certs?!)
+	rootCANewCertsPath := rootCAPath + "/newcerts"
+	CreateDirectory(rootCANewCertsPath)
+
+	// Create private path for CA keys
+	rootCACertKeysPath := rootCAPath + "/private"
+	CreateDirectory(rootCACertKeysPath)
+
+	// Create intermediate CA path
+	rootCAIntermediateCAPath := rootCAPath + "/intermed-ca"
+	CreateDirectory(rootCAIntermediateCAPath)
+
+	//  CREATE INDEX DATABASE FILE
+	rootCACertIndexFilePath := rootCAPath + "/ca.index"
+	// Check to see if there is an Index file
+	IndexFile, err := WriteFile(rootCACertIndexFilePath, "", 0600, false)
+	check(err)
+	if IndexFile {
+		logStdOut("Created Index file")
+	} else {
+		logStdOut("Index file exists")
+	}
+
+	//  CREATE SERIAL FILE
+	rootCACertSerialFilePath := rootCAPath + "/serial.txt"
+	// Check to see if there is a serial file
+	serialFile, err := WriteFile(rootCACertSerialFilePath, "01", 0600, false)
+	check(err)
+	if serialFile {
+		logStdOut("Created serial file")
+	} else {
+		logStdOut("Serial file exists")
+	}
+
+	//  CREATE CERTIFICATE REVOKATION NUMBER FILE
+	rootCACrlnumFilePath := rootCAPath + "/crlnumber.txt"
+	// Check to see if there is a crlNum file
+	crlNumFile, err := WriteFile(rootCACrlnumFilePath, "00", 0600, false)
+	check(err)
+	if crlNumFile {
+		logStdOut("Created crlnum file")
+	} else {
+		logStdOut("crlnum file exists")
+	}
+
+	return CertificateAuthorityPaths{
+		RootCAPath:               rootCAPath,
+		RootCACertRequestsPath:   rootCACertRequestsPath,
+		RootCACertsPath:          rootCACertsPath,
+		RootCACertRevListPath:    rootCACertRevListPath,
+		RootCANewCertsPath:       rootCANewCertsPath,
+		RootCACertKeysPath:       rootCACertKeysPath,
+		RootCAIntermediateCAPath: rootCAIntermediateCAPath,
+		RootCACertIndexFilePath:  rootCACertIndexFilePath,
+		RootCACertSerialFilePath: rootCACertSerialFilePath,
+		RootCACrlnumFilePath:     rootCACrlnumFilePath,
+	}
+}

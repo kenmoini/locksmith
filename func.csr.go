@@ -11,8 +11,10 @@ import (
 )
 
 // generateCSR takes the full lifecycle of generating and saving a CSR
-func generateCSR(path string, signingKey interface{}, organization []string, country []string, province []string, locality []string, streetAddress []string, postalCode []string, isCA bool) (bool, error) {
-	csrTemplate := setupCSR(organization, country, province, locality, streetAddress, postalCode, isCA)
+func generateCSR(path string, signingKey interface{}, commonName string, organization []string, organizationalUnit []string, country []string, province []string, locality []string, streetAddress []string, postalCode []string, isCA bool) (bool, error) {
+	csrSubjectName := setupCSRSubjectName(commonName, organization, organizationalUnit, country, province, locality, streetAddress, postalCode)
+
+	csrTemplate := setupCSR(csrSubjectName, isCA)
 
 	csr, err := createCSR(csrTemplate, signingKey)
 	check(err)
@@ -22,16 +24,23 @@ func generateCSR(path string, signingKey interface{}, organization []string, cou
 	return writePEMFile(csrPEM, path)
 }
 
-// setupCSR creates configuration information and returns a CSR Template
-func setupCSR(organization []string, country []string, province []string, locality []string, streetAddress []string, postalCode []string, isCA bool) *x509.CertificateRequest {
-	names := pkix.Name{
-		Organization:  organization,
-		Country:       country,
-		Province:      province,
-		Locality:      locality,
-		StreetAddress: streetAddress,
-		PostalCode:    postalCode,
+// setupCSRSubjectName just wraps the pkix.Name type for CSRs
+func setupCSRSubjectName(commonName string, organization []string, organizationalUnit []string, country []string, province []string, locality []string, streetAddress []string, postalCode []string) pkix.Name {
+	return pkix.Name{
+		CommonName:         commonName,
+		Organization:       organization,
+		OrganizationalUnit: organizationalUnit,
+		Country:            country,
+		Province:           province,
+		Locality:           locality,
+		StreetAddress:      streetAddress,
+		PostalCode:         postalCode,
 	}
+}
+
+// setupCSR creates configuration information and returns a CSR Template
+//func setupCSR(commonName string, organization []string, organizationalUnit []string, country []string, province []string, locality []string, streetAddress []string, postalCode []string, isCA bool) *x509.CertificateRequest {
+func setupCSR(names pkix.Name, isCA bool) *x509.CertificateRequest {
 	if isCA {
 		val, err := asn1.Marshal(basicConstraints{true, 0})
 		check(err)
