@@ -16,6 +16,16 @@ func slugger(textToSlug string) string {
 	return slug.Make(textToSlug)
 }
 
+// currentValue returns the current count of the Counter
+func (counter Counter) currentValue() int64 {
+	return counter.count
+}
+
+// increment increases an int/int64 value in a Counter
+func (counter *Counter) increment() {
+	counter.count++
+}
+
 // readSerialNumberAsInt is a wrapper that converts the string serial number in a serial file to an int
 func readSerialNumberAsInt(rootSlugPath string) int {
 	i, _ := strconv.Atoi(readSerialNumber(rootSlugPath))

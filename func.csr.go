@@ -57,11 +57,10 @@ func setupCSR(names pkix.Name, isCA bool) *x509.CertificateRequest {
 				},
 			},
 		}
-	} else {
-		return &x509.CertificateRequest{
-			Subject:            names,
-			SignatureAlgorithm: x509.SHA512WithRSA,
-		}
+	}
+	return &x509.CertificateRequest{
+		Subject:            names,
+		SignatureAlgorithm: x509.SHA512WithRSA,
 	}
 }
 

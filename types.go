@@ -93,13 +93,6 @@ type Counter struct {
 	count int64
 }
 
-func (self Counter) currentValue() int64 {
-	return self.count
-}
-func (self *Counter) increment() {
-	self.count++
-}
-
 // CertificateConfiguration is a struct to pass Certificate Config Information into the setup functions
 type CertificateConfiguration struct {
 	Subject                 CertificateConfigurationSubject `json:"subject"`
@@ -120,6 +113,7 @@ type CertificateConfigurationSubject struct {
 	PostalCode         []string `json:"postal_code,omitempty"`
 }
 
+// basicConstraints is idk, something
 type basicConstraints struct {
 	IsCA       bool `asn1:"optional"`
 	MaxPathLen int  `asn1:"optional,default:-1"`
