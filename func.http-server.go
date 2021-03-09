@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -32,6 +33,39 @@ func NewRouter(basePath string) *http.ServeMux {
 	router.HandleFunc(basePath+"/healthz", func(w http.ResponseWriter, r *http.Request) {
 		logNeworkRequestStdOut(r.Method+" "+basePath+"/healthz", r)
 		fmt.Fprintf(w, "OK")
+	})
+
+	// Certificate Functions - List certs, Create certs from CA slug
+	router.HandleFunc(basePath+"/certs", func(w http.ResponseWriter, r *http.Request) {
+		logNeworkRequestStdOut(r.Method+" "+basePath+"/certs", r)
+		switch r.Method {
+		case "GET":
+			// index - get list of certs for a ca path
+			queryParams := r.URL.Query()
+			caPath, present := queryParams["ca_path"] //ca_path=["root-ca/intermed-ca/sub-ca"]
+			if !present || len(caPath) == 0 {
+				returnData := &ReturnGenericMessage{
+					Status:   "no-ca-path",
+					Errors:   []string{},
+					Messages: []string{"No Certificate Authority Path!"}}
+				returnResponse, _ := json.Marshal(returnData)
+				fmt.Fprintf(w, string(returnResponse))
+			} else {
+				// Split the path along the path delimiter
+				splitPath := strings.Split(caPath[0], "/")
+				logStdOut(splitPath[0])
+			}
+		case "POST":
+			// create - make a new cert and CSR
+
+		default:
+			returnData := &ReturnGenericMessage{
+				Status:   "method-not-allowed",
+				Errors:   []string{},
+				Messages: []string{"method not allowed"}}
+			returnResponse, _ := json.Marshal(returnData)
+			fmt.Fprintf(w, string(returnResponse))
+		}
 	})
 
 	// Root CA Manipulation - Listing, Creating, Deleting

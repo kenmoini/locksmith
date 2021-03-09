@@ -7,8 +7,6 @@ import (
 	"crypto/x509/pkix"
 	"encoding/asn1"
 	"encoding/pem"
-	"io/ioutil"
-	"log"
 )
 
 // generateCSR takes the full lifecycle of generating and saving a CSR
@@ -88,31 +86,9 @@ func pemEncodeCSR(certByte []byte) *bytes.Buffer {
 	return pemRet
 }
 
-// writePEMFile takes a PEM encoded bytes stream and saves it to a file
-func writePEMFile(certPem *bytes.Buffer, path string) (bool, error) {
-	pemByte, _ := ioutil.ReadAll(certPem)
-	keyFile, err := WriteByteFile(path, pemByte, 0600, false)
-	if err != nil {
-		return false, err
-	}
-	return keyFile, nil
-}
-
-// readCSR converts a CSR byte stream into
+// readCSR converts a CSR byte stream into x509 CSR
 func readCSR(asn1Data []byte) (*x509.CertificateRequest, error) {
 	return x509.ParseCertificateRequest(asn1Data)
-}
-
-// readPEMFile reads a PEM file and decodes it, along with a type check
-func readPEMFile(path string, matchType string) (*pem.Block, error) {
-	fileBytes, err := ReadFileToBytes(path)
-	check(err)
-
-	block, rest := pem.Decode(fileBytes)
-	if block == nil || block.Type != matchType {
-		log.Fatal("failed to decode PEM block containing a " + matchType + ": " + string(rest))
-	}
-	return block, nil
 }
 
 // readCSRFromFile wraps the functions needed to read and decode a CSR PEM
