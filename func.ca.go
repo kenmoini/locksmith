@@ -102,6 +102,8 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, error) {
 
 	if caCSR {
 
+		// Read in CSR lol
+
 		// Create Self-signed Certificate
 		// Create CA Object
 		rootCA := setupCACert(readSerialNumberAsInt64(rootSlug), certConfig.Subject.CommonName, certConfig.Subject.Organization, certConfig.Subject.OrganizationalUnit, certConfig.Subject.Country, certConfig.Subject.Province, certConfig.Subject.Locality, certConfig.Subject.StreetAddress, certConfig.Subject.PostalCode, certConfig.ExpirationDate)

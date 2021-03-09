@@ -386,3 +386,12 @@ func setupCAFileStructure(basePath string) CertificateAuthorityPaths {
 		RootCACrlnumFilePath:     rootCACrlnumFilePath,
 	}
 }
+
+// ReadFileToBytes will return the contents of a file
+func ReadFileToBytes(path string) ([]byte, error) {
+	absolutePath, err := filepath.Abs(path)
+	if err != nil {
+		return nil, err
+	}
+	return ioutil.ReadFile(absolutePath)
+}

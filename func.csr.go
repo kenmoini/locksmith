@@ -8,20 +8,28 @@ import (
 	"encoding/asn1"
 	"encoding/pem"
 	"io/ioutil"
+	"log"
 )
 
 // generateCSR takes the full lifecycle of generating and saving a CSR
 func generateCSR(path string, signingKey interface{}, commonName string, organization []string, organizationalUnit []string, country []string, province []string, locality []string, streetAddress []string, postalCode []string, isCA bool) (bool, error) {
+	// Generate PKIX Name object
 	csrSubjectName := setupCSRSubjectName(commonName, organization, organizationalUnit, country, province, locality, streetAddress, postalCode)
 
+	// Setup CSR Template Object
 	csrTemplate := setupCSR(csrSubjectName, isCA)
 
+	// Create CSR object
 	csr, err := createCSR(csrTemplate, signingKey)
 	check(err)
 
+	// Encode CSR to PEM format
 	csrPEM := pemEncodeCSR(csr)
 
-	return writePEMFile(csrPEM, path)
+	// Write PEM to a file
+	pemWriter, pemErr := writePEMFile(csrPEM, path)
+
+	return pemWriter, pemErr
 }
 
 // setupCSRSubjectName just wraps the pkix.Name type for CSRs
@@ -88,4 +96,21 @@ func writePEMFile(certPem *bytes.Buffer, path string) (bool, error) {
 		return false, err
 	}
 	return keyFile, nil
+}
+
+// readCSR converts a CSR byte stream into
+func readCSR(asn1Data []byte) (*x509.CertificateRequest, error) {
+	return x509.ParseCertificateRequest(asn1Data)
+}
+
+// readPEMFile reads a PEM file and decodes it
+func readPEMFile(path string, matchType string) (*pem.Block, error) {
+	fileBytes, err := ReadFileToBytes(path)
+	check(err)
+
+	block, rest := pem.Decode(fileBytes)
+	if block == nil || block.Type != matchType {
+		log.Fatal("failed to decode PEM block containing a " + matchType + ": " + string(rest))
+	}
+	return block, nil
 }
