@@ -103,7 +103,7 @@ func readCSR(asn1Data []byte) (*x509.CertificateRequest, error) {
 	return x509.ParseCertificateRequest(asn1Data)
 }
 
-// readPEMFile reads a PEM file and decodes it
+// readPEMFile reads a PEM file and decodes it, along with a type check
 func readPEMFile(path string, matchType string) (*pem.Block, error) {
 	fileBytes, err := ReadFileToBytes(path)
 	check(err)
@@ -113,4 +113,14 @@ func readPEMFile(path string, matchType string) (*pem.Block, error) {
 		log.Fatal("failed to decode PEM block containing a " + matchType + ": " + string(rest))
 	}
 	return block, nil
+}
+
+// readCSRFromFile wraps the functions needed to read and decode a CSR PEM
+func readCSRFromFile(path string) (*x509.CertificateRequest, error) {
+	// Read in file
+	file, err := readPEMFile(path, "CERTIFICATE REQUEST")
+	check(err)
+
+	// Convert to x509.CSR
+	return readCSR(file.Bytes)
 }

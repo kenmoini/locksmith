@@ -3,6 +3,9 @@
 # Exits on any error
 set -e
 
+## Clean up the directory
+rm -rf ./.generated/roots/example-labs-root-certificate-authority
+
 ## Run the Locksmith application in the background
 nohup ./locksmith -config config.yml.example &
 

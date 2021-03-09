@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"log"
 	"math/big"
 	"time"
 )
@@ -103,10 +104,12 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, error) {
 	if caCSR {
 
 		// Read in CSR lol
+		caCSRPEM, err := readCSRFromFile(certPaths.RootCACertRequestsPath + "/ca.pem")
+		log.Printf("%v", caCSRPEM.Subject.CommonName)
 
 		// Create Self-signed Certificate
 		// Create CA Object
-		rootCA := setupCACert(readSerialNumberAsInt64(rootSlug), certConfig.Subject.CommonName, certConfig.Subject.Organization, certConfig.Subject.OrganizationalUnit, certConfig.Subject.Country, certConfig.Subject.Province, certConfig.Subject.Locality, certConfig.Subject.StreetAddress, certConfig.Subject.PostalCode, certConfig.ExpirationDate)
+		rootCA := setupCACert(readSerialNumberAsInt64(rootSlug), caCSRPEM.Subject.CommonName, caCSRPEM.Subject.Organization, caCSRPEM.Subject.OrganizationalUnit, caCSRPEM.Subject.Country, caCSRPEM.Subject.Province, caCSRPEM.Subject.Locality, caCSRPEM.Subject.StreetAddress, caCSRPEM.Subject.PostalCode, certConfig.ExpirationDate)
 
 		// Byte Encode the Certificate - https://golang.org/pkg/crypto/x509/#CreateCertificate
 		caBytes, err := CreateCert(rootCA, rootCA, pubKeyFromFile, privateKeyFromFile)
