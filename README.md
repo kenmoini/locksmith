@@ -80,3 +80,21 @@ There is also a quick and easy way to generate a comparable chain via Locksmith 
 ***NOTE***: This requires Locksmith to be available in the local directory - you can build it from source by running `go build`
 
 Running that script will start Locksmith with the `config.yml.example` configuration, listening on port 8080.  It will then run the required cURL requests locally to generate the PKI Chain that is available in the `./.generated` directory.
+
+### 3. Compare PKI Chains
+
+Another script can make your life easier when comparing PKI Chains to ensure the Subject, Issuer, Capabilities, and so on are aligned closely.
+
+```bash
+./generate_test_pki.compare.sh
+```
+
+This script will compare the two different PKI chains that were generated in the previous two steps.
+
+### Bonus: Bundled Scripts!
+
+You can run all three testing scripts with the following command:
+
+```bash
+./generate_test_pki.bundle.sh
+```
