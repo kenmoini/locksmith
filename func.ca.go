@@ -92,25 +92,33 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, error) {
 	pubKeyFromFile := GetPublicKey(certPaths.RootCACertKeysPath + "/ca.pub.pem")
 
 	// Create Self-signed Certificate Request
-	caCSR, err := generateCSR(certPaths.RootCACertRequestsPath+"/ca.pem",
-		privateKeyFromFile,
-		certConfig.Subject.CommonName,
-		certConfig.Subject.Organization,
-		certConfig.Subject.OrganizationalUnit,
-		certConfig.Subject.Country,
-		certConfig.Subject.Province,
-		certConfig.Subject.Locality,
-		certConfig.Subject.StreetAddress,
-		certConfig.Subject.PostalCode,
-		true)
+	csrFileCheck, err := FileExists(certPaths.RootCACertRequestsPath + "/ca.pem")
 	check(err)
+	if !csrFileCheck {
+		caCSR, err := generateCSR(certPaths.RootCACertRequestsPath+"/ca.pem",
+			privateKeyFromFile,
+			certConfig.Subject.CommonName,
+			certConfig.Subject.Organization,
+			certConfig.Subject.OrganizationalUnit,
+			certConfig.Subject.Country,
+			certConfig.Subject.Province,
+			certConfig.Subject.Locality,
+			certConfig.Subject.StreetAddress,
+			certConfig.Subject.PostalCode,
+			true)
+		if !caCSR {
+			check(err)
+			return false, []string{"CSR Failure"}, err
+		}
+	}
 
-	if caCSR {
+	// Read in CSR lol
+	caCSRPEM, err := readCSRFromFile(certPaths.RootCACertRequestsPath + "/ca.pem")
+	log.Printf("%v", caCSRPEM.Subject.CommonName)
 
-		// Read in CSR lol
-		caCSRPEM, err := readCSRFromFile(certPaths.RootCACertRequestsPath + "/ca.pem")
-		log.Printf("%v", caCSRPEM.Subject.CommonName)
-
+	// Check for certificate file
+	certificateFileCheck, err := FileExists(certPaths.RootCACertsPath + "/ca.pem")
+	if !certificateFileCheck {
 		// Create Self-signed Certificate
 		// Create CA Object
 		rootCA := setupCACert(readSerialNumberAsInt64(rootSlug), caCSRPEM.Subject.CommonName, caCSRPEM.Subject.Organization, caCSRPEM.Subject.OrganizationalUnit, caCSRPEM.Subject.Country, caCSRPEM.Subject.Province, caCSRPEM.Subject.Locality, caCSRPEM.Subject.StreetAddress, caCSRPEM.Subject.PostalCode, certConfig.ExpirationDate)
@@ -119,17 +127,13 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, error) {
 		caBytes, err := CreateCert(rootCA, rootCA, pubKeyFromFile, privateKeyFromFile)
 		check(err)
 
-		// Check for certificate file
-		certificateFileCheck, err := FileExists(certPaths.RootCACertsPath + "/ca.pem")
-		if !certificateFileCheck {
-			// Write Certificate file
-			certificateFile, err := writeCertificateFile(pemEncodeCertificate(caBytes), certPaths.RootCACertsPath+"/ca.pem")
-			check(err)
-			if certificateFile {
-				logStdOut("Created Root CA Certificate file")
-			}
+		// Write Certificate file
+		certificateFile, err := writeCertificateFile(pemEncodeCertificate(caBytes), certPaths.RootCACertsPath+"/ca.pem")
+		check(err)
+		if certificateFile {
+			logStdOut("Created Root CA Certificate file")
+			return true, []string{"Root CA Created"}, nil
 		}
-		return true, []string{"Finished"}, nil
 	}
-	return false, []string{"CSR Failure"}, err
+	return true, []string{"Finished"}, nil
 }

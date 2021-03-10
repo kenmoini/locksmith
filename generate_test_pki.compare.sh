@@ -38,3 +38,11 @@ echo "Lock: $(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -is
 echo -e "\n===== SUBJECT COMPARISON\n"
 echo "OSSL: $(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -subject)"
 echo "Lock: $(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -subject)"
+
+echo -e "\n===== STARTDATE COMPARISON\n"
+echo "OSSL: $(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -startdate)"
+echo "Lock: $(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -startdate)"
+
+echo -e "\n===== ENDDATE COMPARISON\n"
+echo "OSSL: $(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -enddate)"
+echo "Lock: $(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -enddate)"
