@@ -17,7 +17,7 @@ sleep 5
 # Generate a Root CA
 curl --header "Content-Type: application/x-www-form-urlencoded" \
   --request POST \
-  --data 'cert_info={"subject":{"common_name":"Example Labs Root Certificate Authority","organization":["Example Labs"],"organizationalUnit":["Example Labs Cyber and Information Security"]},"expiration_date": [10,0,0]}' \
+  --data 'cert_info={"subject":{"common_name":"Example Labs Root Certificate Authority","organization":["Example Labs"],"organizational_unit":["Example Labs Cyber and Information Security"]},"expiration_date": [10,0,0]}' \
   http://localhost:8080/locksmith/roots
 
 

@@ -51,6 +51,10 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, error) {
 		checkInputError = true
 		checkInputErrors = append(checkInputErrors, "Missing Organization field")
 	}
+	if len(certConfig.Subject.OrganizationalUnit) == 0 {
+		checkInputError = true
+		checkInputErrors = append(checkInputErrors, "Missing OrganizationalUnit field")
+	}
 	if len(certConfig.ExpirationDate) != 3 {
 		checkInputError = true
 		checkInputErrors = append(checkInputErrors, "Missing Expiration Date field")
