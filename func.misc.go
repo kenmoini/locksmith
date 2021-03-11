@@ -286,6 +286,7 @@ func marshalIANs(dnsNames, emailAddresses []string, ipAddresses []net.IP, uris [
 	return asn1.Marshal(rawValues)
 }
 
+// parseIANExtension parses Issuer Alternative Name extension data structs from a raw byte slice
 func parseIANExtension(value []byte) (dnsNames, emailAddresses []string, ipAddresses []net.IP, uris []*url.URL, err error) {
 	err = forEachIAN(value, func(tag int, data []byte) error {
 		switch tag {
@@ -338,6 +339,7 @@ func bigIntHash(n *big.Int) []byte {
 	return h.Sum(nil)
 }
 
+// oidFromNamedCurve takes an EC and returns the ASN1 OID
 func oidFromNamedCurve(curve elliptic.Curve) (asn1.ObjectIdentifier, bool) {
 	switch curve {
 	case elliptic.P224():

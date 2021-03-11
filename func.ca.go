@@ -14,16 +14,21 @@ import (
 // setupCACert creates a Certificate resource
 func setupCACert(serialNumber int64, commonName string, organization []string, organizationalUnit []string, country []string, province []string, locality []string, streetAddress []string, postalCode []string, addTime []int, sanData SANData, pubKey *rsa.PublicKey) *x509.Certificate {
 	// set up our CA certificate
+
+	// Convert string slice of URLs into actual URI objects
 	actualURIs, err := bakeURIs(sanData.URIs)
 	check(err)
 
+	// Take the SAN data and format for IAN
 	issuerBytes, err := marshalIANs(sanData.DNSNames, sanData.EmailAddresses, sanData.IPAddresses, actualURIs)
 	check(err)
-
 	issuerAltName := pkix.Extension{Id: asn1.ObjectIdentifier{2, 5, 29, 18}, Critical: false, Value: issuerBytes}
+
+	// Set time for UTC format
 	currentTime := time.Now()
 	yesterdayTime := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 0, 0, 0, 0, time.UTC).Add(-24 * time.Hour)
 
+	// Set up SubjectKeyID from Public Key
 	publicKeyBytes, _, err := marshalPublicKey(pubKey)
 	check(err)
 	h := sha1.Sum(publicKeyBytes)
