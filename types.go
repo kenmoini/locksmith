@@ -2,7 +2,6 @@ package main
 
 import (
 	"net"
-	"net/url"
 	"time"
 )
 
@@ -138,8 +137,9 @@ type CertificateAuthorityPaths struct {
 
 // SANData provides a collection of SANData for a certificate
 type SANData struct {
-	IPAddresses    []net.IP   `json:"ip_addresses,omitempty"`
-	EmailAddresses []string   `json:"email_addresses,omitempty"`
-	DNSNames       []string   `json:"dns_names,omitempty"`
-	URIs           []*url.URL `json:"uris,omitempty"`
+	IPAddresses    []net.IP `json:"ip_addresses,omitempty"`
+	EmailAddresses []string `json:"email_addresses,omitempty"`
+	DNSNames       []string `json:"dns_names,omitempty"`
+	URIs           []string `json:"uris,omitempty"`
+	//URIs           []*url.URL `json:"uris,omitempty"`
 }

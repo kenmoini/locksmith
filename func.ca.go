@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/asn1"
 	"log"
 	"math/big"
 	"time"
@@ -11,6 +12,13 @@ import (
 // setupCACert creates a Certificate resource
 func setupCACert(serialNumber int64, commonName string, organization []string, organizationalUnit []string, country []string, province []string, locality []string, streetAddress []string, postalCode []string, addTime []int, sanData SANData) *x509.Certificate {
 	// set up our CA certificate
+	actualURIs, err := bakeURIs(sanData.URIs)
+	check(err)
+
+	issuerBytes, err := marshalIANs(sanData.DNSNames, sanData.EmailAddresses, sanData.IPAddresses, actualURIs)
+	check(err)
+
+	issuerAltName := pkix.Extension{Id: asn1.ObjectIdentifier{2, 5, 29, 18}, Critical: false, Value: issuerBytes}
 
 	return &x509.Certificate{
 		SerialNumber: big.NewInt(serialNumber),
@@ -30,9 +38,12 @@ func setupCACert(serialNumber int64, commonName string, organization []string, o
 		DNSNames:              sanData.DNSNames,
 		EmailAddresses:        sanData.EmailAddresses,
 		IPAddresses:           sanData.IPAddresses,
-		URIs:                  sanData.URIs,
+		URIs:                  actualURIs,
 		KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageCRLSign,
 		BasicConstraintsValid: true,
+		ExtraExtensions:       []pkix.Extension{issuerAltName},
+		CRLDistributionPoints: []string{"https://ca.example.labs:443/crl/ca.example.labs_Root_Certification_Authority.crl"},
+		IssuingCertificateURL: []string{"https://ca.example.labs:443/certs/ca.example.labs_Root_Certification_Authority.cert.pem"},
 	}
 }
 
