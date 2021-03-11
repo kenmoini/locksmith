@@ -2,9 +2,12 @@ package main
 
 import (
 	"bufio"
+	"crypto/elliptic"
+	"crypto/sha1"
 	"encoding/asn1"
 	"errors"
 	"fmt"
+	"math/big"
 	"net"
 	"net/url"
 	"os"
@@ -326,4 +329,26 @@ func parseIANExtension(value []byte) (dnsNames, emailAddresses []string, ipAddre
 	})
 
 	return
+}
+
+// bigIntHash creates a SHA1 bytes array from an int
+func bigIntHash(n *big.Int) []byte {
+	h := sha1.New()
+	h.Write(n.Bytes())
+	return h.Sum(nil)
+}
+
+func oidFromNamedCurve(curve elliptic.Curve) (asn1.ObjectIdentifier, bool) {
+	switch curve {
+	case elliptic.P224():
+		return oidNamedCurveP224, true
+	case elliptic.P256():
+		return oidNamedCurveP256, true
+	case elliptic.P384():
+		return oidNamedCurveP384, true
+	case elliptic.P521():
+		return oidNamedCurveP521, true
+	}
+
+	return nil, false
 }

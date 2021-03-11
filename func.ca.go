@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/rsa"
+	"crypto/sha1"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
@@ -10,7 +12,7 @@ import (
 )
 
 // setupCACert creates a Certificate resource
-func setupCACert(serialNumber int64, commonName string, organization []string, organizationalUnit []string, country []string, province []string, locality []string, streetAddress []string, postalCode []string, addTime []int, sanData SANData) *x509.Certificate {
+func setupCACert(serialNumber int64, commonName string, organization []string, organizationalUnit []string, country []string, province []string, locality []string, streetAddress []string, postalCode []string, addTime []int, sanData SANData, pubKey *rsa.PublicKey) *x509.Certificate {
 	// set up our CA certificate
 	actualURIs, err := bakeURIs(sanData.URIs)
 	check(err)
@@ -21,6 +23,11 @@ func setupCACert(serialNumber int64, commonName string, organization []string, o
 	issuerAltName := pkix.Extension{Id: asn1.ObjectIdentifier{2, 5, 29, 18}, Critical: false, Value: issuerBytes}
 	currentTime := time.Now()
 	yesterdayTime := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 0, 0, 0, 0, time.UTC).Add(-24 * time.Hour)
+
+	publicKeyBytes, _, err := marshalPublicKey(pubKey)
+	check(err)
+	h := sha1.Sum(publicKeyBytes)
+	subjectKeyID := h[:]
 
 	return &x509.Certificate{
 		SerialNumber: big.NewInt(serialNumber),
@@ -37,6 +44,7 @@ func setupCACert(serialNumber int64, commonName string, organization []string, o
 		NotBefore:             time.Date(yesterdayTime.Year(), yesterdayTime.Month(), yesterdayTime.Day(), 0, 0, 0, 0, yesterdayTime.Location()),
 		NotAfter:              time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 0, 0, 0, 0, time.UTC).AddDate(addTime[0], addTime[1], addTime[2]),
 		IsCA:                  true,
+		AuthorityKeyId:        subjectKeyID,
 		DNSNames:              sanData.DNSNames,
 		EmailAddresses:        sanData.EmailAddresses,
 		IPAddresses:           sanData.IPAddresses,
@@ -138,7 +146,7 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, error) {
 	if !certificateFileCheck {
 		// Create Self-signed Certificate
 		// Create CA Object
-		rootCA := setupCACert(readSerialNumberAsInt64(rootSlug), caCSRPEM.Subject.CommonName, caCSRPEM.Subject.Organization, caCSRPEM.Subject.OrganizationalUnit, caCSRPEM.Subject.Country, caCSRPEM.Subject.Province, caCSRPEM.Subject.Locality, caCSRPEM.Subject.StreetAddress, caCSRPEM.Subject.PostalCode, certConfig.ExpirationDate, certConfig.SANData)
+		rootCA := setupCACert(readSerialNumberAsInt64(rootSlug), caCSRPEM.Subject.CommonName, caCSRPEM.Subject.Organization, caCSRPEM.Subject.OrganizationalUnit, caCSRPEM.Subject.Country, caCSRPEM.Subject.Province, caCSRPEM.Subject.Locality, caCSRPEM.Subject.StreetAddress, caCSRPEM.Subject.PostalCode, certConfig.ExpirationDate, certConfig.SANData, pubKeyFromFile)
 
 		// Byte Encode the Certificate - https://golang.org/pkg/crypto/x509/#CreateCertificate
 		caBytes, err := CreateCert(rootCA, rootCA, pubKeyFromFile, privateKeyFromFile)

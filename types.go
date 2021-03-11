@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math/big"
 	"net"
 	"time"
 )
@@ -142,4 +143,10 @@ type SANData struct {
 	DNSNames       []string `json:"dns_names,omitempty"`
 	URIs           []string `json:"uris,omitempty"`
 	//URIs           []*url.URL `json:"uris,omitempty"`
+}
+
+// pkcs1PublicKey reflects the ASN.1 structure of a PKCS #1 public key.
+type pkcs1PublicKey struct {
+	N *big.Int
+	E int
 }
