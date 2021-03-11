@@ -54,6 +54,6 @@ func writeCertificateFile(certPem *bytes.Buffer, path string) (bool, error) {
 }
 
 // CreateCert is a wrapper for x509.CreateCertificate to switch between parent certificates through the chain
-func CreateCert(certTemplate, signingCert *x509.Certificate, certPubkey, signingPrivKey interface{}) (cert []byte, err error) {
+func CreateCert(certTemplate *x509.Certificate, signingCert *x509.Certificate, certPubkey, signingPrivKey interface{}) (cert []byte, err error) {
 	return x509.CreateCertificate(rand.Reader, certTemplate, signingCert, certPubkey, signingPrivKey)
 }

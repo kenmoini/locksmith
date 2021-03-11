@@ -9,8 +9,9 @@ import (
 )
 
 // setupCACert creates a Certificate resource
-func setupCACert(serialNumber int64, commonName string, organization []string, organizationalUnit []string, country []string, province []string, locality []string, streetAddress []string, postalCode []string, addTime []int) *x509.Certificate {
+func setupCACert(serialNumber int64, commonName string, organization []string, organizationalUnit []string, country []string, province []string, locality []string, streetAddress []string, postalCode []string, addTime []int, sanData SANData) *x509.Certificate {
 	// set up our CA certificate
+
 	return &x509.Certificate{
 		SerialNumber: big.NewInt(serialNumber),
 		Subject: pkix.Name{
@@ -26,8 +27,11 @@ func setupCACert(serialNumber int64, commonName string, organization []string, o
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().AddDate(addTime[0], addTime[1], addTime[2]),
 		IsCA:                  true,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
-		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
+		DNSNames:              sanData.DNSNames,
+		EmailAddresses:        sanData.EmailAddresses,
+		IPAddresses:           sanData.IPAddresses,
+		URIs:                  sanData.URIs,
+		KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageCRLSign,
 		BasicConstraintsValid: true,
 	}
 }
@@ -121,7 +125,7 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, error) {
 	if !certificateFileCheck {
 		// Create Self-signed Certificate
 		// Create CA Object
-		rootCA := setupCACert(readSerialNumberAsInt64(rootSlug), caCSRPEM.Subject.CommonName, caCSRPEM.Subject.Organization, caCSRPEM.Subject.OrganizationalUnit, caCSRPEM.Subject.Country, caCSRPEM.Subject.Province, caCSRPEM.Subject.Locality, caCSRPEM.Subject.StreetAddress, caCSRPEM.Subject.PostalCode, certConfig.ExpirationDate)
+		rootCA := setupCACert(readSerialNumberAsInt64(rootSlug), caCSRPEM.Subject.CommonName, caCSRPEM.Subject.Organization, caCSRPEM.Subject.OrganizationalUnit, caCSRPEM.Subject.Country, caCSRPEM.Subject.Province, caCSRPEM.Subject.Locality, caCSRPEM.Subject.StreetAddress, caCSRPEM.Subject.PostalCode, certConfig.ExpirationDate, certConfig.SANData)
 
 		// Byte Encode the Certificate - https://golang.org/pkg/crypto/x509/#CreateCertificate
 		caBytes, err := CreateCert(rootCA, rootCA, pubKeyFromFile, privateKeyFromFile)

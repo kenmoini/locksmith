@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net"
+	"net/url"
 	"time"
 )
 
@@ -99,6 +101,7 @@ type CertificateConfiguration struct {
 	ExpirationDate          []int                           `json:"expiration_date,omitempty"`
 	RSAPrivateKeyPassphrase string                          `json:"rsa_private_key_passphrase,omitempty"`
 	SerialNumber            string                          `json:"serial_number,omitempty"`
+	SANData                 SANData                         `json:"san_data,omitempty"`
 }
 
 // CertificateConfigurationSubject is simply a redefinition
@@ -131,4 +134,12 @@ type CertificateAuthorityPaths struct {
 	RootCACertIndexFilePath  string
 	RootCACertSerialFilePath string
 	RootCACrlnumFilePath     string
+}
+
+// SANData provides a collection of SANData for a certificate
+type SANData struct {
+	IPAddresses    []net.IP   `json:"ip_addresses,omitempty"`
+	EmailAddresses []string   `json:"email_addresses,omitempty"`
+	DNSNames       []string   `json:"dns_names,omitempty"`
+	URIs           []*url.URL `json:"uris,omitempty"`
 }

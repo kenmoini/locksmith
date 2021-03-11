@@ -39,6 +39,35 @@ function splitLinesBack {
   done
 }
 
+function splitTextOutput {
+  O_ARRVAR=()
+  L_ARRVAR=()
+  echo "$1" | {
+    while IFS= read -r ROW; do
+      if [[ $ROW != "" ]]; then
+        O_ARRVAR+=("$ROW")
+      fi
+    done
+    echo "$2" | {
+      while IFS= read -r LROW; do
+        if [[ $LROW != "" ]]; then
+          L_ARRVAR+=("$LROW")
+        fi
+      done
+      
+        
+      COUNTER_INDX=0
+        echo -e "----------------------------------------------OSSL--------------------------------------------------------------------------LOCK------------------------------------"
+      for i in "${O_ARRVAR[@]}"
+      do
+        printf "%-100s %-100s\n" "$i" "${L_ARRVAR[$COUNTER_INDX]}"
+        let COUNTER_INDX=COUNTER_INDX+1
+      done
+      
+    }
+  }
+}
+
 function splitPurposes {
   DEF_LINES=()
   DEF_ARRVAR=()
@@ -126,38 +155,44 @@ CUR_DIR=$(pwd)
 
 OPENSSL_PKI_ROOT_DIR="${CUR_DIR}/.test_pki_root"
 LOCKSMITH_PKI_ROOT_DIR="${CUR_DIR}/.generated/roots/example-labs-root-certificate-authority"
+OPENSSL_CA_CERT="ca.cert.pem"
+LOCKSMITH_CA_CERT="certs/ca.pem"
 
 echo -e "\n===== ISSUER COMPARISON\n"
-OSSL_ISSUER=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -issuer)
-LOCK_ISSUER=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -issuer)
+OSSL_ISSUER=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/${OPENSSL_CA_CERT} -noout -issuer)
+LOCK_ISSUER=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/${LOCKSMITH_CA_CERT} -noout -issuer)
 simpleCompare "$OSSL_ISSUER" "$LOCK_ISSUER"
 
 echo -e "\n===== SUBJECT COMPARISON\n"
-OSSL_SUBJECT=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -subject)
-LOCK_SUBJECT=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -subject)
+OSSL_SUBJECT=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/${OPENSSL_CA_CERT} -noout -subject)
+LOCK_SUBJECT=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/${LOCKSMITH_CA_CERT} -noout -subject)
 simpleCompare "$OSSL_SUBJECT" "$LOCK_SUBJECT"
 
 echo -e "\n===== STARTDATE COMPARISON\n"
-OSSL_STARTDATE=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -startdate)
-LOCK_STARTDATE=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -startdate)
+OSSL_STARTDATE=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/${OPENSSL_CA_CERT} -noout -startdate)
+LOCK_STARTDATE=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/${LOCKSMITH_CA_CERT} -noout -startdate)
 simpleCompareNoColor "$OSSL_STARTDATE" "$LOCK_STARTDATE"
 
 echo -e "\n===== ENDDATE COMPARISON\n"
-OSSL_ENDDATE=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -enddate)
-LOCK_ENDDATE=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -enddate)
+OSSL_ENDDATE=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/${OPENSSL_CA_CERT} -noout -enddate)
+LOCK_ENDDATE=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/${LOCKSMITH_CA_CERT} -noout -enddate)
 simpleCompareNoColor "$OSSL_ENDDATE" "$LOCK_ENDDATE"
 
 echo -e "\n===== SERIAL COMPARISON\n"
-OSSL_SERIAL=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -serial)
-LOCK_SERIAL=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -serial)
+OSSL_SERIAL=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/${OPENSSL_CA_CERT} -noout -serial)
+LOCK_SERIAL=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/${LOCKSMITH_CA_CERT} -noout -serial)
 simpleCompare "$OSSL_SERIAL" "$LOCK_SERIAL"
 
 echo -e "\n===== EMAIL COMPARISON\n"
-OSSL_EMAIL=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -email)
-LOCK_EMAIL=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -email)
+OSSL_EMAIL=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/${OPENSSL_CA_CERT} -noout -email)
+LOCK_EMAIL=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/${LOCKSMITH_CA_CERT} -noout -email)
 simpleCompare "$OSSL_EMAIL" "$LOCK_EMAIL"
 
 echo -e "\n===== PURPOSE COMPARISON\n"
-OSSP_PURPOSE_CMD=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -purpose)
-LOCK_PURPOSE_CMD=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -purpose)
+OSSP_PURPOSE_CMD=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/${OPENSSL_CA_CERT} -noout -purpose)
+LOCK_PURPOSE_CMD=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/${LOCKSMITH_CA_CERT} -noout -purpose)
 splitPurposes "$OSSP_PURPOSE_CMD" "$LOCK_PURPOSE_CMD"
+
+OSSP_TEXT_CMD=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/${OPENSSL_CA_CERT} -noout -text)
+LOCK_TEXT_CMD=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/${LOCKSMITH_CA_CERT} -noout -text)
+splitTextOutput "${OSSP_TEXT_CMD}" "${LOCK_TEXT_CMD}"
