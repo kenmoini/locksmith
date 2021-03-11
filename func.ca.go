@@ -19,6 +19,8 @@ func setupCACert(serialNumber int64, commonName string, organization []string, o
 	check(err)
 
 	issuerAltName := pkix.Extension{Id: asn1.ObjectIdentifier{2, 5, 29, 18}, Critical: false, Value: issuerBytes}
+	currentTime := time.Now()
+	yesterdayTime := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 0, 0, 0, 0, time.UTC).Add(-24 * time.Hour)
 
 	return &x509.Certificate{
 		SerialNumber: big.NewInt(serialNumber),
@@ -32,8 +34,8 @@ func setupCACert(serialNumber int64, commonName string, organization []string, o
 			StreetAddress:      streetAddress,
 			PostalCode:         postalCode,
 		},
-		NotBefore:             time.Now(),
-		NotAfter:              time.Now().AddDate(addTime[0], addTime[1], addTime[2]),
+		NotBefore:             time.Date(yesterdayTime.Year(), yesterdayTime.Month(), yesterdayTime.Day(), 0, 0, 0, 0, yesterdayTime.Location()),
+		NotAfter:              time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 0, 0, 0, 0, time.UTC).AddDate(addTime[0], addTime[1], addTime[2]),
 		IsCA:                  true,
 		DNSNames:              sanData.DNSNames,
 		EmailAddresses:        sanData.EmailAddresses,
