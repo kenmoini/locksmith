@@ -19,8 +19,12 @@ function splitLinesFront {
   echo "$1" | while IFS= read -r line ; do
     if [[ $line != *"Certificate purposes:"* ]]; then
       #echo $line
-      readarray -d : -t strarr <<< "$line"
-      echo "${strarr[0]}"
+      #readarray -d : -t strarr <<< "$line"
+      #echo "${strarr[0]}"
+
+      part=`echo $line | awk -F":" '{print $1}'`
+      #readarray -d : -t strarr <<< "$line"
+      echo "$part"
     fi
   done
 }
@@ -28,8 +32,9 @@ function splitLinesBack {
   echo "$1" | while IFS= read -r line ; do
     if [[ $line != *"Certificate purposes:"* ]]; then
       #echo $line
-      readarray -d : -t strarr <<< "$line"
-      echo "${strarr[1]}"
+      part=`echo $line | awk -F":" '{print $2}'`
+      #readarray -d : -t strarr <<< "$line"
+      echo "$part"
     fi
   done
 }
