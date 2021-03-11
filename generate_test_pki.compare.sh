@@ -105,7 +105,18 @@ function checkForProgramAndExit() {
         exit 1
     fi
 }
-
+function simpleCompare {
+  COLOR=$RED
+  if [[ "$1" == "$2" ]]; then
+    COLOR=$GREEN
+  fi
+  printf "${COLOR}OSSL: %s${NC}\n" "$1"
+  printf "${COLOR}Lock: %s${NC}\n" "$2"
+}
+function simpleCompareNoColor {
+  printf "OSSL: %s\n" "$1"
+  printf "Lock: %s\n" "$2"
+}
 checkForProgramAndExit openssl
 
 ####################################################################
@@ -117,31 +128,36 @@ OPENSSL_PKI_ROOT_DIR="${CUR_DIR}/.test_pki_root"
 LOCKSMITH_PKI_ROOT_DIR="${CUR_DIR}/.generated/roots/example-labs-root-certificate-authority"
 
 echo -e "\n===== ISSUER COMPARISON\n"
-echo "OSSL: $(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -issuer)"
-echo "Lock: $(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -issuer)"
+OSSL_ISSUER=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -issuer)
+LOCK_ISSUER=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -issuer)
+simpleCompare "$OSSL_ISSUER" "$LOCK_ISSUER"
 
 echo -e "\n===== SUBJECT COMPARISON\n"
-echo "OSSL: $(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -subject)"
-echo "Lock: $(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -subject)"
+OSSL_SUBJECT=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -subject)
+LOCK_SUBJECT=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -subject)
+simpleCompare "$OSSL_SUBJECT" "$LOCK_SUBJECT"
 
 echo -e "\n===== STARTDATE COMPARISON\n"
-echo "OSSL: $(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -startdate)"
-echo "Lock: $(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -startdate)"
+OSSL_STARTDATE=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -startdate)
+LOCK_STARTDATE=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -startdate)
+simpleCompareNoColor "$OSSL_STARTDATE" "$LOCK_STARTDATE"
 
 echo -e "\n===== ENDDATE COMPARISON\n"
-echo "OSSL: $(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -enddate)"
-echo "Lock: $(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -enddate)"
+OSSL_ENDDATE=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -enddate)
+LOCK_ENDDATE=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -enddate)
+simpleCompareNoColor "$OSSL_ENDDATE" "$LOCK_ENDDATE"
 
 echo -e "\n===== SERIAL COMPARISON\n"
-echo "OSSL: $(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -serial)"
-echo "Lock: $(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -serial)"
+OSSL_SERIAL=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -serial)
+LOCK_SERIAL=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -serial)
+simpleCompare "$OSSL_SERIAL" "$LOCK_SERIAL"
 
 echo -e "\n===== EMAIL COMPARISON\n"
-echo "OSSL: $(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -email)"
-echo "Lock: $(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -email)"
+OSSL_EMAIL=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -email)
+LOCK_EMAIL=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -email)
+simpleCompare "$OSSL_EMAIL" "$LOCK_EMAIL"
 
 echo -e "\n===== PURPOSE COMPARISON\n"
 OSSP_PURPOSE_CMD=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/ca.cert.pem -noout -purpose)
 LOCK_PURPOSE_CMD=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/certs/ca.pem -noout -purpose)
-
 splitPurposes "$OSSP_PURPOSE_CMD" "$LOCK_PURPOSE_CMD"
