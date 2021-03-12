@@ -19,7 +19,7 @@ func SetupCRLTemplate(SignatureAlgorithm x509.SignatureAlgorithm, nextUpdate tim
 	return &x509.RevocationList{
 		SignatureAlgorithm:  SignatureAlgorithm,
 		RevokedCertificates: nil,
-		Number:              big.NewInt(1),
+		Number:              big.NewInt(0),
 		ThisUpdate:          time.Now(),
 		NextUpdate:          nextUpdate,
 		ExtraExtensions:     []pkix.Extension{}}
