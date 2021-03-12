@@ -1,12 +1,82 @@
 package main
 
 import (
+	"bytes"
 	"crypto"
 	"crypto/rand"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/pem"
+	"math/big"
 	"time"
 )
+
+// SetupCRLTemplate wraps a RevokationList type with a bit of pre-processing
+func SetupCRLTemplate(SignatureAlgorithm x509.SignatureAlgorithm, nextUpdate time.Time) *x509.RevocationList {
+	if nextUpdate.IsZero() {
+		nextUpdate = time.Now().AddDate(1, 0, 0)
+	}
+	return &x509.RevocationList{
+		SignatureAlgorithm:  SignatureAlgorithm,
+		RevokedCertificates: nil,
+		Number:              big.NewInt(1),
+		ThisUpdate:          time.Now(),
+		NextUpdate:          nextUpdate,
+		ExtraExtensions:     []pkix.Extension{}}
+}
+
+// NewCRL basically just wraps CreateRevocationList in order to create a new blank CRL
+func NewCRL(template *x509.RevocationList, issuer *x509.Certificate, priv crypto.Signer) ([]byte, error) {
+	return x509.CreateRevocationList(rand.Reader, template, issuer, priv)
+}
+
+// PEMEncodeCRL encodes a CreateCertificateRequest DER byte stream to a PEM
+func PEMEncodeCRL(certByte []byte) *bytes.Buffer {
+	pemRet := new(bytes.Buffer)
+	pem.Encode(pemRet, &pem.Block{
+		Type:  "X509 CRL",
+		Bytes: certByte,
+	})
+	return pemRet
+}
+
+// CreateNewCRLForCA wraps all the processes needed to create a new CRL for a CA
+func CreateNewCRLForCA(certificate *x509.Certificate, privateKey crypto.Signer, path string) (bool, error) {
+	// Create the template
+	crlTemplate := SetupCRLTemplate(certificate.SignatureAlgorithm, time.Now().AddDate(1, 0, 0))
+
+	// Create an actual CRL object
+	crlObject, err := NewCRL(crlTemplate, certificate, privateKey)
+	check(err)
+
+	// PEM Encode the object
+	pemBytes := PEMEncodeCRL(crlObject)
+
+	// Save the PEM to a file
+	return writePEMFile(pemBytes, path)
+}
+
+// ReadCRLFromFile just wraps a byte reader and CRL Decoder
+func ReadCRLFromFile(path string) (*x509.Certificate, error) {
+	// Check if the file exists
+	certificateFileCheck, err := FileExists(path)
+	if !certificateFileCheck {
+		return nil, err
+	}
+
+	// Read in PEM file
+	pem, err := readPEMFile(path, "X509 CRL")
+	check(err)
+
+	// Decode to Certfificate object
+	return x509.ParseCertificate(pem.Bytes)
+}
+
+/*
+
+Wtf is all this legacy code?
+
+*/
 
 // NewCRLFromFile takes in a list of serial numbers, one per line, as well as the issuing certificate
 // of the CRL, and the private key. This function is then used to parse the list and generate a CRL
@@ -81,8 +151,6 @@ func CreateCRLObject(certList []pkix.RevokedCertificate, key crypto.Signer, issu
 	if expiryTime.IsZero() {
 		expiryTime = time.Now().AddDate(1, 0, 0)
 	}
-	crlBytes, err := issuingCert.CreateCRL(rand.Reader, key, certList, time.Now(), expiryTime)
-	check(err)
 
-	return crlBytes, err
+	return nil, nil
 }

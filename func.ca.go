@@ -162,8 +162,21 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, error) {
 		check(err)
 		if certificateFile {
 			logStdOut("Created Root CA Certificate file")
-			return true, []string{"Root CA Created"}, nil
+			//return true, []string{"Root CA Created"}, nil
 		}
 	}
-	return true, []string{"Finished"}, nil
+
+	// Read in Certificate File lol
+	caCert, err := ReadCertFromFile(certPaths.RootCACertsPath + "/ca.pem")
+	check(err)
+	logStdOut("CN: " + caCert.Subject.CommonName)
+
+	// Create CRL with CA Cert
+	caCRL, err := CreateNewCRLForCA(caCert, privateKeyFromFile, certPaths.RootCACertRevListPath+"/ca.pem")
+	if !caCRL {
+		logStdOut("Root CA CRL ERROR!")
+		return false, []string{"Root CA CRL Creation Error"}, err
+	}
+
+	return true, []string{"Finished creating Root CA: " + caCert.Subject.CommonName}, nil
 }

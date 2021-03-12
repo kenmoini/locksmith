@@ -57,3 +57,19 @@ func writeCertificateFile(certPem *bytes.Buffer, path string) (bool, error) {
 func CreateCert(certTemplate *x509.Certificate, signingCert *x509.Certificate, certPubkey, signingPrivKey interface{}) (cert []byte, err error) {
 	return x509.CreateCertificate(rand.Reader, certTemplate, signingCert, certPubkey, signingPrivKey)
 }
+
+// ReadCertFromFile wraps the needed functions to safely read a PEM certificate
+func ReadCertFromFile(path string) (*x509.Certificate, error) {
+	// Check if the file exists
+	certificateFileCheck, err := FileExists(path)
+	if !certificateFileCheck {
+		return nil, err
+	}
+
+	// Read in PEM file
+	pem, err := readPEMFile(path, "CERTIFICATE")
+	check(err)
+
+	// Decode to Certfificate object
+	return x509.ParseCertificate(pem.Bytes)
+}
