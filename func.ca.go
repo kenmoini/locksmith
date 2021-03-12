@@ -172,7 +172,7 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, error) {
 	logStdOut("CN: " + caCert.Subject.CommonName)
 
 	// Create CRL with CA Cert
-	caCRL, err := CreateNewCRLForCA(caCert, privateKeyFromFile, certPaths.RootCACertRevListPath+"/ca.pem")
+	caCRL, err := CreateNewCRLForCA(caCert, privateKeyFromFile, certPaths.RootCACertRevListPath+"/ca.crl")
 	if !caCRL {
 		logStdOut("Root CA CRL ERROR!")
 		return false, []string{"Root CA CRL Creation Error"}, err
