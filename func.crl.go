@@ -6,16 +6,18 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/asn1"
 	"encoding/pem"
 	"math/big"
 	"time"
 )
 
-// SetupCRLTemplate wraps a RevokationList type with a bit of pre-processing
-func SetupCRLTemplate(SignatureAlgorithm x509.SignatureAlgorithm, nextUpdate time.Time) *x509.RevocationList {
+// SetupNewCRLTemplate wraps a RevokationList type with a bit of pre-processing
+func SetupNewCRLTemplate(SignatureAlgorithm x509.SignatureAlgorithm, nextUpdate time.Time) *x509.RevocationList {
 	if nextUpdate.IsZero() {
 		nextUpdate = time.Now().AddDate(1, 0, 0)
 	}
+
 	return &x509.RevocationList{
 		SignatureAlgorithm:  SignatureAlgorithm,
 		RevokedCertificates: nil,
@@ -43,7 +45,15 @@ func PEMEncodeCRL(certByte []byte) *bytes.Buffer {
 // CreateNewCRLForCA wraps all the processes needed to create a new CRL for a CA
 func CreateNewCRLForCA(certificate *x509.Certificate, privateKey crypto.Signer, path string) (bool, error) {
 	// Create the template
-	crlTemplate := SetupCRLTemplate(certificate.SignatureAlgorithm, time.Now().AddDate(1, 0, 0))
+	crlTemplate := SetupNewCRLTemplate(certificate.SignatureAlgorithm, time.Now().AddDate(1, 0, 0))
+
+	// Take the SAN data from the Certificate and format for IAN
+	issuerBytes, err := marshalIANs(certificate.DNSNames, certificate.EmailAddresses, certificate.IPAddresses, certificate.URIs)
+	check(err)
+	issuerAltName := pkix.Extension{Id: asn1.ObjectIdentifier{2, 5, 29, 18}, Critical: false, Value: issuerBytes}
+
+	// Add IAN Extension to CRL Template
+	crlTemplate.ExtraExtensions = []pkix.Extension{issuerAltName}
 
 	// Create an actual CRL object
 	crlObject, err := NewCRL(crlTemplate, certificate, privateKey)

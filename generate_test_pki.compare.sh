@@ -57,7 +57,7 @@ function splitTextOutput {
       
         
       COUNTER_INDX=0
-        echo -e "----------------------------------------------OSSL--------------------------------------------------------------------------LOCK------------------------------------"
+        echo -e "----------------------------------------------OSSL----------------------------------------------------------------------------------------------------------LOCK----------------------------------------------"
       for i in "${O_ARRVAR[@]}"
       do
         printf "%-100s %-100s\n" "$i" "${L_ARRVAR[$COUNTER_INDX]}"
@@ -193,6 +193,12 @@ OSSP_PURPOSE_CMD=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/${OPENSSL_CA_CERT} -
 LOCK_PURPOSE_CMD=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/${LOCKSMITH_CA_CERT} -noout -purpose)
 splitPurposes "$OSSP_PURPOSE_CMD" "$LOCK_PURPOSE_CMD"
 
+echo -e "\n===== TEXT COMPARISON\n"
 OSSP_TEXT_CMD=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/${OPENSSL_CA_CERT} -noout -text)
 LOCK_TEXT_CMD=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/${LOCKSMITH_CA_CERT} -noout -text)
+splitTextOutput "${OSSP_TEXT_CMD}" "${LOCK_TEXT_CMD}"
+
+echo -e "\n===== CRL TEXT COMPARISON\n"
+OSSP_TEXT_CMD=$(openssl crl -in ${OPENSSL_PKI_ROOT_DIR}/crl/ca.crl -noout -text)
+LOCK_TEXT_CMD=$(openssl crl -in ${LOCKSMITH_PKI_ROOT_DIR}/crl/ca.crl -noout -text)
 splitTextOutput "${OSSP_TEXT_CMD}" "${LOCK_TEXT_CMD}"
