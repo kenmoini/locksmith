@@ -17,6 +17,7 @@ import (
 
 // NewRouter generates the router used in the HTTP Server
 func NewRouter(basePath string) *http.ServeMux {
+
 	if basePath == "" {
 		basePath = "/locksmith"
 	}
