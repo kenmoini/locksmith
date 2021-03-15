@@ -24,6 +24,8 @@ func NewRouter(basePath string) *http.ServeMux {
 	// Create router and define routes and return that router
 	router := http.NewServeMux()
 
+	//====================================================================================
+	// Basic Endpoints
 	// Version Output - reads from variables.go
 	router.HandleFunc(basePath+"/version", func(w http.ResponseWriter, r *http.Request) {
 		logNeworkRequestStdOut(r.Method+" "+basePath+"/version", r)
@@ -36,6 +38,8 @@ func NewRouter(basePath string) *http.ServeMux {
 		fmt.Fprintf(w, "OK")
 	})
 
+	//====================================================================================
+	// CERTIFICATES
 	// Certificate Functions - List certs, Create certs from CA slug
 	router.HandleFunc(basePath+"/certs", func(w http.ResponseWriter, r *http.Request) {
 		logNeworkRequestStdOut(r.Method+" "+basePath+"/certs", r)
@@ -60,15 +64,12 @@ func NewRouter(basePath string) *http.ServeMux {
 			// create - make a new cert and CSR
 
 		default:
-			returnData := &ReturnGenericMessage{
-				Status:   "method-not-allowed",
-				Errors:   []string{},
-				Messages: []string{"method not allowed"}}
-			returnResponse, _ := json.Marshal(returnData)
-			fmt.Fprintf(w, string(returnResponse))
+			APIMethodNotAllowed(w, r)
 		}
 	})
 
+	//====================================================================================
+	// ROOT CERTIFICATE AUTHORITIES
 	// Root CA Manipulation - Listing, Creating, Deleting
 	router.HandleFunc(basePath+"/roots", func(w http.ResponseWriter, r *http.Request) {
 		logNeworkRequestStdOut(r.Method+" "+basePath+"/roots", r)
@@ -152,12 +153,22 @@ func NewRouter(basePath string) *http.ServeMux {
 				fmt.Fprintf(w, string(returnResponse))
 			}
 		default:
-			returnData := &ReturnGenericMessage{
-				Status:   "method-not-allowed",
-				Errors:   []string{},
-				Messages: []string{"method not allowed"}}
-			returnResponse, _ := json.Marshal(returnData)
-			fmt.Fprintf(w, string(returnResponse))
+			APIMethodNotAllowed(w, r)
+		}
+	})
+
+	//====================================================================================
+	// INTERMEDIATE CERTIFICATE AUTHORITIES
+	// Intermediate CA Manipulation - Listing, Creating, Deleting
+	router.HandleFunc(basePath+"/intermediates", func(w http.ResponseWriter, r *http.Request) {
+		logNeworkRequestStdOut(r.Method+" "+basePath+"/intermediates", r)
+		switch r.Method {
+		case "GET":
+			APIListIntermediateCAs(w, r)
+		case "POST":
+			APICreateNewIntermediateCA(w, r)
+		default:
+			APIMethodNotAllowed(w, r)
 		}
 	})
 
@@ -218,4 +229,14 @@ func (config Config) RunHTTPServer() {
 	if err := server.Shutdown(ctx); err != nil {
 		log.Fatalf("Server was unable to gracefully shutdown due to err: %+v", err)
 	}
+}
+
+// APIMethodNotAllowed is a generic short function to return the method not allowed JSON
+func APIMethodNotAllowed(w http.ResponseWriter, r *http.Request) {
+	returnData := &ReturnGenericMessage{
+		Status:   "method-not-allowed",
+		Errors:   []string{"method not allowed"},
+		Messages: []string{}}
+	returnResponse, _ := json.Marshal(returnData)
+	fmt.Fprintf(w, string(returnResponse))
 }

@@ -347,3 +347,31 @@ func oidFromNamedCurve(curve elliptic.Curve) (asn1.ObjectIdentifier, bool) {
 
 	return nil, false
 }
+
+// splitSlugToPath takes a slug string and splits it into the relative path
+// eg converts "example-labs-root-certificate-authority/example-labs-ica/server-signing-ca" to "example-labs-root-certificate-authority/intermed-ca/example-labs-ica/intermed-ca/server-signing-ca/"
+func splitSlugToPath(slug string) string {
+	splitPath := strings.Split(strings.TrimSuffix(strings.TrimPrefix(strings.ToLower(slug), "/"), "/"), "/")
+	var path string
+	for i, part := range splitPath {
+		path = path + part + "/"
+		if i != (len(splitPath) - 1) {
+			path = path + "intermed-ca/"
+		}
+	}
+	return path
+}
+
+// splitCommonNamesToPath takes a CN string and splits it into the relative path while slugging
+// eg, converts "Example Labs Root Certificate Authority/Example Labs ICA/Server Signing CA" to "example-labs-root-certificate-authority/intermed-ca/example-labs-ica/intermed-ca/server-signing-ca/"
+func splitCommonNamesToPath(cnPath string) string {
+	splitPath := strings.Split(strings.TrimSuffix(strings.TrimPrefix(strings.ToLower(cnPath), "/"), "/"), "/")
+	var path string
+	for i, part := range splitPath {
+		path = path + slugger(part) + "/"
+		if i != (len(splitPath) - 1) {
+			path = path + "intermed-ca/"
+		}
+	}
+	return path
+}

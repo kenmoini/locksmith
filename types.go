@@ -95,6 +95,28 @@ type Counter struct {
 	count int64
 }
 
+// RESTGETIntermedCAJSON handles the data required by the GET /intermediates endpoint
+type RESTGETIntermedCAJSONIn struct {
+	CommonNamePath string `json:"parent_cn_path,omitempty"`
+	SlugPath       string `json:"parent_slug_path,omitempty"`
+}
+
+// RESTGETIntermedCAJSON handles the data returned by the GET /intermediates endpoint
+type RESTGETIntermedCAJSONReturn struct {
+	Status          string   `json:"status"`
+	Errors          []string `json:"errors"`
+	Messages        []string `json:"messages"`
+	IntermediateCAs []string `json:"intermediate_certificate_authorities"`
+}
+
+// RESTPOSTIntermedCAJSONIn handles the data required by the POST /intermediates endpoint
+type RESTPOSTIntermedCAJSONIn struct {
+	CommonNamePath              string                   `json:"parent_cn_path,omitempty"`
+	SlugPath                    string                   `json:"parent_slug_path,omitempty"`
+	CertificateConfiguration    CertificateConfiguration `json:"certificate_config"`
+	SigningPrivateKeyPassphrase string                   `json:"rsa_private_key_passphrase,omitempty"`
+}
+
 // CertificateConfiguration is a struct to pass Certificate Config Information into the setup functions
 type CertificateConfiguration struct {
 	Subject                 CertificateConfigurationSubject `json:"subject"`
