@@ -41,6 +41,7 @@ func setupIntermediateCACert(serialNumber int64, commonName string, organization
 	return &x509.Certificate{
 		SerialNumber: big.NewInt(serialNumber),
 		Subject: pkix.Name{
+			CommonName:         commonName,
 			Organization:       organization,
 			OrganizationalUnit: organizationalUnit,
 			Country:            country,
