@@ -34,7 +34,9 @@ Locksmith comes with a `Containerfile` that can be built with Docker or Podman w
 
 ```bash
 podman build -f Containerfile -t locksmith .
-podman run -p 8080:8080 -v config/:/etc/locksmith locksmith
+mkdir container-config
+cp config.yml.example container-config/config.yml
+podman run -p 8080:8080 -v container-config/:/etc/locksmith locksmith
 ```
 
 ## Deployment - Building From Source
