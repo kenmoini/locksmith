@@ -26,7 +26,7 @@ func APICreateNewRootCA(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	certInfoRaw := r.FormValue("cert_info")
+	certInfoRaw := r.FormValue("ca_info")
 	certInfoBytes := []byte(certInfoRaw)
 
 	certInfo := CertificateConfiguration{}
