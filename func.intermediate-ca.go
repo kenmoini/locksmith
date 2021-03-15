@@ -6,7 +6,6 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
-	"log"
 	"math/big"
 	"time"
 )
@@ -69,8 +68,6 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 	var rootSlug string
 	var caName string
 
-	logStdOut("Parent Path: " + parentPath)
-
 	if configWrapper.CertificateConfiguration.Subject.CommonName == "" {
 		checkInputError = true
 		checkInputErrors = append(checkInputErrors, "Missing common name field")
@@ -113,7 +110,7 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 		rootPrivKeyFile, rootPubKeyFile, err := writeRSAKeyPair(pemEncodeRSAPrivateKey(rootPrivKey, ""), pemEncodeRSAPublicKey(rootPubKey), certPaths.RootCACertKeysPath+"/ca")
 		check(err)
 		if rootPrivKeyFile && rootPubKeyFile {
-			logStdOut("Intermediate CA RSA Key Pair Created")
+			//logStdOut("Intermediate CA RSA Key Pair Created")
 		}
 	}
 
@@ -146,14 +143,15 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 
 	// Read in CSR lol
 	caCSRPEM, err := readCSRFromFile(certPaths.RootCACertRequestsPath + "/ca.pem")
-	log.Printf("Created CSR with CN: %v", caCSRPEM.Subject.CommonName)
+	//log.Printf("Created CSR with CN: %v", caCSRPEM.Subject.CommonName)
 
 	// Check for certificate file
 	certificateFileCheck, err := FileExists(certPaths.RootCACertsPath + "/ca.pem")
 	if !certificateFileCheck {
 		// Create Parent Signed Certificate
 		// Create Intermediate CA Object
-		intermedCA := setupIntermediateCACert(readSerialNumberAsInt64Abs(certPaths.RootCACertSerialFilePath), caCSRPEM.Subject.CommonName, caCSRPEM.Subject.Organization, caCSRPEM.Subject.OrganizationalUnit, caCSRPEM.Subject.Country, caCSRPEM.Subject.Province, caCSRPEM.Subject.Locality, caCSRPEM.Subject.StreetAddress, caCSRPEM.Subject.PostalCode, configWrapper.CertificateConfiguration.ExpirationDate, configWrapper.CertificateConfiguration.SANData, pubKeyFromFile)
+		// Serial number should come from the signing CA's serial
+		intermedCA := setupIntermediateCACert(readSerialNumberAsInt64Abs(parentPath+"/serial.txt"), caCSRPEM.Subject.CommonName, caCSRPEM.Subject.Organization, caCSRPEM.Subject.OrganizationalUnit, caCSRPEM.Subject.Country, caCSRPEM.Subject.Province, caCSRPEM.Subject.Locality, caCSRPEM.Subject.StreetAddress, caCSRPEM.Subject.PostalCode, configWrapper.CertificateConfiguration.ExpirationDate, configWrapper.CertificateConfiguration.SANData, pubKeyFromFile)
 
 		// Read in the Signing CA
 		rootCA, err := ReadCACertificate(parentPath)
@@ -170,6 +168,21 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 		check(err)
 		if !certificateFile {
 			return false, []string{"Intermediate CA Certificate Creation Failure!"}, err
+		} else {
+			// Increase the serial number in the Intermediate CA Serial file
+			increaseSerial, err := IncreaseSerialNumberAbs(certPaths.RootCACertSerialFilePath)
+			check(err)
+			if !increaseSerial {
+				logStdOut("Serial Increment ERROR!")
+				return false, []string{"Intermediate CA Serial Increment Error"}, err
+			}
+			// Increase the Signing CA serial number
+			increaseSerial, err = IncreaseSerialNumberAbs(parentPath + "/serial.txt")
+			check(err)
+			if !increaseSerial {
+				logStdOut("Serial Increment ERROR!")
+				return false, []string{"Signing CA Serial Increment Error"}, err
+			}
 		}
 	}
 

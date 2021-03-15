@@ -128,6 +128,17 @@ func IncreaseSerialNumber(rootSlug string) (bool, error) {
 	return serialFile, err
 }
 
+// IncreaseSerialNumberAbs just updates a root CAs serial via absolute path to the serial file
+func IncreaseSerialNumberAbs(path string) (bool, error) {
+	logStdOut("incrementing " + path)
+	serNum := readSerialNumberAsInt64Abs(path)
+
+	counter := Counter{serNum}
+	counter.increment()
+
+	return WriteFile(path, fmt.Sprintf("%v", counter.currentValue()), 0600, true)
+}
+
 // bakeURIs converts URL strings to actual URI slices
 func bakeURIs(uris []string) ([]*url.URL, error) {
 	actualURIs := []*url.URL{}

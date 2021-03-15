@@ -247,3 +247,13 @@ echo -e "\n===== PURPOSE COMPARISON\n"
 OSSP_PURPOSE_CMD=$(openssl x509 -in ${OPENSSL_PKI_INTERMED_CA_DIR}/${OPENSSL_CA_CERT} -noout -purpose)
 LOCK_PURPOSE_CMD=$(openssl x509 -in ${LOCKSMITH_PKI_INTERMED_CA_DIR}/${LOCKSMITH_CA_CERT} -noout -purpose)
 splitPurposes "$OSSP_PURPOSE_CMD" "$LOCK_PURPOSE_CMD"
+
+echo -e "\n===== TEXT COMPARISON\n"
+OSSP_TEXT_CMD=$(openssl x509 -in ${OPENSSL_PKI_INTERMED_CA_DIR}/${OPENSSL_CA_CERT} -noout -text)
+LOCK_TEXT_CMD=$(openssl x509 -in ${LOCKSMITH_PKI_INTERMED_CA_DIR}/${LOCKSMITH_CA_CERT} -noout -text)
+splitTextOutput "${OSSP_TEXT_CMD}" "${LOCK_TEXT_CMD}"
+
+echo -e "\n===== CRL TEXT COMPARISON\n"
+OSSP_TEXT_CMD=$(openssl crl -in ${OPENSSL_PKI_INTERMED_CA_DIR}/crl/ca.crl -noout -text)
+LOCK_TEXT_CMD=$(openssl crl -in ${LOCKSMITH_PKI_INTERMED_CA_DIR}/crl/ca.crl -noout -text)
+splitTextOutput "${OSSP_TEXT_CMD}" "${LOCK_TEXT_CMD}"

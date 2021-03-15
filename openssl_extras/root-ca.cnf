@@ -90,7 +90,7 @@ crlDistributionPoints   = crl_dist
 #
 # Intermediate CA Certificate Extensions
 [ intermed-ca_ext ]
-basicConstraints        = critical, CA:true, pathlen:0
+basicConstraints        = critical, CA:true
 keyUsage                = critical, keyCertSign, cRLSign
 subjectKeyIdentifier    = hash
 subjectAltName          = @subject_alt_name
