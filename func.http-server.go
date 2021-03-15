@@ -27,21 +27,19 @@ func NewRouter(basePath string) *http.ServeMux {
 	// KUBERNETES ENDPOINTS
 	// Version Output - reads from variables.go
 	router.HandleFunc(basePath+"/version", func(w http.ResponseWriter, r *http.Request) {
-		logNeworkRequestStdOut(r.Method+" "+basePath+"/version", r)
-		fmt.Fprintf(w, "Locksmith version: %s\n", locksmithVersion)
+		APIApplicationVersion(w, r)
 	})
 
 	// Healthz endpoint for kubernetes platforms
 	router.HandleFunc(basePath+"/healthz", func(w http.ResponseWriter, r *http.Request) {
-		logNeworkRequestStdOut(r.Method+" "+basePath+"/healthz", r)
-		fmt.Fprintf(w, "OK")
+		APIHealthZ(w, r)
 	})
 
 	//====================================================================================
 	// CERTIFICATES
 	// Certificate Functions - List certs, Create certs from CA slug
 	router.HandleFunc(basePath+"/certs", func(w http.ResponseWriter, r *http.Request) {
-		logNeworkRequestStdOut(r.Method+" "+basePath+"/certs", r)
+		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
 		switch r.Method {
 		case "GET":
 			// index - get list of certs for a ca path
@@ -71,7 +69,7 @@ func NewRouter(basePath string) *http.ServeMux {
 	// ROOT CERTIFICATE AUTHORITIES
 	// Root CA Manipulation - Listing, Creating, Deleting
 	router.HandleFunc(basePath+"/roots", func(w http.ResponseWriter, r *http.Request) {
-		logNeworkRequestStdOut(r.Method+" "+basePath+"/roots", r)
+		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
 		switch r.Method {
 		case "GET":
 			// index - get list of roots
@@ -89,7 +87,7 @@ func NewRouter(basePath string) *http.ServeMux {
 	// INTERMEDIATE CERTIFICATE AUTHORITIES
 	// Intermediate CA Manipulation - Listing, Creating, Deleting
 	router.HandleFunc(basePath+"/intermediates", func(w http.ResponseWriter, r *http.Request) {
-		logNeworkRequestStdOut(r.Method+" "+basePath+"/intermediates", r)
+		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
 		switch r.Method {
 		case "GET":
 			// index - get list of intermediate CAs in parent path
@@ -159,14 +157,4 @@ func (config Config) RunHTTPServer() {
 	if err := server.Shutdown(ctx); err != nil {
 		log.Fatalf("Server was unable to gracefully shutdown due to err: %+v", err)
 	}
-}
-
-// APIMethodNotAllowed is a generic short function to return the method not allowed JSON
-func APIMethodNotAllowed(w http.ResponseWriter, r *http.Request) {
-	returnData := &ReturnGenericMessage{
-		Status:   "method-not-allowed",
-		Errors:   []string{"method not allowed"},
-		Messages: []string{}}
-	returnResponse, _ := json.Marshal(returnData)
-	fmt.Fprintf(w, string(returnResponse))
 }

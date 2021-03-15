@@ -29,6 +29,12 @@ curl --header "Content-Type: application/x-www-form-urlencoded" \
 # Read the Intermediate Certificate Authorities of the Root CA
 curl --request GET -G --data-urlencode "parent_cn_path=Example Labs Root Certificate Authority" "http://localhost:8080/locksmith/intermediates"
 
+# Generate a Server Certificate for OpenVPN
+curl --header "Content-Type: application/x-www-form-urlencoded" \
+  --request POST \
+  --data 'ica_info={"parent_cn_path": "Example Labs Root Certificate Authority/Example Labs Intermediate Certificate Authority", "certificate_config":{"subject":{"common_name":"Example Labs OpenVPN Server","organization":["Example Labs"],"organizational_unit":["Example Labs Cyber and Information Security"]},"expiration_date": [1,0,1]}}' \
+  http://localhost:8080/locksmith/certificates
+
 
 kill -9 $RUN_PID
 
