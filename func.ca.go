@@ -183,6 +183,11 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, error) {
 	return true, []string{"Finished creating Root CA: " + caCert.Subject.CommonName}, nil
 }
 
+// ReadCACertificate reads a CA certificate and returns a *x509.Certificate object
+func ReadCACertificate(path string) (*x509.Certificate, error) {
+	return ReadCertFromFile(path + "/certs/ca.pem")
+}
+
 // APIListRootCAs handles the GET /roots endpoint
 func APIListRootCAs(w http.ResponseWriter, r *http.Request) {
 	rootListing := DirectoryListingNames(readConfig.Locksmith.PKIRoot + "/roots/")

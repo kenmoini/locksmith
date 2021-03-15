@@ -27,10 +27,7 @@ curl --header "Content-Type: application/x-www-form-urlencoded" \
   http://localhost:8080/locksmith/intermediates
 
 # Read the Intermediate Certificate Authorities of the Root CA
-curl --header "Content-Type: application/x-www-form-urlencoded" \
-  --request GET \
-  --data 'ica_info={"parent_cn_path": "Example Labs Root Certificate Authority"}' \
-  http://localhost:8080/locksmith/intermediates
+curl --request GET -G --data-urlencode "parent_cn_path=Example Labs Root Certificate Authority" "http://localhost:8080/locksmith/intermediates"
 
 
 kill -9 $RUN_PID

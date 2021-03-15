@@ -69,6 +69,32 @@ func readSerialNumber(rootSlug string) string {
 	return serial
 }
 
+// readSerialNumberAsIntAbs is a wrapper that converts the string serial number in a serial file to an int
+func readSerialNumberAsIntAbs(path string) int {
+	i, _ := strconv.Atoi(readSerialNumberAbs(path))
+	return i
+}
+
+// readSerialNumberAsInt64Abs converts an int converted serial number to int64
+func readSerialNumberAsInt64Abs(path string) int64 {
+	return int64(readSerialNumberAsIntAbs(path))
+}
+
+// readSerialNumberAbs reads the serial.txt file out from an absolute path
+func readSerialNumberAbs(path string) string {
+	file, err := os.Open(path)
+	check(err)
+	defer file.Close()
+
+	s := bufio.NewScanner(file)
+	var serial string
+	for s.Scan() {
+		serial = s.Text()
+		break
+	}
+	return serial
+}
+
 // IncreaseSerialNumber just updates a root CAs serial
 func IncreaseSerialNumber(rootSlug string) (bool, error) {
 	serNum := readSerialNumberAsInt64(rootSlug)

@@ -24,7 +24,7 @@ func NewRouter(basePath string) *http.ServeMux {
 	router := http.NewServeMux()
 
 	//====================================================================================
-	// Basic Endpoints
+	// KUBERNETES ENDPOINTS
 	// Version Output - reads from variables.go
 	router.HandleFunc(basePath+"/version", func(w http.ResponseWriter, r *http.Request) {
 		logNeworkRequestStdOut(r.Method+" "+basePath+"/version", r)
