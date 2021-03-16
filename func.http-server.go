@@ -112,6 +112,23 @@ func NewRouter(basePath string) *http.ServeMux {
 		}
 	})
 
+	//====================================================================================
+	// CERTIFICATE REQUESTS
+	// CSR Manipulation - Listing, Creating, Deleting
+	router.HandleFunc(basePath+"/certificate-requests", func(w http.ResponseWriter, r *http.Request) {
+		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
+		switch r.Method {
+		case "GET":
+			// index - get list of CSRs in cert path
+			APIListCSRs(w, r)
+		case "POST":
+			// create - create new csr in cert path
+			APICreateNewCSR(w, r)
+		default:
+			APIMethodNotAllowed(w, r)
+		}
+	})
+
 	return router
 }
 
