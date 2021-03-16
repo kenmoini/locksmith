@@ -352,7 +352,7 @@ func setupCAFileStructure(basePath string) CertificateAuthorityPaths {
 	}
 
 	//  CREATE SERIAL FILE
-	rootCACertSerialFilePath := rootCAPath + "/serial.txt"
+	rootCACertSerialFilePath := rootCAPath + "/ca.serial"
 	// Check to see if there is a serial file
 	serialFile, err := WriteFile(rootCACertSerialFilePath, "01", 0600, false)
 	check(err)
@@ -363,7 +363,7 @@ func setupCAFileStructure(basePath string) CertificateAuthorityPaths {
 	}
 
 	//  CREATE CERTIFICATE REVOCATION NUMBER FILE
-	rootCACrlnumFilePath := rootCAPath + "/crlnumber.txt"
+	rootCACrlnumFilePath := rootCAPath + "/ca.crlnum"
 	// Check to see if there is a crlNum file
 	crlNumFile, err := WriteFile(rootCACrlnumFilePath, "00", 0600, false)
 	check(err)

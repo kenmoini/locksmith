@@ -151,7 +151,7 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 		// Create Parent Signed Certificate
 		// Create Intermediate CA Object
 		// Serial number should come from the signing CA's serial
-		intermedCA := setupIntermediateCACert(readSerialNumberAsInt64Abs(parentPath+"/serial.txt"), caCSRPEM.Subject.CommonName, caCSRPEM.Subject.Organization, caCSRPEM.Subject.OrganizationalUnit, caCSRPEM.Subject.Country, caCSRPEM.Subject.Province, caCSRPEM.Subject.Locality, caCSRPEM.Subject.StreetAddress, caCSRPEM.Subject.PostalCode, configWrapper.CertificateConfiguration.ExpirationDate, configWrapper.CertificateConfiguration.SANData, pubKeyFromFile)
+		intermedCA := setupIntermediateCACert(readSerialNumberAsInt64Abs(parentPath+"/ca.serial"), caCSRPEM.Subject.CommonName, caCSRPEM.Subject.Organization, caCSRPEM.Subject.OrganizationalUnit, caCSRPEM.Subject.Country, caCSRPEM.Subject.Province, caCSRPEM.Subject.Locality, caCSRPEM.Subject.StreetAddress, caCSRPEM.Subject.PostalCode, configWrapper.CertificateConfiguration.ExpirationDate, configWrapper.CertificateConfiguration.SANData, pubKeyFromFile)
 
 		// Read in the Signing CA
 		rootCA, err := ReadCACertificate(parentPath)
@@ -177,7 +177,7 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 				return false, []string{"Intermediate CA Serial Increment Error"}, err
 			}
 			// Increase the Signing CA serial number
-			increaseSerial, err = IncreaseSerialNumberAbs(parentPath + "/serial.txt")
+			increaseSerial, err = IncreaseSerialNumberAbs(parentPath + "/ca.serial")
 			check(err)
 			if !increaseSerial {
 				logStdOut("Serial Increment ERROR!")

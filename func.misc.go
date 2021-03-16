@@ -46,15 +46,9 @@ func readSerialNumberAsInt64(rootSlugPath string) int64 {
 	return int64(readSerialNumberAsInt(rootSlugPath))
 }
 
-// readSerialNumber reads the serial.txt file out
+// readSerialNumber reads the ca.serial file out
 func readSerialNumber(rootSlug string) string {
-	/*
-		dat, err := ioutil.ReadFile(readConfig.Locksmith.PKIRoot + "/roots/" + rootSlug + "/serial.txt")
-		check(err)
-
-		return strings.TrimSuffix(string(dat), "\n")
-	*/
-	filePath, err := filepath.Abs(readConfig.Locksmith.PKIRoot + "/roots/" + rootSlug + "/serial.txt")
+	filePath, err := filepath.Abs(readConfig.Locksmith.PKIRoot + "/roots/" + rootSlug + "/ca.serial")
 	check(err)
 	file, err := os.Open(filePath)
 	check(err)
@@ -80,7 +74,7 @@ func readSerialNumberAsInt64Abs(path string) int64 {
 	return int64(readSerialNumberAsIntAbs(path))
 }
 
-// readSerialNumberAbs reads the serial.txt file out from an absolute path
+// readSerialNumberAbs reads the ca.serial file out from an absolute path
 func readSerialNumberAbs(path string) string {
 	file, err := os.Open(path)
 	check(err)
@@ -115,7 +109,7 @@ func IncreaseSerialNumber(rootSlug string) (bool, error) {
 
 	rootSlugPath := readConfig.Locksmith.PKIRoot + "/roots/" + rootSlug
 
-	rootCACertSerialFilePath, err := filepath.Abs(rootSlugPath + "/serial.txt")
+	rootCACertSerialFilePath, err := filepath.Abs(rootSlugPath + "/ca.serial")
 	check(err)
 
 	// Update serialFile
