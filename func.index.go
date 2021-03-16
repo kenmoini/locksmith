@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/csv"
 	"fmt"
@@ -21,8 +20,12 @@ Serial: serial of the certificate
 Path to Certificate: can also be “unknown”
 Subject: subject of the certificate
 */
-func AddEntryToCAIndex(indexPath string, certPath string, certificate *x509.Certificate) (bool, error) {
+func AddEntryToCAIndex(indexPath string, certPath string) (bool, error) {
 	// File is created on file structure initializtion - read the file in
+	// Read in Certificate File lol
+	certificate, err := ReadCertFromFile(certPath)
+	check(err)
+
 	f, err := os.OpenFile(indexPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	check(err)
 

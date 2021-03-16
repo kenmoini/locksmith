@@ -191,7 +191,7 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 	check(err)
 
 	// Add Certificate to Signing CA Index
-	addedEntry, err := AddEntryToCAIndex(parentPath+"/ca.index", certPaths.RootCACertsPath+"/ca.pem", caCert)
+	addedEntry, err := AddEntryToCAIndex(parentPath+"/ca.index", certPaths.RootCACertsPath+"/ca.pem")
 	check(err)
 	if !addedEntry {
 		logStdOut("Signing CA Index ERROR!")

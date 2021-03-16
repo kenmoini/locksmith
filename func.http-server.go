@@ -25,22 +25,14 @@ func NewRouter(basePath string) *http.ServeMux {
 
 	//====================================================================================
 	// TEST ENDPOINT
-	// Version Output - reads from variables.go
+	// Test out a random function maybe
 	router.HandleFunc(basePath+"/test", func(w http.ResponseWriter, r *http.Request) {
-		// Read in Certificate File lol
-		caCert, err := ReadCertFromFile(".generated/roots/example-labs-root-certificate-authority/certs/ca.pem")
-		check(err)
-
-		addedEntry, err := AddEntryToCAIndex(".generated/roots/example-labs-root-certificate-authority/ca.index", ".generated/roots/example-labs-root-certificate-authority/certs/ca.pem", caCert)
-		check(err)
-		if addedEntry {
-			returnData := &ReturnGenericMessage{
-				Status:   "test",
-				Errors:   []string{},
-				Messages: []string{"Test!"}}
-			returnResponse, _ := json.Marshal(returnData)
-			fmt.Fprintf(w, string(returnResponse))
-		}
+		returnData := &ReturnGenericMessage{
+			Status:   "test",
+			Errors:   []string{},
+			Messages: []string{"Test!"}}
+		returnResponse, _ := json.Marshal(returnData)
+		fmt.Fprintf(w, string(returnResponse))
 	})
 
 	//====================================================================================

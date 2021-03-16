@@ -180,7 +180,7 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, error) {
 
 	// Add Certificate to Root CA Index
 	absoluteCertPath, _ := filepath.Abs(certPaths.RootCACertsPath + "/ca.pem")
-	addedEntry, err := AddEntryToCAIndex(certPaths.RootCACertIndexFilePath, absoluteCertPath, caCert)
+	addedEntry, err := AddEntryToCAIndex(certPaths.RootCACertIndexFilePath, absoluteCertPath)
 	check(err)
 	if !addedEntry {
 		logStdOut("Root CA Index ERROR!")
