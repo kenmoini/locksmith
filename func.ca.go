@@ -163,14 +163,13 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, error) {
 		check(err)
 		if !certificateFile {
 			return false, []string{"Root CA Certificate Creation Failure!"}, err
-		} else {
-			// Increase the serial number in the Root CA Serial file
-			increaseSerial, err := IncreaseSerialNumberAbs(certPaths.RootCACertSerialFilePath)
-			check(err)
-			if !increaseSerial {
-				logStdOut("Serial Increment ERROR!")
-				return false, []string{"Root CA Serial Increment Error"}, err
-			}
+		}
+		// Increase the serial number in the Root CA Serial file
+		increaseSerial, err := IncreaseSerialNumberAbs(certPaths.RootCACertSerialFilePath)
+		check(err)
+		if !increaseSerial {
+			logStdOut("Serial Increment ERROR!")
+			return false, []string{"Root CA Serial Increment Error"}, err
 		}
 	}
 

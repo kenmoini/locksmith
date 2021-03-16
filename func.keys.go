@@ -31,16 +31,26 @@ func generateRSAKeypair(keySize int) (*rsa.PrivateKey, *rsa.PublicKey, error) {
 
 // writeRSAKeyPair creates key pairs
 func writeRSAKeyPair(privKey *bytes.Buffer, pubKey *bytes.Buffer, path string) (bool, bool, error) {
-	privKeyFile, err := writePrivateKey(privKey, path+".priv.pem")
+	privKeyFile, err := writeKeyFile(privKey, path+".priv.pem", 0400)
 	if err != nil {
 		return false, false, err
 	}
 
-	pubKeyFile, err := writePublicKey(pubKey, path+".pub.pem")
+	pubKeyFile, err := writeKeyFile(pubKey, path+".pub.pem", 0644)
 	if err != nil {
 		return privKeyFile, false, err
 	}
 	return privKeyFile, pubKeyFile, nil
+}
+
+// writeKeyFile writes a public or private key file depending on the permissions, 644 for public, 400 for private
+func writeKeyFile(pem *bytes.Buffer, path string, permission int) (bool, error) {
+	pemByte, _ := ioutil.ReadAll(pem)
+	keyFile, err := WriteByteFile(path, pemByte, permission, false)
+	if err != nil {
+		return false, err
+	}
+	return keyFile, nil
 }
 
 // writePublicKey
@@ -88,6 +98,13 @@ func pemEncodeRSAPublicKey(caPubKey *rsa.PublicKey) *bytes.Buffer {
 		Bytes: x509.MarshalPKCS1PublicKey(caPubKey),
 	})
 	return caPubKeyPEM
+}
+
+// LoadKeyFile - loads a PEM key file
+func LoadKeyFile(fileName string) []byte {
+	inFile, err := ioutil.ReadFile(fileName)
+	check(err)
+	return inFile
 }
 
 // LoadPublicKeyFile - loads a private key PEM file

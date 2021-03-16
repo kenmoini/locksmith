@@ -168,21 +168,21 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 		check(err)
 		if !certificateFile {
 			return false, []string{"Intermediate CA Certificate Creation Failure!"}, err
-		} else {
-			// Increase the serial number in the Intermediate CA Serial file
-			increaseSerial, err := IncreaseSerialNumberAbs(certPaths.RootCACertSerialFilePath)
-			check(err)
-			if !increaseSerial {
-				logStdOut("Serial Increment ERROR!")
-				return false, []string{"Intermediate CA Serial Increment Error"}, err
-			}
-			// Increase the Signing CA serial number
-			increaseSerial, err = IncreaseSerialNumberAbs(parentPath + "/ca.serial")
-			check(err)
-			if !increaseSerial {
-				logStdOut("Serial Increment ERROR!")
-				return false, []string{"Signing CA Serial Increment Error"}, err
-			}
+		}
+
+		// Increase the serial number in the Intermediate CA Serial file
+		increaseSerial, err := IncreaseSerialNumberAbs(certPaths.RootCACertSerialFilePath)
+		check(err)
+		if !increaseSerial {
+			logStdOut("Serial Increment ERROR!")
+			return false, []string{"Intermediate CA Serial Increment Error"}, err
+		}
+		// Increase the Signing CA serial number
+		increaseSerial, err = IncreaseSerialNumberAbs(parentPath + "/ca.serial")
+		check(err)
+		if !increaseSerial {
+			logStdOut("Serial Increment ERROR!")
+			return false, []string{"Signing CA Serial Increment Error"}, err
 		}
 	}
 
