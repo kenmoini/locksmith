@@ -8,6 +8,7 @@ import (
 	"encoding/asn1"
 	"log"
 	"math/big"
+	"path/filepath"
 	"time"
 )
 
@@ -176,6 +177,15 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, error) {
 	// Read in Certificate File lol
 	caCert, err := ReadCertFromFile(certPaths.RootCACertsPath + "/ca.pem")
 	check(err)
+
+	// Add Certificate to Root CA Index
+	absoluteCertPath, _ := filepath.Abs(certPaths.RootCACertsPath + "/ca.pem")
+	addedEntry, err := AddEntryToCAIndex(certPaths.RootCACertIndexFilePath, absoluteCertPath, caCert)
+	check(err)
+	if !addedEntry {
+		logStdOut("Root CA Index ERROR!")
+		return false, []string{"Root CA Index Entry Error"}, err
+	}
 
 	// Create CRL with CA Cert
 	caCRL, err := CreateNewCRLForCA(caCert, privateKeyFromFile, certPaths.RootCACertRevListPath+"/ca.crl")

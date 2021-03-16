@@ -190,6 +190,14 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 	caCert, err := ReadCertFromFile(certPaths.RootCACertsPath + "/ca.pem")
 	check(err)
 
+	// Add Certificate to Signing CA Index
+	addedEntry, err := AddEntryToCAIndex(parentPath+"/ca.index", certPaths.RootCACertsPath+"/ca.pem", caCert)
+	check(err)
+	if !addedEntry {
+		logStdOut("Signing CA Index ERROR!")
+		return false, []string{"Signing CA Index Entry Error"}, err
+	}
+
 	// Create CRL with CA Cert
 	caCRL, err := CreateNewCRLForCA(caCert, privateKeyFromFile, certPaths.RootCACertRevListPath+"/ca.crl")
 	if !caCRL {

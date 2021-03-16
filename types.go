@@ -172,3 +172,13 @@ type pkcs1PublicKey struct {
 	N *big.Int
 	E int
 }
+
+// CAIndex provides the tab-delimited structure for CA Index files
+type CAIndex struct {
+	State             string
+	EndDate           string
+	DateOfRevokation  string
+	Serial            string
+	PathToCertificate string
+	Subject           string
+}
