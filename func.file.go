@@ -362,7 +362,7 @@ func setupCAFileStructure(basePath string) CertificateAuthorityPaths {
 		logStdOut("Serial file exists")
 	}
 
-	//  CREATE CERTIFICATE REVOKATION NUMBER FILE
+	//  CREATE CERTIFICATE REVOCATION NUMBER FILE
 	rootCACrlnumFilePath := rootCAPath + "/crlnumber.txt"
 	// Check to see if there is a crlNum file
 	crlNumFile, err := WriteFile(rootCACrlnumFilePath, "00", 0600, false)
