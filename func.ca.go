@@ -64,7 +64,7 @@ func setupCACert(serialNumber int64, commonName string, organization []string, o
 }
 
 // createNewCA - creates a new Certificate Authority
-func createNewCA(certConfig CertificateConfiguration) (bool, []string, error) {
+func createNewCA(certConfig CertificateConfiguration) (bool, []string, x509.Certificate, error) {
 	checkInputError := false
 	var checkInputErrors []string
 	var rootSlug string
@@ -91,7 +91,7 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, error) {
 		checkInputErrors = append(checkInputErrors, "Missing Expiration Date field")
 	}
 	if checkInputError {
-		return false, checkInputErrors, Stoerr("cert-config-error")
+		return false, checkInputErrors, x509.Certificate{}, Stoerr("cert-config-error")
 	}
 
 	rootSlugPath := readConfig.Locksmith.PKIRoot + "/roots/" + rootSlug
@@ -111,8 +111,8 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, error) {
 
 		rootPrivKeyFile, rootPubKeyFile, err := writeRSAKeyPair(pemEncodeRSAPrivateKey(rootPrivKey, ""), pemEncodeRSAPublicKey(rootPubKey), certPaths.RootCACertKeysPath+"/ca")
 		check(err)
-		if rootPrivKeyFile && rootPubKeyFile {
-			logStdOut("RSA Key Pair Created")
+		if !rootPrivKeyFile || !rootPubKeyFile {
+			return false, []string{"Root CA Private Key Failure"}, x509.Certificate{}, err
 		}
 	}
 
@@ -139,7 +139,7 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, error) {
 			true)
 		if !caCSR {
 			check(err)
-			return false, []string{"Root CA CSR Failure"}, err
+			return false, []string{"Root CA CSR Failure"}, x509.Certificate{}, err
 		}
 	}
 
@@ -162,14 +162,14 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, error) {
 		certificateFile, err := writeCertificateFile(pemEncodeCertificate(caBytes), certPaths.RootCACertsPath+"/ca.pem")
 		check(err)
 		if !certificateFile {
-			return false, []string{"Root CA Certificate Creation Failure!"}, err
+			return false, []string{"Root CA Certificate Creation Failure!"}, x509.Certificate{}, err
 		}
 		// Increase the serial number in the Root CA Serial file
 		increaseSerial, err := IncreaseSerialNumberAbs(certPaths.RootCACertSerialFilePath)
 		check(err)
 		if !increaseSerial {
 			logStdOut("Serial Increment ERROR!")
-			return false, []string{"Root CA Serial Increment Error"}, err
+			return false, []string{"Root CA Serial Increment Error"}, x509.Certificate{}, err
 		}
 	}
 
@@ -183,17 +183,17 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, error) {
 	check(err)
 	if !addedEntry {
 		logStdOut("Root CA Index ERROR!")
-		return false, []string{"Root CA Index Entry Error"}, err
+		return false, []string{"Root CA Index Entry Error"}, x509.Certificate{}, err
 	}
 
 	// Create CRL with CA Cert
 	caCRL, err := CreateNewCRLForCA(caCert, privateKeyFromFile, certPaths.RootCACertRevListPath+"/ca.crl")
 	if !caCRL {
 		logStdOut("Root CA CRL ERROR!")
-		return false, []string{"Root CA CRL Creation Error"}, err
+		return false, []string{"Root CA CRL Creation Error"}, x509.Certificate{}, err
 	}
 
-	return true, []string{"Finished creating Root CA: " + caCert.Subject.CommonName}, nil
+	return true, []string{"Finished creating Root CA: " + caCert.Subject.CommonName}, *caCert, nil
 }
 
 // ReadCACertificate reads a CA certificate and returns a *x509.Certificate object

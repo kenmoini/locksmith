@@ -10,6 +10,7 @@ import (
 // APIListIntermediateCAs handles the GET /intermediates endpoint
 func APIListIntermediateCAs(w http.ResponseWriter, r *http.Request) {
 	var parentPath string
+	var parentPathRaw string
 
 	// Parse the submitted form data
 	if err := r.ParseForm(); err != nil {
@@ -21,10 +22,12 @@ func APIListIntermediateCAs(w http.ResponseWriter, r *http.Request) {
 	parentCNPath, presentCN := queryParams["parent_cn_path"]
 	if presentCN {
 		parentPath = splitCommonNamesToPath(parentCNPath[0])
+		parentPathRaw = parentCNPath[0]
 	}
 	parentSlugPath, presentSlug := queryParams["parent_slug_path"]
 	if presentSlug {
 		parentPath = splitSlugToPath(parentSlugPath[0])
+		parentPathRaw = parentSlugPath[0]
 	}
 
 	// Neither options are submitted - error
@@ -51,7 +54,7 @@ func APIListIntermediateCAs(w http.ResponseWriter, r *http.Request) {
 			returnData := &RESTGETIntermedCAJSONReturn{
 				Status:          "success",
 				Errors:          []string{},
-				Messages:        []string{"listing of intermed cas"},
+				Messages:        []string{"Listing of Intermediate Certificate Authorities under " + parentPathRaw},
 				IntermediateCAs: intermedCAs}
 			returnResponse, _ := json.Marshal(returnData)
 			fmt.Fprintf(w, string(returnResponse))
@@ -69,16 +72,9 @@ func APIListIntermediateCAs(w http.ResponseWriter, r *http.Request) {
 
 // APICreateNewIntermediateCA handles the POST /intermediates endpoint
 func APICreateNewIntermediateCA(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		fmt.Fprintf(w, "ParseForm() err: %v", err)
-		return
-	}
-
-	intermedCAInfoRaw := r.FormValue("ica_info")
-	intermedCAInfoBytes := []byte(intermedCAInfoRaw)
-
+	// Parse the JSON body into the CertificateConfiguration struct
 	intermedCAInfo := RESTPOSTIntermedCAJSONIn{}
-	err := json.Unmarshal(intermedCAInfoBytes, &intermedCAInfo)
+	err := json.NewDecoder(r.Body).Decode(&intermedCAInfo)
 	check(err)
 
 	var parentPath string
@@ -129,20 +125,24 @@ func APICreateNewIntermediateCA(w http.ResponseWriter, r *http.Request) {
 			// If the intermediate doesn't exist, check the parent signing key and see if it's password protected - decrypt if needed
 
 			logNeworkRequestStdOut(caName+" ("+sluggedName+") creating intermediate ca", r)
-			icaCreated, _, err := createNewIntermediateCA(intermedCAInfo, absPath)
+			icaCreated, _, icaCert, err := createNewIntermediateCA(intermedCAInfo, absPath)
 			check(err)
 			if icaCreated {
 				logNeworkRequestStdOut(caName+" ("+sluggedName+") intermed-ca-created", r)
-				returnData := &ReturnGenericMessage{
+				returnData := &ReturnPostRoots{
 					Status:   "intermed-ca-created",
 					Errors:   []string{},
-					Messages: []string{"Successfully created Intermediate CA " + caName + "!"}}
+					Messages: []string{"Successfully created Intermediate CA " + caName + "!"},
+					Root: RootInfo{
+						Slug:     sluggedName,
+						CertInfo: icaCert,
+						Serial:   readSerialNumberAbs(absPath + "/intermed-ca/" + sluggedName)}}
 				returnResponse, _ := json.Marshal(returnData)
 				fmt.Fprintf(w, string(returnResponse))
 			} else {
 				logNeworkRequestStdOut(caName+" ("+sluggedName+") error-creating-intermed-ca", r)
 				returnData := &ReturnGenericMessage{
-					Status:   "error-creating-intermed-ca",
+					Status:   "intermed-ca-creation-error",
 					Errors:   []string{"Error creating Intermediate CA " + caName + "!"},
 					Messages: []string{}}
 				returnResponse, _ := json.Marshal(returnData)

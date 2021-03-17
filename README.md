@@ -18,15 +18,17 @@ A sample `config.yml` can be found in this repository at [config.yml.example](co
 
 Running Locksmith will do the following:
 
-1. Create a PKI Root Directory
+1. Create a PKI Base Directory
 2. Start an HTTP Server
-3. Respond to requests, serve certificates and requests
+3. Respond to requests, generating & serving authorities/certificates/keys/requests/revocations.
 
 ### 3. Make Requests to the API
 
 The API is served at the HTTP endpoint base path as defined in the configuration YAML.
 
-*OpenAPI Spec v3 coming soon...*
+You can find the API documentation in the [docs/apis/](docs/apis/) folder.
+
+---
 
 ## Deployment - As a Container
 
@@ -49,11 +51,20 @@ go build
 ./locksmith
 ```
 
+---
+
 ## FAQs
 
 - **Does this include any sort of authentication, rate limiting, etc?**
 
   No, that's the job of an API Gateway - this is more of a microservice so manage and secure accordingly.
+
+- **Has this been architected for multi-tenancy?**
+
+  Multiple root certificates and trusted signers?  Yeah, sure.
+  Multiple customers/entities/non-trusted orgs? That's a horrible idea, so: no.  This is a small binary service that is deployed first-class via containers, authenticated at an API Gateway, easily scaled out in a Kubernetes cluster.  So your multi-tenancy would be better set at the PaaS layer with different namespaces/PVs/SAs/etc.
+
+---
 
 ## Testing
 

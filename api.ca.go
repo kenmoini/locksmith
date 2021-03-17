@@ -21,22 +21,22 @@ func APIListRootCAs(w http.ResponseWriter, r *http.Request) {
 
 // APICreateNewRootCA handles the POST /roots endpoint
 func APICreateNewRootCA(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		fmt.Fprintf(w, "ParseForm() err: %v", err)
-		return
-	}
-
-	certInfoRaw := r.FormValue("ca_info")
-	certInfoBytes := []byte(certInfoRaw)
-
+	// Parse the JSON body into the CertificateConfiguration struct
 	certInfo := CertificateConfiguration{}
-	err := json.Unmarshal(certInfoBytes, &certInfo)
+	err := json.NewDecoder(r.Body).Decode(&certInfo)
 	check(err)
 
 	caName := certInfo.Subject.CommonName
+	if caName == "" {
+		returnData := &ReturnPostRoots{
+			Status:   "root-creation-error",
+			Errors:   []string{"Invalid JSON!"},
+			Messages: []string{},
+			Root:     RootInfo{}}
+		returnResponse, _ := json.Marshal(returnData)
+		fmt.Fprintf(w, string(returnResponse))
+	}
 	sluggedName := slugger(caName)
-	logStdOut("caName " + caName)
-	logStdOut("sluggedName " + sluggedName)
 
 	// Find absolute path
 	checkForRootPath, err := filepath.Abs(readConfig.Locksmith.PKIRoot + "/roots/" + sluggedName)
@@ -51,7 +51,7 @@ func APICreateNewRootCA(w http.ResponseWriter, r *http.Request) {
 		logNeworkRequestStdOut(caName+" ("+sluggedName+") root-exists", r)
 		returnData := &ReturnPostRoots{
 			Status:   "root-exists",
-			Errors:   []string{},
+			Errors:   []string{"Root CA " + caName + " already exists!"},
 			Messages: []string{},
 			Root: RootInfo{
 				Slug:   sluggedName,
@@ -60,7 +60,7 @@ func APICreateNewRootCA(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, string(returnResponse))
 	} else {
 		// Generate a new Certificate Authority
-		newCAState, newCA, err := createNewCA(certInfo)
+		newCAState, newCA, caCert, err := createNewCA(certInfo)
 		check(err)
 		returnData := &ReturnPostRoots{}
 		if newCAState {
@@ -68,16 +68,17 @@ func APICreateNewRootCA(w http.ResponseWriter, r *http.Request) {
 			returnData = &ReturnPostRoots{
 				Status:   "root-created",
 				Errors:   []string{},
-				Messages: []string{},
+				Messages: []string{"Root CA " + caName + " created!"},
 				Root: RootInfo{
-					Slug:   sluggedName,
-					Serial: readSerialNumber(sluggedName)}}
+					Slug:     sluggedName,
+					CertInfo: caCert,
+					Serial:   readSerialNumber(sluggedName)}}
 		} else {
 			logNeworkRequestStdOut(caName+" ("+sluggedName+") root-creation-error", r)
 			returnData = &ReturnPostRoots{
 				Status:   "root-creation-error",
-				Errors:   newCA,
-				Messages: []string{},
+				Errors:   []string{err.Error()},
+				Messages: newCA,
 				Root: RootInfo{
 					Slug:   sluggedName,
 					Serial: readSerialNumber(sluggedName)}}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/x509"
 	"math/big"
 	"net"
 	"time"
@@ -79,8 +80,9 @@ type ReturnPostRoots struct {
 
 // RootInfo provides general root informations
 type RootInfo struct {
-	Slug   string `json:"slug"`
-	Serial string `json:"serial"`
+	Slug     string           `json:"slug"`
+	Serial   string           `json:"next_serial"`
+	CertInfo x509.Certificate `json:"certificate"`
 }
 
 // CertificateInformation gives a general read out of a certificate file
@@ -126,7 +128,7 @@ type CertificateConfiguration struct {
 	SANData                 SANData                         `json:"san_data,omitempty"`
 }
 
-// CertificateConfigurationSubject is simply a redefinition
+// CertificateConfigurationSubject is simply a redefinition of pkix.Name
 type CertificateConfigurationSubject struct {
 	CommonName         string   `json:"common_name"`
 	Organization       []string `json:"organization"`

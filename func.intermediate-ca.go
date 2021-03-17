@@ -62,7 +62,7 @@ func setupIntermediateCACert(serialNumber int64, commonName string, organization
 }
 
 // createNewIntermediateCA - creates a new Intermediate Certificate Authority
-func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath string) (bool, []string, error) {
+func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath string) (bool, []string, x509.Certificate, error) {
 	checkInputError := false
 	var checkInputErrors []string
 	var rootSlug string
@@ -88,7 +88,7 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 		checkInputErrors = append(checkInputErrors, "Missing Expiration Date field")
 	}
 	if checkInputError {
-		return false, checkInputErrors, Stoerr("cert-config-error")
+		return false, checkInputErrors, x509.Certificate{}, Stoerr("cert-config-error")
 	}
 
 	rootSlugPath := parentPath + "/intermed-ca/" + rootSlug
@@ -109,8 +109,8 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 
 		rootPrivKeyFile, rootPubKeyFile, err := writeRSAKeyPair(pemEncodeRSAPrivateKey(rootPrivKey, ""), pemEncodeRSAPublicKey(rootPubKey), certPaths.RootCACertKeysPath+"/ca")
 		check(err)
-		if rootPrivKeyFile && rootPubKeyFile {
-			//logStdOut("Intermediate CA RSA Key Pair Created")
+		if !rootPrivKeyFile || !rootPubKeyFile {
+			return false, []string{"Root CA Private Key Failure"}, x509.Certificate{}, err
 		}
 	}
 
@@ -137,7 +137,7 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 			true)
 		if !caCSR {
 			check(err)
-			return false, []string{"Intermediate CA CSR Failure"}, err
+			return false, []string{"Intermediate CA CSR Failure"}, x509.Certificate{}, err
 		}
 	}
 
@@ -167,7 +167,7 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 		certificateFile, err := writeCertificateFile(pemEncodeCertificate(caBytes), certPaths.RootCACertsPath+"/ca.pem")
 		check(err)
 		if !certificateFile {
-			return false, []string{"Intermediate CA Certificate Creation Failure!"}, err
+			return false, []string{"Intermediate CA Certificate Creation Failure!"}, x509.Certificate{}, err
 		}
 
 		// Increase the serial number in the Intermediate CA Serial file
@@ -175,14 +175,14 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 		check(err)
 		if !increaseSerial {
 			logStdOut("Serial Increment ERROR!")
-			return false, []string{"Intermediate CA Serial Increment Error"}, err
+			return false, []string{"Intermediate CA Serial Increment Error"}, x509.Certificate{}, err
 		}
 		// Increase the Signing CA serial number
 		increaseSerial, err = IncreaseSerialNumberAbs(parentPath + "/ca.serial")
 		check(err)
 		if !increaseSerial {
 			logStdOut("Serial Increment ERROR!")
-			return false, []string{"Signing CA Serial Increment Error"}, err
+			return false, []string{"Signing CA Serial Increment Error"}, x509.Certificate{}, err
 		}
 	}
 
@@ -195,16 +195,16 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 	check(err)
 	if !addedEntry {
 		logStdOut("Signing CA Index ERROR!")
-		return false, []string{"Signing CA Index Entry Error"}, err
+		return false, []string{"Signing CA Index Entry Error"}, x509.Certificate{}, err
 	}
 
 	// Create CRL with CA Cert
 	caCRL, err := CreateNewCRLForCA(caCert, privateKeyFromFile, certPaths.RootCACertRevListPath+"/ca.crl")
 	if !caCRL {
 		logStdOut("Intermediate CA CRL ERROR!")
-		return false, []string{"Intermediate CA CRL Creation Error"}, err
+		return false, []string{"Intermediate CA CRL Creation Error"}, x509.Certificate{}, err
 	}
 
-	return true, []string{"Finished creating Intermediate CA: " + caCert.Subject.CommonName}, nil
+	return true, []string{"Finished creating Intermediate CA: " + caCert.Subject.CommonName}, *caCert, nil
 
 }

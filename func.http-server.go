@@ -17,16 +17,21 @@ import (
 // NewRouter generates the router used in the HTTP Server
 func NewRouter(basePath string) *http.ServeMux {
 
+	var formattedBasePath string
+	var apiVersionTag string
+
 	if basePath == "" {
 		basePath = "/locksmith"
 	}
+	formattedBasePath = strings.TrimRight(basePath, "/")
+
 	// Create router and define routes and return that router
 	router := http.NewServeMux()
 
 	//====================================================================================
 	// TEST ENDPOINT
 	// Test out a random function maybe
-	router.HandleFunc(basePath+"/test", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc(formattedBasePath+"/test", func(w http.ResponseWriter, r *http.Request) {
 		returnData := &ReturnGenericMessage{
 			Status:   "test",
 			Errors:   []string{},
@@ -38,19 +43,24 @@ func NewRouter(basePath string) *http.ServeMux {
 	//====================================================================================
 	// KUBERNETES ENDPOINTS
 	// Version Output - reads from variables.go
-	router.HandleFunc(basePath+"/version", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc(formattedBasePath+"/version", func(w http.ResponseWriter, r *http.Request) {
 		APIApplicationVersion(w, r)
 	})
 
 	// Healthz endpoint for kubernetes platforms
-	router.HandleFunc(basePath+"/healthz", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc(formattedBasePath+"/healthz", func(w http.ResponseWriter, r *http.Request) {
 		APIHealthZ(w, r)
 	})
 
 	//====================================================================================
+	// START V1 API
+	//====================================================================================
+	apiVersionTag = "/v1"
+
+	//====================================================================================
 	// CERTIFICATES
 	// Certificate Functions - List certs, Create certs from CA slug
-	router.HandleFunc(basePath+"/certs", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc(formattedBasePath+apiVersionTag+"/certs", func(w http.ResponseWriter, r *http.Request) {
 		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
 		switch r.Method {
 		case "GET":
@@ -80,7 +90,7 @@ func NewRouter(basePath string) *http.ServeMux {
 	//====================================================================================
 	// ROOT CERTIFICATE AUTHORITIES
 	// Root CA Manipulation - Listing, Creating, Deleting
-	router.HandleFunc(basePath+"/roots", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc(formattedBasePath+apiVersionTag+"/roots", func(w http.ResponseWriter, r *http.Request) {
 		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
 		switch r.Method {
 		case "GET":
@@ -98,7 +108,7 @@ func NewRouter(basePath string) *http.ServeMux {
 	//====================================================================================
 	// INTERMEDIATE CERTIFICATE AUTHORITIES
 	// Intermediate CA Manipulation - Listing, Creating, Deleting
-	router.HandleFunc(basePath+"/intermediates", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc(formattedBasePath+apiVersionTag+"/intermediates", func(w http.ResponseWriter, r *http.Request) {
 		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
 		switch r.Method {
 		case "GET":
@@ -115,7 +125,7 @@ func NewRouter(basePath string) *http.ServeMux {
 	//====================================================================================
 	// KEY PAIRS
 	// Key Manipulation - Listing, Creating, Deleting
-	router.HandleFunc(basePath+"/keys", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc(formattedBasePath+apiVersionTag+"/keys", func(w http.ResponseWriter, r *http.Request) {
 		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
 		switch r.Method {
 		case "GET":
@@ -132,7 +142,7 @@ func NewRouter(basePath string) *http.ServeMux {
 	//====================================================================================
 	// CERTIFICATE REQUESTS
 	// CSR Manipulation - Listing, Creating, Deleting
-	router.HandleFunc(basePath+"/certificate-requests", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc(formattedBasePath+apiVersionTag+"/certificate-requests", func(w http.ResponseWriter, r *http.Request) {
 		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
 		switch r.Method {
 		case "GET":
