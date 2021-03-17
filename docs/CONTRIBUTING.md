@@ -92,6 +92,8 @@ When ready to review (or just to establish an offsite backup of your work in you
 git push -u origin awesome-new-feature
 ```
 
+A benefit to pushing to your fork on GitHub is that it will automatically run the GitHub Actions to perform a Test of the Build - click the "Actions" tab of your GitHub repo!
+
 ### 7. Submit a [pull request][pr]
 
 1. Visit your fork at https://github.com/YOUR-USERNAME/locksmith
