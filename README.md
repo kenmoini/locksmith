@@ -5,6 +5,7 @@
 Locksmith is a simple Golang application, which when supplied a `config.yml` file will start a RESTful API via an HTTP server that will allow the management of Public Key Infrastructure.
 
 - [API Documentation]((https://github.com/kenmoini/locksmith/tree/main/docs/api))
+- [Contribution Guide]((https://github.com/kenmoini/locksmith/tree/main/docs/CONTRIBUTING.md))
 - [Basic Usage](#how-to-use-locksmith)
 - [Deployment Options](#deployment-options)
 - [FAQs](#faqs)
