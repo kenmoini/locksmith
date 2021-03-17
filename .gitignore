@@ -1,11 +1,9 @@
-locksmith
 config.yml
 config.yaml
 .generated
 .generated/
 .generated/*
-builds/
-builds/*
+dist/locksmith
 .test_pki_root
 .test_pki_root/
 .test_pki_root/*

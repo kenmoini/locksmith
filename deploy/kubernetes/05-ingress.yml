@@ -1,0 +1,31 @@
+kind: Ingress
+apiVersion: extensions/v1beta1
+metadata:
+  name: locksmith-ingress
+  namespace: locksmith
+  labels:
+    app: locksmith
+    app.kubernetes.io/name: locksmith
+    app.kubernetes.io/part-of: locksmith
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "*"
+    #nginx.ingress.kubernetes.io/cors-allow-methods: "GET, HEAD, PUT, POST, DELETE, PATCH, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "*"
+    #nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,X-Forwarded-For"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+spec:
+  tls:
+    - hosts:
+        - locksmith.apis.example.com
+      secretName: site-locksmith-tls
+  rules:
+    - host: locksmith.apis.example.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: locksmith-svc
+              servicePort: 8080

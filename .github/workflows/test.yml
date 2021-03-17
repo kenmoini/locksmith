@@ -38,4 +38,4 @@ jobs:
 
     - name: Build
       run: |
-        go build -v .
+        make build

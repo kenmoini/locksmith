@@ -19,7 +19,7 @@ $ ./locksmith [-config file]
 
 ### 1. Generate the Locksmith `config.yml` file
 
-A sample `config.yml` can be found in this repository at [config.yml.example](config.yml.example)
+A sample `config.yml` can be found in this repository at [configs/config.yml.example](https://github.com/kenmoini/locksmith/tree/main/configs/config.yml.example)
 
 ### 2. Run Locksmith
 
@@ -41,6 +41,26 @@ You can find the API documentation in the [docs/apis/](https://github.com/kenmoi
 
 You can run Locksmith on almost any system due to it being a simple Golang binary.  There are also resources to build a container easily, or you could alternatively pull it from Quay.
 
+### Deployment - From Releases *[First release coming soon...]*
+
+You can pull the pre-built application from the [GitHub Releases page](https://github.com/kenmoini/locksmith/releases) of this repository.
+
+### Deployment - As a SystemD Service
+
+Since Locksmith is a binary that takes minimal execution time configuration it's perfect for use with SystemD as a persistent service that can start at system boot.
+
+You can find an example SystemD service file located at [init/locksmith.service](https://github.com/kenmoini/locksmith/tree/main/init/locksmith.service).  You can install it on a system with the following:
+
+```bash
+# Get the service file
+sudo wget -O /etc/systemd/system/locksmith.service https://raw.githubusercontent.com/kenmoini/locksmith/main/init/locksmith.service
+# Reload SystemD
+sudo systemctl daemon-reload
+# Enable/start the service - configuration required at /etc/locksmith/config.yml and Locksmith binary in $PATH
+sudo systemctl enable locksmith
+sudo systemctl start locksmith
+```
+
 ### Deployment - As a Container
 
 Locksmith comes with a `Containerfile` that can be built with Docker or Podman with the following command:
@@ -50,7 +70,7 @@ Locksmith comes with a `Containerfile` that can be built with Docker or Podman w
 podman build -f Containerfile -t locksmith .
 # Create the config
 mkdir container-config
-cp config.yml.example container-config/config.yml
+cp configs/config.yml.example container-config/config.yml
 # Run the container
 podman run -p 8080:8080 -v container-config/:/etc/locksmith locksmith
 ```
@@ -62,9 +82,31 @@ If you prefer to just use a pre-built container you can pull it from Quay via th
 podman pull quay.io/kenmoini/locksmith
 # Create the config
 mkdir container-config
-cp config.yml.example container-config/config.yml
+cp configs/config.yml.example container-config/config.yml
 # Run the container
 podman run -p 8080:8080 -v container-config/:/etc/locksmith quay.io/kenmoini/locksmith
+```
+
+### Deployment - A Container...as a SystemD Service
+
+In case you'd like to run the Container-as-a-Service for the features containerization provides, you can utilize the resources named `init/caas-*`
+
+The Podman container runtime is used by default - you can change it if you'd like in the [init/caas-locksmith-vars.sh](https://github.com/kenmoini/locksmith/tree/main/init/caas-locksmith-vars.sh) file.
+
+The CaaS launcher also provides the ability for assigning resource limits, static networking, and other functions easily - modify for your needs prior to deploying.
+
+```bash
+# Get the Container-as-a-Service service files
+sudo wget -O /etc/systemd/system/locksmith.service https://raw.githubusercontent.com/kenmoini/locksmith/main/init/caas-locksmith.service
+sudo wget -O /etc/locksmith/caas-start.sh https://raw.githubusercontent.com/kenmoini/locksmith/main/init/caas-locksmith-start.sh
+sudo wget -O /etc/locksmith/caas-stop.sh https://raw.githubusercontent.com/kenmoini/locksmith/main/init/caas-locksmith-stop.sh
+sudo wget -O /etc/locksmith/caas-vars.sh https://raw.githubusercontent.com/kenmoini/locksmith/main/init/caas-locksmith-vars.sh
+
+# Reload SystemD
+sudo systemctl daemon-reload
+# Enable/start the service - configuration required at /etc/locksmith/config.yml
+sudo systemctl enable locksmith
+sudo systemctl start locksmith
 ```
 
 ### Deployment - Building From Source
@@ -73,11 +115,22 @@ Since this is just a Golang application, as long as you have Golang v1.15+ then 
 
 ```bash
 # Create the config
-cp config.yml.example config.yml
+cp configs/config.yml.example config.yml
 # Build the application (Golang 1.15+)
-go build
+make build
 # Run the application
 ./locksmith
+```
+
+### Deployment - To Kubernetes
+
+Of course since this is easily containerized and a tasty Golang binary, it's very easy to deploy on Kubernetes and can scale with little effort.
+
+In the [deploy/kubernetes](https://github.com/kenmoini/locksmith/tree/main/deploy/kubernetes) directory you can find a set of manifests to deploy onto a standard Kubernetes + Nginx Ingress + CertManager cluster.
+
+```bash
+# Apply the manifests
+kubectl apply -f deploy/kubernetes/
 ```
 
 ---
@@ -105,31 +158,31 @@ For the purposes of checking the generation of PKI via Locksmith/Golang against 
 This can easily be done by running the following command:
 
 ```bash
-./generate_test_pki.openssl.sh
+./scripts/generate_test_pki.openssl.sh
 ```
 
 With the default settings it will create a PKI chain with a Root CA, Intermediate CA, and Server Certificate with CRL in the `.test_pki_root` directory.
 
-The OpenSSL configuration files used to generate this PKI can be found in the `openssl_extras/` directory.
+The OpenSSL configuration files used to generate this PKI can be found in the `/openssl_extras/` directory.
 
 ### 2. Launch Locksmith & Generate PKI Chain
 
 There is also a quick and easy way to generate a comparable chain via Locksmith by running the following:
 
 ```bash
-./generate_test_pki.locksmith.sh
+./scripts/generate_test_pki.locksmith.sh
 ```
 
-***NOTE***: This requires Locksmith to be available in the local directory - you can build it from source by running `go build`
+***NOTE***: This requires Locksmith to be available in the local directory - you can build it from source by running `make build`
 
-Running that script will start Locksmith with the `config.yml.example` configuration, listening on port 8080.  It will then run the required cURL requests locally to generate the PKI Chain that is available in the `./.generated` directory.
+Running that script will start Locksmith with the `configs/config.yml.example` configuration, listening on port 8080.  It will then run the required cURL requests locally to generate the PKI Chain that is available in the `./.generated` directory.
 
 ### 3. Compare PKI Chains
 
 Another script can make your life easier when comparing PKI Chains to ensure the Subject, Issuer, Capabilities, and so on are aligned closely.
 
 ```bash
-./generate_test_pki.compare.sh
+./scripts/generate_test_pki.compare.sh
 ```
 
 This script will compare the two different PKI chains that were generated in the previous two steps.
@@ -139,5 +192,5 @@ This script will compare the two different PKI chains that were generated in the
 You can run all three testing scripts with the following command:
 
 ```bash
-./generate_test_pki.bundle.sh
+./scripts/generate_test_pki.bundle.sh
 ```

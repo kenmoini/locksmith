@@ -1,0 +1,43 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: locksmith
+  namespace: locksmith
+  labels:
+    app: locksmith
+    app.kubernetes.io/name: locksmith
+    app.kubernetes.io/part-of: locksmith
+spec:
+  selector:
+    matchLabels:
+      app: locksmith
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: locksmith # has to match .spec.selector.matchLabels
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: locksmith
+          imagePullPolicy: Always
+          image: quay.io/kenmoini/locksmith:latest
+          ports:
+            - containerPort: 8080
+              name: api
+          volumeMounts:
+            - name: locksmith-config
+              mountPath: "/etc/locksmith"
+              readOnly: true
+      volumes:
+        # You set volumes at the Pod level, then mount them into containers inside that Pod
+        - name: locksmith-config
+          configMap:
+            # Provide the name of the ConfigMap you want to mount.
+            name: locksmith-config
+            # An array of keys from the ConfigMap to create as files
+            items:
+              - key: "config.yml"
+                path: "config.yml"

@@ -1,0 +1,15 @@
+[Unit]
+Description=Locksmith PKI Service Container
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+TimeoutStartSec=5
+ExecStop=/etc/locksmith/caas_stop.sh
+ExecStart=/etc/locksmith/caas_start.sh
+
+Type=forking
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: locksmith-config
+  namespace: locksmith
+  labels:
+    app: locksmith
+    app.kubernetes.io/name: locksmith
+    app.kubernetes.io/part-of: locksmith
+data:
+  config.yml: |
+    locksmith:
+      pki_root: /etc/locksmith/.generated
+      server:
+        host: 0.0.0.0
+        base_path: "/locksmith"
+        port: 8080
+        timeout:
+          server: 30
+          read: 15
+          write: 10
+          idle: 5

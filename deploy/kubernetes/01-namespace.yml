@@ -1,0 +1,9 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: locksmith
+  labels:
+    app: locksmith
+    app.kubernetes.io/name: locksmith
+    app.kubernetes.io/part-of: locksmith
