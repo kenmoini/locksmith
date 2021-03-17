@@ -10,6 +10,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
+	b64 "encoding/base64"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -82,11 +83,22 @@ func pemEncodeRSAPrivateKey(caPrivKey *rsa.PrivateKey, rsaPrivateKeyPassword str
 		Bytes: x509.MarshalPKCS1PrivateKey(caPrivKey),
 	}
 
-	if rsaPrivateKeyPassword != "" {
-		privateKeyBlock, _ = x509.EncryptPEMBlock(rand.Reader, privateKeyBlock.Type, privateKeyBlock.Bytes, []byte(rsaPrivateKeyPassword), x509.PEMCipherAES256)
-	}
+	/*
+		Legacy encryption, insecure
+		if rsaPrivateKeyPassword != "" {
+			privateKeyBlock, _ = x509.EncryptPEMBlock(rand.Reader, privateKeyBlock.Type, privateKeyBlock.Bytes, []byte(rsaPrivateKeyPassword), x509.PEMCipherAES256)
+		}
+	*/
 
 	pem.Encode(caPrivKeyPEM, privateKeyBlock)
+
+	if rsaPrivateKeyPassword != "" {
+		encBytes := encryptBytes(caPrivKeyPEM.Bytes(), rsaPrivateKeyPassword)
+		var b bytes.Buffer
+		b.Write(encBytes)
+		return &b
+	}
+
 	return caPrivKeyPEM
 }
 
@@ -107,20 +119,6 @@ func LoadKeyFile(fileName string) []byte {
 	return inFile
 }
 
-// LoadPublicKeyFile - loads a private key PEM file
-func LoadPublicKeyFile(fileName string) []byte {
-	inFile, err := ioutil.ReadFile(fileName)
-	check(err)
-	return inFile
-}
-
-// LoadPrivateKeyFile - loads a private key PEM file
-func LoadPrivateKeyFile(fileName string) []byte {
-	inFile, err := ioutil.ReadFile(fileName)
-	check(err)
-	return inFile
-}
-
 // DecodePublicKeyPem from file to pem struct
 func DecodePublicKeyPem(inFile []byte) (*pem.Block, []byte) {
 	pubPem, _ := pem.Decode(inFile)
@@ -129,16 +127,10 @@ func DecodePublicKeyPem(inFile []byte) (*pem.Block, []byte) {
 }
 
 // DecodePrivateKeyPem from file to pem struct
-func DecodePrivateKeyPem(inFile []byte, rsaPrivateKeyPassword string) (*pem.Block, []byte) {
+func DecodePrivateKeyPem(inFile []byte) (*pem.Block, []byte) {
 	privPem, _ := pem.Decode(inFile)
 	if privPem.Type == "RSA PRIVATE KEY" {
 		privPemBytes := privPem.Bytes
-
-		if rsaPrivateKeyPassword != "" {
-			privPemBytes, _ = x509.DecryptPEMBlock(privPem, []byte(rsaPrivateKeyPassword))
-		} else {
-			privPemBytes = privPem.Bytes
-		}
 
 		return privPem, privPemBytes
 	}
@@ -164,9 +156,26 @@ func GetPrivateKey(path string, rsaPrivateKeyPassword string) *rsa.PrivateKey {
 	fileCheck, err := FileExists(path)
 	check(err)
 	if fileCheck {
-		keyBytes := LoadPrivateKeyFile(path)
-		_, keyPem := DecodePrivateKeyPem(keyBytes, rsaPrivateKeyPassword)
-		return parsePrivateKey(keyPem)
+		keyBytes := LoadKeyFile(path)
+		if isPrivateKeyEncrypted(keyBytes) {
+			// File is base64 encoded and aes-cbc encrypted file
+			// Test decoding
+			decodedPrivKey, err := b64.StdEncoding.DecodeString(string(keyBytes))
+			check(err)
+
+			bit, byted, err := decryptBytes(decodedPrivKey, rsaPrivateKeyPassword)
+			check(err)
+
+			if bit {
+				_, keyPem := DecodePrivateKeyPem(byted)
+				return parsePrivateKey(keyPem)
+			} else {
+				return nil
+			}
+		} else {
+			_, keyPem := DecodePrivateKeyPem(keyBytes)
+			return parsePrivateKey(keyPem)
+		}
 	}
 	return nil
 }
@@ -176,7 +185,7 @@ func GetPublicKey(path string) *rsa.PublicKey {
 	fileCheck, err := FileExists(path)
 	check(err)
 	if fileCheck {
-		keyBytes := LoadPublicKeyFile(path)
+		keyBytes := LoadKeyFile(path)
 		_, keyPem := DecodePublicKeyPem(keyBytes)
 		return parsePublicKey(keyPem)
 	}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	b64 "encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -32,6 +33,17 @@ func NewRouter(basePath string) *http.ServeMux {
 	// TEST ENDPOINT
 	// Test out a random function maybe
 	router.HandleFunc(formattedBasePath+"/test", func(w http.ResponseWriter, r *http.Request) {
+
+		logStdOut(b64.StdEncoding.EncodeToString(encryptBytes([]byte("This is my secret text!"), "passw0rd")))
+
+		encoded := "R59BHVuy9FYc0jFkb8pbMseZn/98tnXf/0zl7lqOJMxtW494z7NLpp9I23faiMv7hRiw"
+		encodedBytes, err := b64.StdEncoding.DecodeString(encoded)
+		check(err)
+		bit, byted, _ := decryptBytes(encodedBytes, "passw0rd")
+		if bit {
+			logStdOut(string(byted))
+		}
+
 		returnData := &ReturnGenericMessage{
 			Status:   "test",
 			Errors:   []string{},
@@ -129,11 +141,11 @@ func NewRouter(basePath string) *http.ServeMux {
 		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
 		switch r.Method {
 		case "GET":
-			// index - get list of keys in cert path
-			APIListCSRs(w, r)
+			// index - get list of keys in key store
+			APIListKeyPairs(w, r)
 		case "POST":
-			// create - create new keys in cert path
-			APICreateNewCSR(w, r)
+			// create - create new keys in key store
+			APICreateKeyPair(w, r)
 		default:
 			APIMethodNotAllowed(w, r)
 		}

@@ -111,6 +111,28 @@ type RESTGETIntermedCAJSONReturn struct {
 	IntermediateCAs []string `json:"intermediate_certificate_authorities"`
 }
 
+// RESTGETKeyPairsJSONReturn handles the data returned by the GET /keys endpoint for key pair listings
+type RESTGETKeyPairsJSONReturn struct {
+	Status   string   `json:"status"`
+	Errors   []string `json:"errors"`
+	Messages []string `json:"messages"`
+	KeyPairs []string `json:"key_pairs,omitempty"`
+}
+
+// RESTGETKeyPairJSONReturn handles the data returned by the GET /keys endpoint for specific key pair id data
+type RESTGETKeyPairJSONReturn struct {
+	Status   string   `json:"status"`
+	Errors   []string `json:"errors"`
+	Messages []string `json:"messages"`
+	KeyPair  KeyPair  `json:"key_pair,omitempty"`
+}
+
+// KeyPair combines a string for a Public and Private Key Base64 PEM
+type KeyPair struct {
+	PublicKey  string `json:"public_key,omitempty"`
+	PrivateKey string `json:"private_key,omitempty"`
+}
+
 // RESTPOSTIntermedCAJSONIn handles the data required by the POST /intermediates endpoint
 type RESTPOSTIntermedCAJSONIn struct {
 	CommonNamePath              string                   `json:"parent_cn_path,omitempty"`
@@ -183,4 +205,11 @@ type CAIndex struct {
 	Serial            string
 	PathToCertificate string
 	Subject           string
+}
+
+// RESTPOSTNewKeyPairIn organizes the data required for creating a new Key Pair
+type RESTPOSTNewKeyPairIn struct {
+	KeyPairID       string `json:"key_pair_id"`
+	Passphrase      string `json:"passphrase,omitempty"`
+	StorePrivateKey bool   `json:"store_private_key"`
 }

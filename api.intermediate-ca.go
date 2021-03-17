@@ -7,17 +7,12 @@ import (
 	"path/filepath"
 )
 
-// APIListIntermediateCAs handles the GET /intermediates endpoint
+// APIListIntermediateCAs handles the GET /v1/intermediates endpoint
 func APIListIntermediateCAs(w http.ResponseWriter, r *http.Request) {
 	var parentPath string
 	var parentPathRaw string
 
-	// Parse the submitted form data
-	if err := r.ParseForm(); err != nil {
-		fmt.Fprintf(w, "ParseForm() err: %v", err)
-		return
-	}
-	// Read in the submitted JSON
+	// Read in the submitted parameters
 	queryParams := r.URL.Query()
 	parentCNPath, presentCN := queryParams["parent_cn_path"]
 	if presentCN {
@@ -70,7 +65,7 @@ func APIListIntermediateCAs(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// APICreateNewIntermediateCA handles the POST /intermediates endpoint
+// APICreateNewIntermediateCA handles the POST /v1/intermediates endpoint
 func APICreateNewIntermediateCA(w http.ResponseWriter, r *http.Request) {
 	// Parse the JSON body into the CertificateConfiguration struct
 	intermedCAInfo := RESTPOSTIntermedCAJSONIn{}

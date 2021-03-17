@@ -6,6 +6,15 @@ The base of the API URL path is variably defined via the Configuration YAML - in
 
 All endpoints are open - authentication is handled by an external API Gateway and is outside of the scope of Locksmith.
 
+- [Root Certificate Authorities](#root-certificate-authorities)
+- [Intermediate Certificate Authorities](#intermediate-certificate-authorities)
+- Certificate Requests
+- Certificates
+- Renewals
+- Revocations
+- [Key Pairs](#key-pairs)
+- [Key Stores](#key-stores)
+
 ## Root Certificate Authorities
 
 * [List Root Certificate Authorities](roots/get.md) : `GET /locksmith/roots`
@@ -31,7 +40,14 @@ The slugged CommonName chain (what is stored in the filesystem) would be: `examp
 
 ## Key Pairs
 
-Key Pairs provide key pair management outside of the scope of x509 PKI - this is useful when you want key pairs for CSRs and Clients.
+Key Pairs provide key pair management outside of the scope of x509 PKI - this is useful when you want key pairs for CSRs, Servers, and Clients.
 
 * [List Key Pairs](keys/get.md) : `GET /locksmith/keys`
 * [Create New Key Pairs](keys/post.md) : `POST /locksmith/keys`
+
+## Key Stores [Planned]
+
+Key Stores organize groups of Key Pairs.
+
+* [List Key Stores](key-stores/get.md) : `GET /locksmith/key-stores`
+* [Create New Key Store](key-stores/post.md) : `POST /locksmith/key-stores`

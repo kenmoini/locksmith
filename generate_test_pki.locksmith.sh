@@ -5,6 +5,7 @@ set -e
 
 ## Clean up the directory
 rm -rf ./.generated/roots/example-labs-root-certificate-authority
+rm -rf ./.generated/keys/
 
 ## Run the Locksmith application in the background
 nohup ./locksmith -config config.yml.example &
@@ -13,6 +14,21 @@ RUN_PID=$!
 
 # Wait a few seconds while the Locksmith server starts
 sleep 5
+
+# Create a key pair in the default key store
+curl --header "Content-Type: application/json" --request POST \
+  --data '{"key_pair_id": "MyKeyPair"}' http://localhost:8080/locksmith/v1/keys
+echo -e ""
+curl --header "Content-Type: application/json" --request POST \
+  --data '{"key_pair_id": "ServerKeyPair"}' http://localhost:8080/locksmith/v1/keys
+echo -e ""
+curl --header "Content-Type: application/json" --request POST \
+  --data '{"key_pair_id": "VDI Terminal"}' http://localhost:8080/locksmith/v1/keys
+echo -e "\n"
+
+# Read the list of key pairs
+curl --request GET http://localhost:8080/locksmith/v1/keys
+echo -e "\n"
 
 # Generate a Root CA
 curl --header "Content-Type: application/json" \

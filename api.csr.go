@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-// APICreateNewCSR handles the POST /certificate-requests endpoint
+// APICreateNewCSR handles the POST /v1/certificate-requests endpoint
 func APICreateNewCSR(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		fmt.Fprintf(w, "ParseForm() err: %v", err)
@@ -27,7 +27,7 @@ func APICreateNewCSR(w http.ResponseWriter, r *http.Request) {
 	logStdOut("sluggedName " + sluggedName)
 }
 
-// APIListCSRs handles the GET /certificate-requests endpoint
+// APIListCSRs handles the GET /v1/certificate-requests endpoint
 func APIListCSRs(w http.ResponseWriter, r *http.Request) {
 	var parentPath string
 
