@@ -111,11 +111,11 @@ func NewRouter(basePath string) *http.ServeMux {
 		switch r.Method {
 		case "GET":
 			// index - get list of roots
-			APIListRootCAs(w, r)
+			listRootCAsAPI(w, r)
 			// http.ServeFile(w, r, "form.html")
 		case "POST":
 			// create - create new root
-			APICreateNewRootCA(w, r)
+			createNewRootCAAPI(w, r)
 		default:
 			methodNotAllowedAPI(w, r)
 		}

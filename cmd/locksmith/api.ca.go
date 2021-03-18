@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 )
 
-// APIListRootCAs handles the GET /v1/roots endpoint
-func APIListRootCAs(w http.ResponseWriter, r *http.Request) {
+// listRootCAsAPI handles the GET /v1/roots endpoint
+func listRootCAsAPI(w http.ResponseWriter, r *http.Request) {
 	rootListing := DirectoryListingNames(readConfig.Locksmith.PKIRoot + "/roots/")
 	returnData := &ReturnGetRoots{
 		Status:   "success",
@@ -19,8 +19,8 @@ func APIListRootCAs(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(returnResponse))
 }
 
-// APICreateNewRootCA handles the POST /v1/roots endpoint
-func APICreateNewRootCA(w http.ResponseWriter, r *http.Request) {
+// createNewRootCAAPI handles the POST /v1/roots endpoint
+func createNewRootCAAPI(w http.ResponseWriter, r *http.Request) {
 	// Parse the JSON body into the CertificateConfiguration struct
 	certInfo := CertificateConfiguration{}
 	err := json.NewDecoder(r.Body).Decode(&certInfo)
