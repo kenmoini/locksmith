@@ -146,10 +146,10 @@ func NewRouter(basePath string) *http.ServeMux {
 		switch r.Method {
 		case "GET":
 			// index - get list of CSRs in cert path
-			APIListCSRs(w, r)
+			listCSRsAPI(w, r)
 		case "POST":
 			// create - create new csr in cert path
-			APICreateNewCSR(w, r)
+			createNewCSRAPI(w, r)
 		default:
 			methodNotAllowedAPI(w, r)
 		}

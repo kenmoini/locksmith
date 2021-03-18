@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 )
 
-// APICreateNewCSR handles the POST /v1/certificate-requests endpoint
-func APICreateNewCSR(w http.ResponseWriter, r *http.Request) {
+// createNewCSRAPI handles the POST /v1/certificate-requests endpoint
+func createNewCSRAPI(w http.ResponseWriter, r *http.Request) {
 	// Load in POST JSON Data
 	csrInfo := RESTPOSTCertificateRequestJSONIn{}
 	err := json.NewDecoder(r.Body).Decode(&csrInfo)
@@ -37,8 +37,8 @@ func APICreateNewCSR(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// APIListCSRs handles the GET /v1/certificate-requests endpoint
-func APIListCSRs(w http.ResponseWriter, r *http.Request) {
+// listCSRsAPI handles the GET /v1/certificate-requests endpoint
+func listCSRsAPI(w http.ResponseWriter, r *http.Request) {
 	var parentPath string
 
 	// Read in the submitted GET URL parameters
