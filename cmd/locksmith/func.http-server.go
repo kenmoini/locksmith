@@ -77,10 +77,10 @@ func NewRouter(basePath string) *http.ServeMux {
 		switch r.Method {
 		case "GET":
 			// index - get list of keys in key store
-			APIListKeyPairs(w, r)
+			listKeyPairsAPI(w, r)
 		case "POST":
 			// create - create new keys in key store
-			APICreateKeyPair(w, r)
+			createKeyPairAPI(w, r)
 		default:
 			methodNotAllowedAPI(w, r)
 		}

@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 )
 
-// APIListKeyPairs handles the GET /v1/keys endpoint
-func APIListKeyPairs(w http.ResponseWriter, r *http.Request) {
+// listKeyPairsAPI handles the GET /v1/keys endpoint
+func listKeyPairsAPI(w http.ResponseWriter, r *http.Request) {
 	var sluggedKeyStoreID string
 
 	// Read in the submitted parameters
@@ -148,8 +148,8 @@ func APIListKeyPairs(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// APICreateKeyPair handles the POST /v1/keys endpoint
-func APICreateKeyPair(w http.ResponseWriter, r *http.Request) {
+// createKeyPairAPI handles the POST /v1/keys endpoint
+func createKeyPairAPI(w http.ResponseWriter, r *http.Request) {
 	var sluggedKeyStoreID string
 
 	keyPairInfo := RESTPOSTNewKeyPairIn{}
