@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 )
 
-// APIListIntermediateCAs handles the GET /v1/intermediates endpoint
-func APIListIntermediateCAs(w http.ResponseWriter, r *http.Request) {
+// listIntermediateCAsAPI handles the GET /v1/intermediates endpoint
+func listIntermediateCAsAPI(w http.ResponseWriter, r *http.Request) {
 	var parentPath string
 	var parentPathRaw string
 
@@ -65,8 +65,8 @@ func APIListIntermediateCAs(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// APICreateNewIntermediateCA handles the POST /v1/intermediates endpoint
-func APICreateNewIntermediateCA(w http.ResponseWriter, r *http.Request) {
+// createNewIntermediateCAAPI handles the POST /v1/intermediates endpoint
+func createNewIntermediateCAAPI(w http.ResponseWriter, r *http.Request) {
 	// Parse the JSON body into the CertificateConfiguration struct
 	intermedCAInfo := RESTPOSTIntermedCAJSONIn{}
 	err := json.NewDecoder(r.Body).Decode(&intermedCAInfo)
