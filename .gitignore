@@ -1,10 +1,11 @@
 config.yml
 config.yaml
+/locksmith
+nohup.out
+dist/locksmith
 .generated
 .generated/
 .generated/*
-dist/locksmith
 .test_pki_root
 .test_pki_root/
 .test_pki_root/*
-nohup.out
