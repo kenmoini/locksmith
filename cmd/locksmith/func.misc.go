@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/md5"
 	"crypto/rand"
 	"crypto/sha1"
 	"encoding/hex"
@@ -245,7 +246,13 @@ func splitCACNChainToPath(cnPath string) string {
 // passphraseToHash returns a hexadecimal string of an SHA1 checksumed passphrase
 func passphraseToHash(pass string) (string, []byte) {
 	// The salt is used as a unique string to defeat rainbow table attacks
-	salt := "l0ckSmithS41t"
+	//salt := "l0ckSmithS41t"
+
+	// This days actually it's pretty easy to make a rainbow table with a static salt - compute salt from another hash of the password
+	saltHash := md5.New()
+	saltHash.Write([]byte(pass))
+	saltyBytes := saltHash.Sum(nil)
+	salt := hex.EncodeToString(saltyBytes)
 
 	saltyPass := []byte(pass + salt)
 	hasher := sha1.New()
