@@ -17,10 +17,10 @@ func createNewCSRAPI(w http.ResponseWriter, r *http.Request) {
 	// Set up Parent Path
 	var parentPath string
 	if csrInfo.CommonNamePath != "" {
-		parentPath = splitCommonNamesToPath(csrInfo.CommonNamePath)
+		parentPath = splitCACNChainToPath(csrInfo.CommonNamePath)
 	}
 	if csrInfo.SlugPath != "" {
-		parentPath = splitSlugToPath(csrInfo.SlugPath)
+		parentPath = splitCACNChainToPath(csrInfo.SlugPath)
 	}
 
 	// Neither options are submitted - error
@@ -46,10 +46,10 @@ func listCSRsAPI(w http.ResponseWriter, r *http.Request) {
 	parentCNPath, presentCN := queryParams["parent_cn_path"]
 	parentSlugPath, presentSlug := queryParams["parent_slug_path"]
 	if presentCN {
-		parentPath = splitCommonNamesToPath(parentCNPath[0])
+		parentPath = splitCACNChainToPath(parentCNPath[0])
 	}
 	if presentSlug {
-		parentPath = splitSlugToPath(parentSlugPath[0])
+		parentPath = splitCACNChainToPath(parentSlugPath[0])
 	}
 
 	// Neither options are submitted - error

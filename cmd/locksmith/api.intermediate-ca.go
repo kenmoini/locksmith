@@ -16,12 +16,12 @@ func listIntermediateCAsAPI(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
 	parentCNPath, presentCN := queryParams["parent_cn_path"]
 	if presentCN {
-		parentPath = splitCommonNamesToPath(parentCNPath[0])
+		parentPath = splitCACNChainToPath(parentCNPath[0])
 		parentPathRaw = parentCNPath[0]
 	}
 	parentSlugPath, presentSlug := queryParams["parent_slug_path"]
 	if presentSlug {
-		parentPath = splitSlugToPath(parentSlugPath[0])
+		parentPath = splitCACNChainToPath(parentSlugPath[0])
 		parentPathRaw = parentSlugPath[0]
 	}
 
@@ -75,10 +75,10 @@ func createNewIntermediateCAAPI(w http.ResponseWriter, r *http.Request) {
 
 	var parentPath string
 	if intermedCAInfo.CommonNamePath != "" {
-		parentPath = splitCommonNamesToPath(intermedCAInfo.CommonNamePath)
+		parentPath = splitCACNChainToPath(intermedCAInfo.CommonNamePath)
 	}
 	if intermedCAInfo.SlugPath != "" {
-		parentPath = splitSlugToPath(intermedCAInfo.SlugPath)
+		parentPath = splitCACNChainToPath(intermedCAInfo.SlugPath)
 	}
 	// Neither options are submitted - error
 	if parentPath == "" {
