@@ -9,35 +9,45 @@ import (
 
 // APICreateNewCSR handles the POST /v1/certificate-requests endpoint
 func APICreateNewCSR(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		fmt.Fprintf(w, "ParseForm() err: %v", err)
-		return
-	}
-
-	certInfoRaw := r.FormValue("csr_info")
-	certInfoBytes := []byte(certInfoRaw)
-
-	certInfo := CertificateConfiguration{}
-	err := json.Unmarshal(certInfoBytes, &certInfo)
+	// Load in POST JSON Data
+	csrInfo := RESTPOSTCertificateRequestJSONIn{}
+	err := json.NewDecoder(r.Body).Decode(&csrInfo)
 	check(err)
 
-	caName := certInfo.Subject.CommonName
-	sluggedName := slugger(caName)
-	logStdOut("caName " + caName)
-	logStdOut("sluggedName " + sluggedName)
+	// Set up Parent Path
+	var parentPath string
+	if csrInfo.CommonNamePath != "" {
+		parentPath = splitCommonNamesToPath(csrInfo.CommonNamePath)
+	}
+	if csrInfo.SlugPath != "" {
+		parentPath = splitSlugToPath(csrInfo.SlugPath)
+	}
+
+	// Neither options are submitted - error
+	if parentPath == "" {
+		returnData := &ReturnGenericMessage{
+			Status:   "missing-parent-path",
+			Errors:   []string{"Missing parent path!  Must supply either `parent_cn_path` or `parent_slug_path`"},
+			Messages: []string{}}
+		returnResponse, _ := json.Marshal(returnData)
+		fmt.Fprintf(w, string(returnResponse))
+	} else {
+		logStdOut("parentPath " + parentPath)
+	}
+
 }
 
 // APIListCSRs handles the GET /v1/certificate-requests endpoint
 func APIListCSRs(w http.ResponseWriter, r *http.Request) {
 	var parentPath string
 
-	// Read in the submitted parameters
+	// Read in the submitted GET URL parameters
 	queryParams := r.URL.Query()
 	parentCNPath, presentCN := queryParams["parent_cn_path"]
+	parentSlugPath, presentSlug := queryParams["parent_slug_path"]
 	if presentCN {
 		parentPath = splitCommonNamesToPath(parentCNPath[0])
 	}
-	parentSlugPath, presentSlug := queryParams["parent_slug_path"]
 	if presentSlug {
 		parentPath = splitSlugToPath(parentSlugPath[0])
 	}

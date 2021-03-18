@@ -18,11 +18,11 @@ func (e *errorString) Error() string {
 
 // Config struct for webapp config
 type Config struct {
-	Locksmith LocksmithYaml `yaml:"locksmith"`
+	Locksmith ConfigYAML `yaml:"locksmith"`
 }
 
-// LocksmithYaml is what is defined for this Locksmith server
-type LocksmithYaml struct {
+// ConfigYAML is what is defined for this Locksmith server
+type ConfigYAML struct {
 	PKIRoot string `yaml:"pki_root"`
 	Server  Server `yaml:"server"`
 }
@@ -156,6 +156,14 @@ type KeyPair struct {
 
 // RESTPOSTIntermedCAJSONIn handles the data required by the POST /intermediates endpoint
 type RESTPOSTIntermedCAJSONIn struct {
+	CommonNamePath              string                   `json:"parent_cn_path,omitempty"`
+	SlugPath                    string                   `json:"parent_slug_path,omitempty"`
+	CertificateConfiguration    CertificateConfiguration `json:"certificate_config"`
+	SigningPrivateKeyPassphrase string                   `json:"rsa_private_key_passphrase,omitempty"`
+}
+
+// RESTPOSTCertificateRequestJSONIn handles the data required by the POST /certificate-requests endpoint
+type RESTPOSTCertificateRequestJSONIn struct {
 	CommonNamePath              string                   `json:"parent_cn_path,omitempty"`
 	SlugPath                    string                   `json:"parent_slug_path,omitempty"`
 	CertificateConfiguration    CertificateConfiguration `json:"certificate_config"`
