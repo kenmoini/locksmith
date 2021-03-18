@@ -56,18 +56,52 @@ func NewRouter(basePath string) *http.ServeMux {
 	// KUBERNETES ENDPOINTS
 	// Version Output - reads from variables.go
 	router.HandleFunc(formattedBasePath+"/version", func(w http.ResponseWriter, r *http.Request) {
-		APIApplicationVersion(w, r)
+		applicationVersionAPI(w, r)
 	})
 
 	// Healthz endpoint for kubernetes platforms
 	router.HandleFunc(formattedBasePath+"/healthz", func(w http.ResponseWriter, r *http.Request) {
-		APIHealthZ(w, r)
+		healthZAPI(w, r)
 	})
 
 	//====================================================================================
 	// START V1 API
 	//====================================================================================
 	apiVersionTag = "/v1"
+
+	//====================================================================================
+	// KEY PAIRS
+	// Key Manipulation - Listing, Creating, Deleting
+	router.HandleFunc(formattedBasePath+apiVersionTag+"/keys", func(w http.ResponseWriter, r *http.Request) {
+		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
+		switch r.Method {
+		case "GET":
+			// index - get list of keys in key store
+			APIListKeyPairs(w, r)
+		case "POST":
+			// create - create new keys in key store
+			APICreateKeyPair(w, r)
+		default:
+			methodNotAllowedAPI(w, r)
+		}
+	})
+
+	//====================================================================================
+	// KEY STORES
+	// Key Store Manipulation - Listing, Creating
+	router.HandleFunc(formattedBasePath+apiVersionTag+"/keystores", func(w http.ResponseWriter, r *http.Request) {
+		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
+		switch r.Method {
+		case "GET":
+			// index - get list of key stores
+			APIListKeyStores(w, r)
+		case "POST":
+			// create - create new key store
+			APICreateKeyStore(w, r)
+		default:
+			methodNotAllowedAPI(w, r)
+		}
+	})
 
 	//====================================================================================
 	// ROOT CERTIFICATE AUTHORITIES
@@ -83,7 +117,7 @@ func NewRouter(basePath string) *http.ServeMux {
 			// create - create new root
 			APICreateNewRootCA(w, r)
 		default:
-			APIMethodNotAllowed(w, r)
+			methodNotAllowedAPI(w, r)
 		}
 	})
 
@@ -100,7 +134,7 @@ func NewRouter(basePath string) *http.ServeMux {
 			// create - create new intermediate CA in parent path
 			APICreateNewIntermediateCA(w, r)
 		default:
-			APIMethodNotAllowed(w, r)
+			methodNotAllowedAPI(w, r)
 		}
 	})
 
@@ -117,14 +151,14 @@ func NewRouter(basePath string) *http.ServeMux {
 			// create - create new csr in cert path
 			APICreateNewCSR(w, r)
 		default:
-			APIMethodNotAllowed(w, r)
+			methodNotAllowedAPI(w, r)
 		}
 	})
 
 	//====================================================================================
 	// CERTIFICATES
 	// Certificate Functions - List certs, Create certs from CA slug
-	router.HandleFunc(formattedBasePath+apiVersionTag+"/certs", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc(formattedBasePath+apiVersionTag+"/certificates", func(w http.ResponseWriter, r *http.Request) {
 		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
 		switch r.Method {
 		case "GET":
@@ -147,41 +181,7 @@ func NewRouter(basePath string) *http.ServeMux {
 			// create - make a new cert and CSR
 
 		default:
-			APIMethodNotAllowed(w, r)
-		}
-	})
-
-	//====================================================================================
-	// KEY PAIRS
-	// Key Manipulation - Listing, Creating, Deleting
-	router.HandleFunc(formattedBasePath+apiVersionTag+"/keys", func(w http.ResponseWriter, r *http.Request) {
-		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
-		switch r.Method {
-		case "GET":
-			// index - get list of keys in key store
-			APIListKeyPairs(w, r)
-		case "POST":
-			// create - create new keys in key store
-			APICreateKeyPair(w, r)
-		default:
-			APIMethodNotAllowed(w, r)
-		}
-	})
-
-	//====================================================================================
-	// KEY STORES
-	// Key Store Manipulation - Listing, Creating
-	router.HandleFunc(formattedBasePath+apiVersionTag+"/keystores", func(w http.ResponseWriter, r *http.Request) {
-		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
-		switch r.Method {
-		case "GET":
-			// index - get list of key stores
-			APIListKeyStores(w, r)
-		case "POST":
-			// create - create new key store
-			APICreateKeyStore(w, r)
-		default:
-			APIMethodNotAllowed(w, r)
+			methodNotAllowedAPI(w, r)
 		}
 	})
 
