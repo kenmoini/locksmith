@@ -70,36 +70,6 @@ func NewRouter(basePath string) *http.ServeMux {
 	apiVersionTag = "/v1"
 
 	//====================================================================================
-	// CERTIFICATES
-	// Certificate Functions - List certs, Create certs from CA slug
-	router.HandleFunc(formattedBasePath+apiVersionTag+"/certs", func(w http.ResponseWriter, r *http.Request) {
-		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
-		switch r.Method {
-		case "GET":
-			// index - get list of certs for a ca path
-			queryParams := r.URL.Query()
-			caPath, present := queryParams["ca_path"] //ca_path=["root-ca/intermed-ca/sub-ca"]
-			if !present || len(caPath) == 0 {
-				returnData := &ReturnGenericMessage{
-					Status:   "no-ca-path",
-					Errors:   []string{},
-					Messages: []string{"No Certificate Authority Path!"}}
-				returnResponse, _ := json.Marshal(returnData)
-				fmt.Fprintf(w, string(returnResponse))
-			} else {
-				// Split the path along the path delimiter
-				splitPath := strings.Split(caPath[0], "/")
-				logStdOut(splitPath[0])
-			}
-		case "POST":
-			// create - make a new cert and CSR
-
-		default:
-			APIMethodNotAllowed(w, r)
-		}
-	})
-
-	//====================================================================================
 	// ROOT CERTIFICATE AUTHORITIES
 	// Root CA Manipulation - Listing, Creating, Deleting
 	router.HandleFunc(formattedBasePath+apiVersionTag+"/roots", func(w http.ResponseWriter, r *http.Request) {
@@ -135,6 +105,53 @@ func NewRouter(basePath string) *http.ServeMux {
 	})
 
 	//====================================================================================
+	// CERTIFICATE REQUESTS
+	// CSR Manipulation - Listing, Creating, Deleting
+	router.HandleFunc(formattedBasePath+apiVersionTag+"/certificate-requests", func(w http.ResponseWriter, r *http.Request) {
+		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
+		switch r.Method {
+		case "GET":
+			// index - get list of CSRs in cert path
+			APIListCSRs(w, r)
+		case "POST":
+			// create - create new csr in cert path
+			APICreateNewCSR(w, r)
+		default:
+			APIMethodNotAllowed(w, r)
+		}
+	})
+
+	//====================================================================================
+	// CERTIFICATES
+	// Certificate Functions - List certs, Create certs from CA slug
+	router.HandleFunc(formattedBasePath+apiVersionTag+"/certs", func(w http.ResponseWriter, r *http.Request) {
+		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
+		switch r.Method {
+		case "GET":
+			// index - get list of certs for a ca path
+			queryParams := r.URL.Query()
+			caPath, present := queryParams["ca_path"] //ca_path=["root-ca/intermed-ca/sub-ca"]
+			if !present || len(caPath) == 0 {
+				returnData := &ReturnGenericMessage{
+					Status:   "no-ca-path",
+					Errors:   []string{},
+					Messages: []string{"No Certificate Authority Path!"}}
+				returnResponse, _ := json.Marshal(returnData)
+				fmt.Fprintf(w, string(returnResponse))
+			} else {
+				// Split the path along the path delimiter
+				splitPath := strings.Split(caPath[0], "/")
+				logStdOut(splitPath[0])
+			}
+		case "POST":
+			// create - make a new cert and CSR
+
+		default:
+			APIMethodNotAllowed(w, r)
+		}
+	})
+
+	//====================================================================================
 	// KEY PAIRS
 	// Key Manipulation - Listing, Creating, Deleting
 	router.HandleFunc(formattedBasePath+apiVersionTag+"/keys", func(w http.ResponseWriter, r *http.Request) {
@@ -163,23 +180,6 @@ func NewRouter(basePath string) *http.ServeMux {
 		case "POST":
 			// create - create new key store
 			APICreateKeyStore(w, r)
-		default:
-			APIMethodNotAllowed(w, r)
-		}
-	})
-
-	//====================================================================================
-	// CERTIFICATE REQUESTS
-	// CSR Manipulation - Listing, Creating, Deleting
-	router.HandleFunc(formattedBasePath+apiVersionTag+"/certificate-requests", func(w http.ResponseWriter, r *http.Request) {
-		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
-		switch r.Method {
-		case "GET":
-			// index - get list of CSRs in cert path
-			APIListCSRs(w, r)
-		case "POST":
-			// create - create new csr in cert path
-			APICreateNewCSR(w, r)
 		default:
 			APIMethodNotAllowed(w, r)
 		}

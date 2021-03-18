@@ -272,6 +272,7 @@ func decryptBytes(bytesIn []byte, passphrase string) (decrypted bool, plaintextB
 		log.Panic(err)
 		return false, []byte{}, err
 	}
+
 	// Create a new gcm block container
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
