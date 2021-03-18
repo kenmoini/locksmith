@@ -281,7 +281,7 @@ func decryptBytes(bytesIn []byte, passphrase string) (decrypted bool, plaintextB
 
 	nonce := bytesIn[:gcm.NonceSize()]
 	ciphertext := bytesIn[gcm.NonceSize():]
-	plaintextBytes, err := gcm.Open(nil, nonce, ciphertext, nil)
+	plaintextBytes, err = gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
 		log.Panic(err)
 		return false, []byte{}, err

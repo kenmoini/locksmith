@@ -174,7 +174,6 @@ func GetPrivateKey(path string, rsaPrivateKeyPassword string) *rsa.PrivateKey {
 		}
 		_, keyPem := DecodePrivateKeyPem(keyBytes)
 		return parsePrivateKey(keyPem)
-		}
 	}
 	return nil
 }
