@@ -62,10 +62,11 @@ func createNewRootCAAPI(w http.ResponseWriter, r *http.Request) {
 		// Generate a new Certificate Authority
 		newCAState, newCA, caCert, err := createNewCA(certInfo)
 		check(err)
-		returnData := &ReturnPostRoots{}
+
 		if newCAState {
+
 			logNeworkRequestStdOut(caName+" ("+sluggedName+") root-created", r)
-			returnData = &ReturnPostRoots{
+			returnData := &ReturnPostRoots{
 				Status:   "root-created",
 				Errors:   []string{},
 				Messages: []string{"Root CA " + caName + " created!"},
@@ -73,17 +74,22 @@ func createNewRootCAAPI(w http.ResponseWriter, r *http.Request) {
 					Slug:     sluggedName,
 					CertInfo: caCert,
 					Serial:   readSerialNumber(sluggedName)}}
+			returnResponse, _ := json.Marshal(returnData)
+			fmt.Fprintf(w, string(returnResponse))
+
 		} else {
+
 			logNeworkRequestStdOut(caName+" ("+sluggedName+") root-creation-error", r)
-			returnData = &ReturnPostRoots{
+			returnData := &ReturnPostRoots{
 				Status:   "root-creation-error",
 				Errors:   []string{err.Error()},
 				Messages: newCA,
 				Root: RootInfo{
 					Slug:   sluggedName,
 					Serial: readSerialNumber(sluggedName)}}
+			returnResponse, _ := json.Marshal(returnData)
+			fmt.Fprintf(w, string(returnResponse))
+
 		}
-		returnResponse, _ := json.Marshal(returnData)
-		fmt.Fprintf(w, string(returnResponse))
 	}
 }

@@ -28,6 +28,7 @@ func listKeyPairsAPI(w http.ResponseWriter, r *http.Request) {
 	check(err)
 
 	checkKeyStorePath, err := DirectoryExists(keyStorePath)
+	check(err)
 
 	if !checkKeyStorePath {
 		// No valid key store

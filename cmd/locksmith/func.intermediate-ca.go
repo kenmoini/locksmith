@@ -143,10 +143,12 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 
 	// Read in CSR lol
 	caCSRPEM, err := readCSRFromFile(certPaths.RootCACertRequestsPath + "/ca.pem")
+	check(err)
 	//log.Printf("Created CSR with CN: %v", caCSRPEM.Subject.CommonName)
 
 	// Check for certificate file
 	certificateFileCheck, err := FileExists(certPaths.RootCACertsPath + "/ca.pem")
+	check(err)
 	if !certificateFileCheck {
 		// Create Parent Signed Certificate
 		// Create Intermediate CA Object
@@ -200,6 +202,7 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 
 	// Create CRL with CA Cert
 	caCRL, err := CreateNewCRLForCA(caCert, privateKeyFromFile, certPaths.RootCACertRevListPath+"/ca.crl")
+	check(err)
 	if !caCRL {
 		logStdOut("Intermediate CA CRL ERROR!")
 		return false, []string{"Intermediate CA CRL Creation Error"}, x509.Certificate{}, err

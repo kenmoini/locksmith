@@ -6,7 +6,6 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
-	"log"
 	"math/big"
 	"path/filepath"
 	"time"
@@ -145,10 +144,12 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, x509.Cert
 
 	// Read in CSR lol
 	caCSRPEM, err := readCSRFromFile(certPaths.RootCACertRequestsPath + "/ca.pem")
-	log.Printf("%v", caCSRPEM.Subject.CommonName)
+	check(err)
 
 	// Check for certificate file
 	certificateFileCheck, err := FileExists(certPaths.RootCACertsPath + "/ca.pem")
+	check(err)
+
 	if !certificateFileCheck {
 		// Create Self-signed Certificate
 		// Create CA Object

@@ -41,6 +41,7 @@ func listIntermediateCAsAPI(w http.ResponseWriter, r *http.Request) {
 		checkAndFail(err)
 		logStdOut("absPath: " + absPath)
 		intermedCAParentPathExists, err := DirectoryExists(absPath)
+		check(err)
 
 		if intermedCAParentPathExists {
 			// Get listing of intermediate cas in the parent path

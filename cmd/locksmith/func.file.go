@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
+	"io/fs"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -260,7 +261,7 @@ func DeleteFile(path string) {
 
 // WriteFile creates a file only if it's new and populates it
 func WriteFile(path string, content string, mode int, overwrite bool) (bool, error) {
-	fileMode := os.FileMode(0600)
+	var fileMode fs.FileMode
 	if mode == 0 {
 		fileMode = os.FileMode(0600)
 	} else {
@@ -287,7 +288,7 @@ func WriteFile(path string, content string, mode int, overwrite bool) (bool, err
 
 // WriteByteFile creates a file only if it's new and populates it
 func WriteByteFile(path string, content []byte, mode int, overwrite bool) (bool, error) {
-	fileMode := os.FileMode(0600)
+	var fileMode fs.FileMode
 	if mode == 0 {
 		fileMode = os.FileMode(0600)
 	} else {
