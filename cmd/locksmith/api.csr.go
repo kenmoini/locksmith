@@ -64,7 +64,9 @@ func listCSRsAPI(w http.ResponseWriter, r *http.Request) {
 		// Check if the directory exists
 		absPath, err := filepath.Abs(readConfig.Locksmith.PKIRoot + "/roots/" + parentPath)
 		checkAndFail(err)
+
 		intermedCAParentPathExists, err := DirectoryExists(absPath)
+		check(err)
 
 		if intermedCAParentPathExists {
 			// Get listing of intermediate cas in the parent path
