@@ -127,7 +127,7 @@ func NewRouter(basePath string) *http.ServeMux {
 			// index - get list of intermediate CAs in parent path
 			APIListIntermediateCAs(w, r)
 		case "POST":
-			// create - create new intermedate CA in parent path
+			// create - create new intermediate CA in parent path
 			APICreateNewIntermediateCA(w, r)
 		default:
 			APIMethodNotAllowed(w, r)

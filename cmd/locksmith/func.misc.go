@@ -271,25 +271,22 @@ func decryptBytes(bytesIn []byte, passphrase string) (decrypted bool, plaintextB
 	if err != nil {
 		log.Panic(err)
 		return false, []byte{}, err
-	} else {
-		// Create a new gcm block container
-		gcm, err := cipher.NewGCM(block)
-		if err != nil {
-			log.Panic(err)
-			return false, []byte{}, err
-		} else {
-
-			nonce := bytesIn[:gcm.NonceSize()]
-			ciphertext := bytesIn[gcm.NonceSize():]
-			plaintextBytes, err := gcm.Open(nil, nonce, ciphertext, nil)
-			if err != nil {
-				log.Panic(err)
-				return false, []byte{}, err
-			} else {
-				return false, plaintextBytes, nil
-			}
-		}
 	}
+	// Create a new gcm block container
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		log.Panic(err)
+		return false, []byte{}, err
+	}
+
+	nonce := bytesIn[:gcm.NonceSize()]
+	ciphertext := bytesIn[gcm.NonceSize():]
+	plaintextBytes, err := gcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		log.Panic(err)
+		return false, []byte{}, err
+	}
+	return false, plaintextBytes, nil
 }
 
 // isPrivateKeyEncrypted Checks to see if the byte slice from a file contains a plain-text Private Key

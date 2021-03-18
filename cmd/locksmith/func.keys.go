@@ -169,12 +169,11 @@ func GetPrivateKey(path string, rsaPrivateKeyPassword string) *rsa.PrivateKey {
 			if bit {
 				_, keyPem := DecodePrivateKeyPem(byted)
 				return parsePrivateKey(keyPem)
-			} else {
-				return nil
 			}
-		} else {
-			_, keyPem := DecodePrivateKeyPem(keyBytes)
-			return parsePrivateKey(keyPem)
+			return nil
+		}
+		_, keyPem := DecodePrivateKeyPem(keyBytes)
+		return parsePrivateKey(keyPem)
 		}
 	}
 	return nil
