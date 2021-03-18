@@ -97,13 +97,13 @@ type Counter struct {
 	count int64
 }
 
-// RESTGETIntermedCAJSON handles the data required by the GET /intermediates endpoint
+// RESTGETIntermedCAJSONIn handles the data required by the GET /intermediates endpoint
 type RESTGETIntermedCAJSONIn struct {
 	CommonNamePath string `json:"parent_cn_path,omitempty"`
 	SlugPath       string `json:"parent_slug_path,omitempty"`
 }
 
-// RESTGETIntermedCAJSON handles the data returned by the GET /intermediates endpoint
+// RESTGETIntermedCAJSONReturn handles the data returned by the GET /intermediates endpoint
 type RESTGETIntermedCAJSONReturn struct {
 	Status          string   `json:"status"`
 	Errors          []string `json:"errors"`
@@ -117,6 +117,27 @@ type RESTGETKeyPairsJSONReturn struct {
 	Errors   []string `json:"errors"`
 	Messages []string `json:"messages"`
 	KeyPairs []string `json:"key_pairs,omitempty"`
+}
+
+// RESTGETKeyStoresJSONReturn handles the data returned by the GET /keystores endpoint for key store listings
+type RESTGETKeyStoresJSONReturn struct {
+	Status    string   `json:"status"`
+	Errors    []string `json:"errors"`
+	Messages  []string `json:"messages"`
+	KeyStores []string `json:"key_stores,omitempty"`
+}
+
+// RESTPOSTKeyStoresJSONReturn handles the data returned by the GET /keystores endpoint for key store listings
+type RESTPOSTKeyStoresJSONReturn struct {
+	Status   string   `json:"status"`
+	Errors   []string `json:"errors"`
+	Messages []string `json:"messages"`
+	KeyStore string   `json:"key_store_id"`
+}
+
+// RESTPOSTKeyStoresJSONIn handles the data returned by the GET /keystores endpoint for key store listings
+type RESTPOSTKeyStoresJSONIn struct {
+	KeyStore string `json:"key_store_name"`
 }
 
 // RESTGETKeyPairJSONReturn handles the data returned by the GET /keys endpoint for specific key pair id data
@@ -210,6 +231,7 @@ type CAIndex struct {
 // RESTPOSTNewKeyPairIn organizes the data required for creating a new Key Pair
 type RESTPOSTNewKeyPairIn struct {
 	KeyPairID       string `json:"key_pair_id"`
+	KeyStoreID      string `json:"key_store_id,omitempty"`
 	Passphrase      string `json:"passphrase,omitempty"`
 	StorePrivateKey bool   `json:"store_private_key"`
 }

@@ -17,12 +17,22 @@ RUN_PID=$!
 # Wait a few seconds while the Locksmith server starts
 sleep 5
 
+# Read the list of key stores
+curl --request GET http://localhost:8080/locksmith/v1/keystores
+echo -e "\n"
+# Create a new key stores
+curl --header "Content-Type: application/json" --request POST \
+  --data '{"key_store_name": "Example Labs"}' http://localhost:8080/locksmith/v1/keystores
+echo -e "\n"
+curl --request GET http://localhost:8080/locksmith/v1/keystores
+echo -e "\n"
+
 # Create a key pair in the default key store
 curl --header "Content-Type: application/json" --request POST \
   --data '{"key_pair_id": "MyKeyPair"}' http://localhost:8080/locksmith/v1/keys
 echo -e ""
 curl --header "Content-Type: application/json" --request POST \
-  --data '{"key_pair_id": "ServerKeyPair"}' http://localhost:8080/locksmith/v1/keys
+  --data '{"key_pair_id": "Server Key Pair", "key_store_id": "example-labs"}' http://localhost:8080/locksmith/v1/keys
 echo -e ""
 curl --header "Content-Type: application/json" --request POST \
   --data '{"key_pair_id": "VDI Terminal"}' http://localhost:8080/locksmith/v1/keys

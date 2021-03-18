@@ -152,6 +152,23 @@ func NewRouter(basePath string) *http.ServeMux {
 	})
 
 	//====================================================================================
+	// KEY STORES
+	// Key Store Manipulation - Listing, Creating
+	router.HandleFunc(formattedBasePath+apiVersionTag+"/keystores", func(w http.ResponseWriter, r *http.Request) {
+		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
+		switch r.Method {
+		case "GET":
+			// index - get list of key stores
+			APIListKeyStores(w, r)
+		case "POST":
+			// create - create new key store
+			APICreateKeyStore(w, r)
+		default:
+			APIMethodNotAllowed(w, r)
+		}
+	})
+
+	//====================================================================================
 	// CERTIFICATE REQUESTS
 	// CSR Manipulation - Listing, Creating, Deleting
 	router.HandleFunc(formattedBasePath+apiVersionTag+"/certificate-requests", func(w http.ResponseWriter, r *http.Request) {

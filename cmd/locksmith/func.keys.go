@@ -17,8 +17,8 @@ import (
 	"io/ioutil"
 )
 
-// generateRSAKeypair returns a private RSA key
-func generateRSAKeypair(keySize int) (*rsa.PrivateKey, *rsa.PublicKey, error) {
+// GenerateRSAKeypair returns a private RSA key
+func GenerateRSAKeypair(keySize int) (*rsa.PrivateKey, *rsa.PublicKey, error) {
 	if keySize == 0 {
 		keySize = 4096
 	}

@@ -104,7 +104,7 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 
 	if !caKeyCheck {
 		// if there is no private key, create one
-		rootPrivKey, rootPubKey, err := generateRSAKeypair(4096)
+		rootPrivKey, rootPubKey, err := GenerateRSAKeypair(4096)
 		check(err)
 
 		rootPrivKeyFile, rootPubKeyFile, err := writeRSAKeyPair(pemEncodeRSAPrivateKey(rootPrivKey, ""), pemEncodeRSAPublicKey(rootPubKey), certPaths.RootCACertKeysPath+"/ca")

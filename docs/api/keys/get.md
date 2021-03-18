@@ -12,15 +12,15 @@ They Key Pair ID is what is represented on the file system and is created from t
 
 **Data required** : None
 
-**Optional Data** : Key Pair ID and/or the Passphrase
+**Optional Data** : Key Store ID, Key Pair ID, and the Passphrase
 
 ## Input Parameters
 
-To get a list of the Key Pair IDs in the key store no parameters are needed.
+To get a list of the Key Pair IDs in a Key Store only the `key_store_id` parameter is needed.  There is a `default` Key Store created at initialization that will be used if the Key Store ID is not specified.
 
-To get the Public Key of a specific Key Pair ID pass the `key_pair_id` parameter.
+To get the Public Key of a specific Key Pair ID pass the `key_store_id` and `key_pair_id` parameters.
 
-To obtain the full Key Pair, both Private and Public pass the `key_pair_id` and `passphrase`  parameters.
+To obtain the full Key Pair, both Private and Public pass the `key_store_id`, `key_pair_id`, and `passphrase`  parameters.
 
 ## Success Response
 
@@ -31,14 +31,14 @@ To obtain the full Key Pair, both Private and Public pass the `key_pair_id` and 
 A cURL request would look like this:
 
 ```
-# List Key Pair IDs
+# List Key Pair IDs in the 'default' Key Store 
 curl http://pkiserver/locksmith/v1/keys
 
-# Get Public Key for OpenVPN Server (openvpn-server)
-curl --request GET -G --data-urlencode "key_pair_id=OpenVPN Server" http://pkiserver/locksmith/v1/keys
+# Get Public Key for OpenVPN Server (openvpn-server) in the 'networking' Key Store ID
+curl --request GET -G --data-urlencode "key_store_id=networking" --data-urlencode "key_pair_id=OpenVPN Server" http://pkiserver/locksmith/v1/keys
 
 # Get full key pair for OpenVPN Server (openvpn-server)
-curl --request GET -G --data-urlencode "key_pair_id=OpenVPN Server" --data-urlencode "passphrase=s3cr3t" http://pkiserver/locksmith/v1/keys
+curl --request GET --data-urlencode "key_pair_id=OpenVPN Server" --data-urlencode "passphrase=s3cr3t" http://pkiserver/locksmith/v1/keys
 ```
 
 And the data returned would be the minified version of the following JSON, respective of the 3 different example cURLs:
@@ -48,7 +48,7 @@ And the data returned would be the minified version of the following JSON, respe
   "status": "success",
   "errors": [],
   "messages": [
-    "Listing of Key Pair IDs"
+    "Listing of Key Pair IDs in Key Store 'default'"
   ],
   "key_pairs": [
     "mykeypair",
@@ -64,7 +64,7 @@ And the data returned would be the minified version of the following JSON, respe
   "status": "success",
   "errors": [],
   "messages": [
-    "Public Key for Key Pair ID 'OpenVPN Server' (openvpn-server)"
+    "Public Key for Key Pair ID 'OpenVPN Server' (openvpn-server) in Key Store 'networking'"
   ],
   "key_pair": {
     "public_key": "LS0tLS1CRUdJTiBSU0EgUFVCTElDIEtFWS0tLS0tCk1JSUNDZ0tDQWdFQXhYMDVpSjNPSjZJaWlvMUluMUVyVUx0d1dDNG04cmVBK2w0K1QxRTRNT3RBL1FuZTU1amoKL3ZjYlQ3b0s0ZGZpajRvZXowYlBPd2xVRy9UNlhMSDgxbUN4bFEwNGt3eXEwdWFhaFIySFAwdFhRUkEvQ096OApaY1BmT3c5N0dvcnNhWWtVMFIxOW5IT1M3RVE4aFlVbTFIbG43QTl1dktTVUIrdzErR25QSGZJeTFLK0NMYVR5CnNSMnFGZjhnZzBxQng1MC9HeitoL3N1cG1kN2s3NEF3M1Q1QVZwTGsxS1dURFRsSWg2eTF3RnNRaCtGMEdWYnEKczgycUpGREJmRmpJRXBIV3hXNFJieWpCRk04WUJoNTdydHVOakZMVEtRVXBkR29tRE8yZEVTOWk3eHRGL3AzNgoyMDVRUEVJYWI5aG41ZnRDcjI5ZWlSSjRKNy9YOGNRRG5hRlpTT2Y0VVpIcGhranZ5RmN2a3JpZXpCZmRNYnFhClFqL0loZW9kU201SG5PUXpqbzcydndrK21MRGpMNHZkVyt4WHBHbEpiZEJWT1JYdEZkUDhiM2JQVlFyQlVFNlcKME9MaEZGdEZGRDRKU2JSVXdYNFhta2xkYU55VjFkOXNHQkQvT2hFWnRjeHlOMzEwTWM4MXR2c1FGdWtJQ09VdQpQd0JGR00rWlRyOU5QYkNJeFZlTXV5YzMvTzQ5ZGRRdVlGbnRNWmZnNUR5YWNQaWpaVzZBZW0vRmJUL0pxaHFDCmswWkJRSlhzR0dVTHpkaENwVUdrbloxMm9JdHphemtyemxTeWNQRUovMmJxS2N6c05VRU8ycWlrcGU3UHBrbnkKazF1SUpRQTd0UXEyRGdQV2plRjNpOVhRZjJNdzNsdjJUQW9kM2ttT0ZuTnFqQnVaNmxrVmk0VUNBd0VBQVE9PQotLS0tLUVORCBSU0EgUFVCTElDIEtFWS0tLS0tCg=="
@@ -77,7 +77,7 @@ And the data returned would be the minified version of the following JSON, respe
   "status": "success",
   "errors": [],
   "messages": [
-    "Loaded Key Pair!"
+    "Loaded Key Pair ID 'OpenVPN Server' (openvpn-server) from Key Store 'default'!"
   ],
   "key_pair": {
     "public_key": "LS0tLS1CRUdJTiBSU0EgUFVCTElDIEtFWS0tLS0tCk1JSUNDZ0tDQWdFQTFld0VneGk0dVZ1WXpOSFJmaXp4MzBPNDF0aTVGaWpSbHp2SUF3MUw3RjAvU2o0azNiWU8KbDNld2JGNVBqaVdWc0tjZ00wNmdMWUlJZlFtN1k4QUxUcS83TzlDVG5FU0RrTWVNb1RNV2wwMzVid0F3cmhvUwpNdnpRcmZhb1U3MHIrbjhpUndoaGtNcHdMOXNZR3M1MHp2SndRWEVnV3hENHlBeHZMTGU1NGpIZUdXeXVvRFcwCkpTc3RlZThzdkd4R2gydWt4cmtJWjY4RUx3UEJldGNkenVuczVmemd0eE92K2wydDhMZ2FEY2RoVXgreTJQM2IKZ1R2MFBFZW92cTB2bFdDTU5FQ2doQUdMclFVN1RQY0h0d3d5OWZHK09VOGd4WjFxb3NQSlJVQW85YnYxamRnbApCSjZsRDhtdmU2T3pnTllpT0dlYkxIY2pYNXV4QXV2YUZzV1NpRkxKbmlQWHI2YWVRRElmemZYNFVaZnhscFk0CldqaGZTcjhMcDUxWStpOVR6S04zVjM5VUtuRDVvaE5kUHFoTkNJLzV1UzkrVVc0elJwMkFuU2w5MFBhSnZ1Q0wKSlJIYlBKZEw0SmxxZVFLY21xOCt5VU1aOEo0RTlzNzhKWU9qbS9QMGFiOFFKZEFZV2wyMm5nU0ZvblREZmRUVQpEMGpZUmNWYmNZOVBBQzN4MTh1R1pvWGxzZHdIb2lxRzBQQlZETmFxc09KeEU1VytFTFRYVTZSN0E4dmp5Vk80CmcraDZPU1FNNjNjRWZhakNmNzl2bnhIK29NRDBaRHdYKzVkYW81RmVDQi9YRmN0YW1URzhETDlxdGpJWjc3ci8KWXoxOUxIYkdRWUlEdnorM0ZoQzlNVWlSK2hPWk5RN1ZlbFdOV3Rzc0lDczBvbEVmdVFFaWpXc0NBd0VBQVE9PQotLS0tLUVORCBSU0EgUFVCTElDIEtFWS0tLS0tCg==",
@@ -85,3 +85,30 @@ And the data returned would be the minified version of the following JSON, respe
   }
 }
 ```
+
+## Error Response
+
+**Condition** : If provided data is invalid, missing, or a system error occurs.
+
+**Code** : `200 OK` - 200 OK is returned even on errors due to no specific HTTP error codes corellating to different processes taken place during the Key Store generation workflow.  Check the `status` field for specific status matches.
+
+**Content example** :
+
+```json
+{
+  "status": "key-pair-id-missing",
+  "errors": ["Key Pair ID parameter missing!  Pass with `key_pair_id`"],
+  "messages": []
+}
+```
+
+## Return Statuses
+
+Potential return statuses sent back via JSON are as follows:
+
+- `suceess` - Successfully retrieved Key Pair
+- `invalid-key-store` - Provided Key Store is invalid
+- `private-key-decryption-error` - Issue decrypting Private Key
+- `no-private-key` - No Private Key stored for Key Pair
+- `invalid-key-pair-id` - Invalid Key Pair ID in specified Key Store
+- `empty-key-store` - Key store is empty

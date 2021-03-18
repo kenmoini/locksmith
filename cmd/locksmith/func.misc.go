@@ -186,9 +186,10 @@ func PreflightSetup() {
 	CreateDirectory(PKIRootRootsPath)
 
 	// Create PKI Extra Keys directory
-	PKIKeysRootsPath, err := filepath.Abs(readConfig.Locksmith.PKIRoot + "/keys")
+	PKIKeysRootsPath, err := filepath.Abs(readConfig.Locksmith.PKIRoot + "/keystores")
 	checkAndFail(err)
 	CreateDirectory(PKIKeysRootsPath)
+	CreateDirectory(PKIKeysRootsPath + "/default")
 
 	logStdOut("Preflight complete!")
 }

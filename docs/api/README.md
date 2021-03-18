@@ -45,9 +45,9 @@ Key Pairs provide key pair management outside of the scope of x509 PKI - this is
 * [List Key Pairs](keys/get.md) : `GET /locksmith/keys`
 * [Create New Key Pairs](keys/post.md) : `POST /locksmith/keys`
 
-## Key Stores [Planned]
+## Key Stores
 
 Key Stores organize groups of Key Pairs.
 
-* [List Key Stores](key-stores/get.md) : `GET /locksmith/key-stores`
-* [Create New Key Store](key-stores/post.md) : `POST /locksmith/key-stores`
+* [List Key Stores](keystores/get.md) : `GET /locksmith/keystores`
+* [Create New Key Store](keystores/post.md) : `POST /locksmith/keystores`
