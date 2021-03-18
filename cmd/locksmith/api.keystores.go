@@ -6,8 +6,8 @@ import (
 	"net/http"
 )
 
-// APIListKeyStores returns the key stores for GET /keystores requests
-func APIListKeyStores(w http.ResponseWriter, r *http.Request) {
+// listKeyStoresAPI returns the key stores for GET /keystores requests
+func listKeyStoresAPI(w http.ResponseWriter, r *http.Request) {
 	keyPairs := listKeyStores()
 
 	returnData := &RESTGETKeyStoresJSONReturn{
@@ -19,8 +19,8 @@ func APIListKeyStores(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(returnResponse))
 }
 
-// APICreateKeyStore handles the requests for POST /keystores to create new key stores
-func APICreateKeyStore(w http.ResponseWriter, r *http.Request) {
+// createKeyStoreAPI handles the requests for POST /keystores to create new key stores
+func createKeyStoreAPI(w http.ResponseWriter, r *http.Request) {
 
 	keyStoreInfo := RESTPOSTKeyStoresJSONIn{}
 	err := json.NewDecoder(r.Body).Decode(&keyStoreInfo)
