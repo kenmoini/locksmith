@@ -119,6 +119,14 @@ type RESTGETCertificateRequestsJSONReturn struct {
 	CertificateRequests []string `json:"certificate_requests"`
 }
 
+// RESTGETCertificatesJSONReturn handles the data returned by the GET /certificates endpoint
+type RESTGETCertificatesJSONReturn struct {
+	Status       string   `json:"status"`
+	Errors       []string `json:"errors"`
+	Messages     []string `json:"messages"`
+	Certificates []string `json:"certificates"`
+}
+
 // RESTGETKeyPairsJSONReturn handles the data returned by the GET /keys endpoint for key pair listings
 type RESTGETKeyPairsJSONReturn struct {
 	Status   string   `json:"status"`
@@ -172,6 +180,14 @@ type RESTPOSTIntermedCAJSONIn struct {
 
 // RESTPOSTCertificateRequestJSONIn handles the data required by the POST /certificate-requests endpoint
 type RESTPOSTCertificateRequestJSONIn struct {
+	CommonNamePath              string                   `json:"parent_cn_path,omitempty"`
+	SlugPath                    string                   `json:"parent_slug_path,omitempty"`
+	CertificateConfiguration    CertificateConfiguration `json:"certificate_config"`
+	SigningPrivateKeyPassphrase string                   `json:"rsa_private_key_passphrase,omitempty"`
+}
+
+// RESTPOSTCertificateJSONIn handles the data required by the POST /certificates endpoint
+type RESTPOSTCertificateJSONIn struct {
 	CommonNamePath              string                   `json:"parent_cn_path,omitempty"`
 	SlugPath                    string                   `json:"parent_slug_path,omitempty"`
 	CertificateConfiguration    CertificateConfiguration `json:"certificate_config"`

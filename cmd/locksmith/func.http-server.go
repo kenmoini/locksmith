@@ -163,23 +163,10 @@ func NewRouter(basePath string) *http.ServeMux {
 		switch r.Method {
 		case "GET":
 			// index - get list of certs for a ca path
-			queryParams := r.URL.Query()
-			caPath, present := queryParams["ca_path"] //ca_path=["root-ca/intermed-ca/sub-ca"]
-			if !present || len(caPath) == 0 {
-				returnData := &ReturnGenericMessage{
-					Status:   "no-ca-path",
-					Errors:   []string{},
-					Messages: []string{"No Certificate Authority Path!"}}
-				returnResponse, _ := json.Marshal(returnData)
-				fmt.Fprintf(w, string(returnResponse))
-			} else {
-				// Split the path along the path delimiter
-				splitPath := strings.Split(caPath[0], "/")
-				logStdOut(splitPath[0])
-			}
+			listCertsAPI(w, r)
 		case "POST":
-			// create - make a new cert and CSR
-
+			// create - make a new cert
+			createNewCertAPI(w, r)
 		default:
 			methodNotAllowedAPI(w, r)
 		}

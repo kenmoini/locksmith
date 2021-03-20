@@ -17,6 +17,7 @@ RUN_PID=$!
 # Wait a few seconds while the Locksmith server starts
 sleep 5
 
+###################################################################################- KEY STORES
 # Read the list of key stores
 curl --request GET http://localhost:8080/locksmith/v1/keystores
 echo -e "\n"
@@ -24,24 +25,31 @@ echo -e "\n"
 curl --header "Content-Type: application/json" --request POST \
   --data '{"key_store_name": "Example Labs"}' http://localhost:8080/locksmith/v1/keystores
 echo -e "\n"
+# Read the list of key stores
 curl --request GET http://localhost:8080/locksmith/v1/keystores
 echo -e "\n"
 
+###################################################################################- KEY PAIRS
 # Create a key pair in the default key store
 curl --header "Content-Type: application/json" --request POST \
   --data '{"key_pair_id": "MyKeyPair"}' http://localhost:8080/locksmith/v1/keys
 echo -e ""
+# Create a key pair in the example-labs key store
 curl --header "Content-Type: application/json" --request POST \
   --data '{"key_pair_id": "Server Key Pair", "key_store_id": "example-labs"}' http://localhost:8080/locksmith/v1/keys
 echo -e ""
+# Create a key pair in the default key store
 curl --header "Content-Type: application/json" --request POST \
   --data '{"key_pair_id": "VDI Terminal"}' http://localhost:8080/locksmith/v1/keys
 echo -e "\n"
-
-# Read the list of key pairs
+# Read the list of key pairs in the default store
 curl --request GET http://localhost:8080/locksmith/v1/keys
 echo -e "\n"
+# Read the list of key pairs in the example-labs store
+curl --request GET -G --data-urlencode "key_store_id=example-labs" http://localhost:8080/locksmith/v1/keys
+echo -e "\n"
 
+###################################################################################- ROOT CA
 # Generate a Root CA
 curl --header "Content-Type: application/json" \
   --request POST \
@@ -53,6 +61,7 @@ echo -e "\n"
 curl --request GET http://localhost:8080/locksmith/v1/roots
 echo -e "\n"
 
+###################################################################################- INTERMEDIATE CA
 # Generate an Intermediate Certificate Authority
 curl --header "Content-Type: application/json" \
   --request POST \
@@ -63,6 +72,20 @@ echo -e "\n"
 # Read the Intermediate Certificate Authorities of the Root CA
 curl --request GET -G --data-urlencode "parent_cn_path=Example Labs Root Certificate Authority" "http://localhost:8080/locksmith/v1/intermediates"
 echo -e "\n"
+
+###################################################################################- CERTIFICATE REQUESTS
+# Read the list of CSRs
+curl --request GET -G --data-urlencode "parent_cn_path=Example Labs Root Certificate Authority" http://localhost:8080/locksmith/v1/certificate-requests
+echo -e "\n"
+
+
+###################################################################################- CERTIFICATES
+curl --request GET -G --data-urlencode "parent_cn_path=Example Labs Root Certificate Authority" http://localhost:8080/locksmith/v1/certificates
+echo -e "\n"
+
+###################################################################################- CERTIFICATE REVOCATION LISTS
+
+###################################################################################- CERTIFICATE BUNDLE
 
 # Generate a Server Certificate for OpenVPN
 #curl --header "Content-Type: application/json" \
