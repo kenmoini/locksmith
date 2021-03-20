@@ -49,7 +49,7 @@ func listIntermediateCAsAPI(w http.ResponseWriter, r *http.Request) {
 			returnData := &RESTGETIntermedCAJSONReturn{
 				Status:          "success",
 				Errors:          []string{},
-				Messages:        []string{"Listing of Intermediate Certificate Authorities under " + parentPathRaw},
+				Messages:        []string{"Listing of Intermediate Certificate Authorities under '" + parentPathRaw + "'"},
 				IntermediateCAs: intermedCAs}
 			returnResponse, _ := json.Marshal(returnData)
 			fmt.Fprintf(w, string(returnResponse))

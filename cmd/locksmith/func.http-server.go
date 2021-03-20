@@ -139,6 +139,20 @@ func NewRouter(basePath string) *http.ServeMux {
 	})
 
 	//====================================================================================
+	// AUTHORITy
+	// Reading a Certificate Authority's Information
+	router.HandleFunc(formattedBasePath+apiVersionTag+"/authority", func(w http.ResponseWriter, r *http.Request) {
+		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
+		switch r.Method {
+		case "GET":
+			// index - get information for CA in parent path
+			readAuthorityAPI(w, r)
+		default:
+			methodNotAllowedAPI(w, r)
+		}
+	})
+
+	//====================================================================================
 	// CERTIFICATE REQUESTS
 	// CSR Manipulation - Listing, Creating, Deleting
 	router.HandleFunc(formattedBasePath+apiVersionTag+"/certificate-requests", func(w http.ResponseWriter, r *http.Request) {

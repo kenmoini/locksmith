@@ -33,7 +33,7 @@
 
 **Input Data examples**
 
-```json
+```
 {
   "parent_cn_path": "Example Labs Root Certificate Authority",
   "certificate_config" {

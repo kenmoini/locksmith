@@ -271,6 +271,26 @@ type CAIndex struct {
 }
 
 /*====================================================================================================
+  API - Authority
+====================================================================================================*/
+
+// RESTGETAuthorityJSONIn handles the data required by the GET /authority endpoint
+type RESTGETAuthorityJSONIn struct {
+	CommonNamePath string `json:"parent_cn_path,omitempty"`
+	SlugPath       string `json:"parent_slug_path,omitempty"`
+}
+
+// RESTGETAuthorityJSONReturn handles the data returned by the GET /authority endpoint
+type RESTGETAuthorityJSONReturn struct {
+	Status          string            `json:"status"`
+	Errors          []string          `json:"errors"`
+	Messages        []string          `json:"messages"`
+	Slug            string            `json:"slug"`
+	CertificatePEM  string            `json:"certificate_pem"`
+	CertificateInfo *x509.Certificate `json:"certificate_information"`
+}
+
+/*====================================================================================================
   API - Intermediate CAs
 ====================================================================================================*/
 
