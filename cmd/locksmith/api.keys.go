@@ -54,7 +54,7 @@ func listKeyPairsAPI(w http.ResponseWriter, r *http.Request) {
 					// Now check the password against the key
 					privKeyBytes := LoadKeyFile(privKeyPath)
 					if isPrivateKeyEncrypted(privKeyBytes) {
-						// Test decoding
+						// Decode from base64
 						decodedPrivKey, err := b64.StdEncoding.DecodeString(string(privKeyBytes))
 						check(err)
 
@@ -196,11 +196,12 @@ func createKeyPairAPI(w http.ResponseWriter, r *http.Request) {
 					fmt.Fprintf(w, string(returnResponse))
 				} else {
 					// All clear - pass keys
-					returnData := &RESTGETKeyPairJSONReturn{
-						Status:   "success",
-						Errors:   []string{},
-						Messages: []string{"Successfully created Key Pair '" + slugger(keyPairInfo.KeyPairID) + "' in Key Store '" + sluggedKeyStoreID + "'!"},
-						KeyPair:  KeyPair{PublicKey: b64.StdEncoding.EncodeToString(pemEncodeRSAPublicKey(pubKey).Bytes()), PrivateKey: b64.StdEncoding.EncodeToString(pemEncodedPrivateKey.Bytes())}}
+					returnData := &RESTPOSTNewKeyPairReturn{
+						Status:    "success",
+						Errors:    []string{},
+						Messages:  []string{"Successfully created Key Pair '" + slugger(keyPairInfo.KeyPairID) + "' in Key Store '" + sluggedKeyStoreID + "'!"},
+						KeyPairID: slugger(keyPairInfo.KeyPairID),
+						KeyPair:   KeyPair{PublicKey: b64.StdEncoding.EncodeToString(pemEncodeRSAPublicKey(pubKey).Bytes()), PrivateKey: b64.StdEncoding.EncodeToString(pemEncodedPrivateKey.Bytes())}}
 					returnResponse, _ := json.Marshal(returnData)
 					fmt.Fprintf(w, string(returnResponse))
 				}
@@ -220,11 +221,12 @@ func createKeyPairAPI(w http.ResponseWriter, r *http.Request) {
 					fmt.Fprintf(w, string(returnResponse))
 				} else {
 					// All clear - pass keys
-					returnData := &RESTGETKeyPairJSONReturn{
-						Status:   "success",
-						Errors:   []string{},
-						Messages: []string{"Successfully created Key Pair '" + slugger(keyPairInfo.KeyPairID) + "' in Key Store '" + sluggedKeyStoreID + "'!"},
-						KeyPair:  KeyPair{PublicKey: b64.StdEncoding.EncodeToString(pemEncodeRSAPublicKey(pubKey).Bytes()), PrivateKey: b64.StdEncoding.EncodeToString(pemEncodedPrivateKey.Bytes())}}
+					returnData := &RESTPOSTNewKeyPairReturn{
+						Status:    "success",
+						Errors:    []string{},
+						Messages:  []string{"Successfully created Key Pair '" + slugger(keyPairInfo.KeyPairID) + "' in Key Store '" + sluggedKeyStoreID + "'!"},
+						KeyPairID: slugger(keyPairInfo.KeyPairID),
+						KeyPair:   KeyPair{PublicKey: b64.StdEncoding.EncodeToString(pemEncodeRSAPublicKey(pubKey).Bytes()), PrivateKey: b64.StdEncoding.EncodeToString(pemEncodedPrivateKey.Bytes())}}
 					returnResponse, _ := json.Marshal(returnData)
 					fmt.Fprintf(w, string(returnResponse))
 				}

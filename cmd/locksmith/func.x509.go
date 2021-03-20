@@ -208,3 +208,64 @@ func oidFromNamedCurve(curve elliptic.Curve) (asn1.ObjectIdentifier, bool) {
 
 	return nil, false
 }
+
+// ValidateCertificateConfiguration will run a CertificateConfiguration object through basic validations
+func ValidateCertificateConfiguration(c CertificateConfiguration) (bool, []string, error) {
+	checkInputError := false
+	var checkInputErrors []string
+
+	// Baseline global requirements
+	// Ensure there is a CommonName
+	if c.Subject.CommonName == "" {
+		checkInputError = true
+		checkInputErrors = append(checkInputErrors, "Missing common name field")
+	}
+	// Ensure there is an Organization set
+	if len(c.Subject.Organization) == 0 {
+		checkInputError = true
+		checkInputErrors = append(checkInputErrors, "Missing Organization field")
+	}
+	// Ensure there is an OrganizationalUnit set
+	if len(c.Subject.OrganizationalUnit) == 0 {
+		checkInputError = true
+		checkInputErrors = append(checkInputErrors, "Missing OrganizationalUnit field")
+	}
+	// Ensure the ExpirationDate is a valid int slice
+	if len(c.ExpirationDate) != 3 {
+		checkInputError = true
+		checkInputErrors = append(checkInputErrors, "Missing Expiration Date field")
+	}
+
+	// Validate certificate types
+	switch c.CertificateType {
+	case "client":
+		// client - validated that it has whatever it needs in the SANData for a client cert
+	case "authority":
+		// authority - validated that it has whatever it needs in the SANData for a CA Certificate
+	case "authority-no-subs":
+		// authority-no-subs - validated that it has whatever it needs in the SANData for a CA Certificate that cannot create subordinate CAs
+	case "server":
+		// server - this certificate should have a url string for the CommonName, additionally validate additional SANData.URIs
+		// Validate that the CommonName is an ASCII string
+		if err := isIA5String(c.Subject.CommonName); err != nil {
+			checkInputError = true
+			checkInputErrors = append(checkInputErrors, "x509: CommonName uniformResourceIdentifier is malformed")
+		}
+		// Validate that the CommonName is a valid URI
+		_, err := url.Parse(c.Subject.CommonName)
+		if err != nil {
+			checkInputError = true
+			checkInputErrors = append(checkInputErrors, "x509: CommonName is not a valid URL!")
+		}
+	default:
+		// CertificateTypes are *currently* not enforced and assume that precursor functions validate the workflow - this will change soon :)
+	}
+
+	// Return failures
+	if checkInputError {
+		return false, checkInputErrors, Stoerr("certificate-request-config-error")
+	}
+
+	// Return passing
+	return true, []string{}, nil
+}

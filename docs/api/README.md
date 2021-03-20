@@ -17,7 +17,7 @@ All endpoints are open - authentication is handled by an external API Gateway an
 
 ## Root Certificate Authorities
 
-* [List Root Certificate Authorities](roots/get.md) : `GET /locksmith/roots`
+* [List & Read Root Certificate Authorities](roots/get.md) : `GET /locksmith/roots`
 * [Create New Root CA](roots/post.md) : `POST /locksmith/roots`
 
 ## Intermediate Certificate Authorities
@@ -36,7 +36,7 @@ The Slugged CommonName chain (what is stored in the filesystem) would be: `examp
 
 You can address the CA Path with either the CommonName Chain or Slugged CommonName Chain - you could even mix and match since input is slugged anyway.
 
-* [List Intermediate Certificate Authorities](intermediates/get.md) : `GET /locksmith/intermediates`
+* [List & Read Intermediate Certificate Authorities](intermediates/get.md) : `GET /locksmith/intermediates`
 * [Create New Intermediate Certificate Authority](intermediates/post.md) : `POST /locksmith/intermediates`
 
 ---
@@ -45,7 +45,7 @@ You can address the CA Path with either the CommonName Chain or Slugged CommonNa
 
 Key Pairs provide key pair management outside of the scope of x509 PKI - this is useful when you want key pairs for CSRs, Servers, and Clients.
 
-* [List Key Pairs](keys/get.md) : `GET /locksmith/keys`
+* [List & Read Key Pairs](keys/get.md) : `GET /locksmith/keys`
 * [Create New Key Pairs](keys/post.md) : `POST /locksmith/keys`
 
 ## Key Stores

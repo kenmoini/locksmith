@@ -3,6 +3,7 @@ package locksmith
 import (
 	"bytes"
 	"crypto/rand"
+	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
@@ -99,4 +100,96 @@ func readCSRFromFile(path string) (*x509.CertificateRequest, error) {
 
 	// Convert to x509.CSR
 	return readCSR(file.Bytes)
+}
+
+// createNewCertificateRequest - creates a new Certificate Request from the API
+func createNewCertificateRequest(config RESTPOSTCertificateRequestJSONIn, parentPath string) (bool, []string, *x509.CertificateRequest, RealKeyPair, error) {
+	// Define needed variables
+	var csrIsCA bool
+	var csrCommonName string
+	var csrCommonNameSlug string
+	var privateKey *rsa.PrivateKey
+	var publicKey *rsa.PublicKey
+
+	// Check if the certificate configuration is valid
+	certificateValid, validationMsgs, err := ValidateCertificateConfiguration(config.CertificateConfiguration)
+	check(err)
+
+	if !certificateValid {
+		return false, validationMsgs, &x509.CertificateRequest{}, RealKeyPair{}, Stoerr("certificate-request-config-error")
+	}
+
+	// Define the CommonName and Slug
+	csrCommonName = config.CertificateConfiguration.Subject.CommonName
+	csrCommonNameSlug = slugger(csrCommonName)
+
+	// Check to see if the csr exists, just to be safe
+	absPathCSRFile := parentPath + "/certreqs/" + csrCommonNameSlug + ".req.pem"
+	sluggedCSRFileExists, err := FileExists(absPathCSRFile)
+	check(err)
+
+	if sluggedCSRFileExists {
+		return false, []string{"CSR exists!"}, &x509.CertificateRequest{}, RealKeyPair{}, Stoerr("certificate-request-exists")
+	}
+
+	// Check to see if there's a base64 encoded RSAPrivateKey defined
+	if config.CertificateConfiguration.RSAPrivateKey != "" {
+		// Check to see if we can base64 decode the Priv Key string
+		//decodedPrivKey, err := b64.StdEncoding.DecodeString(config.CertificateConfiguration.RSAPrivateKey)
+		//check(err)
+
+	} else {
+		// No incoming RSAPrivateKey, generate a new RSA Key Pair to generate the CSR
+		// Check for CSR key pair
+		privKeyCheck, err := FileExists(parentPath + "/keys/" + csrCommonNameSlug + ".priv.pem")
+		check(err)
+
+		if !privKeyCheck {
+			// if there is no private key, create one
+			csrPrivKey, csrPubKey, err := GenerateRSAKeypair(4096)
+			check(err)
+
+			csrPrivKeyFile, csrPubKeyFile, err := writeRSAKeyPair(pemEncodeRSAPrivateKey(csrPrivKey, ""), pemEncodeRSAPublicKey(csrPubKey), parentPath+"/keys/"+csrCommonNameSlug)
+			check(err)
+			if !csrPrivKeyFile || !csrPubKeyFile {
+				return false, []string{"CSR Key Pair Failure"}, &x509.CertificateRequest{}, RealKeyPair{}, err
+			}
+		}
+
+		// Read in the Private key
+		privateKey = GetPrivateKey(parentPath+"/keys/"+csrCommonNameSlug+".priv.pem", config.CertificateConfiguration.RSAPrivateKeyPassphrase)
+
+		// Read in the Public key
+		publicKey = GetPublicKey(parentPath + "/keys/" + csrCommonNameSlug + ".pub.pem")
+	}
+
+	if config.CertificateConfiguration.CertificateType == "authority" || config.CertificateConfiguration.CertificateType == "authority-no-subs" {
+		csrIsCA = true
+	}
+
+	// Generate the CSR
+	csr, err := generateCSR(absPathCSRFile,
+		privateKey,
+		config.CertificateConfiguration.Subject.CommonName,
+		config.CertificateConfiguration.Subject.Organization,
+		config.CertificateConfiguration.Subject.OrganizationalUnit,
+		config.CertificateConfiguration.Subject.Country,
+		config.CertificateConfiguration.Subject.Province,
+		config.CertificateConfiguration.Subject.Locality,
+		config.CertificateConfiguration.Subject.StreetAddress,
+		config.CertificateConfiguration.Subject.PostalCode,
+		csrIsCA)
+	check(err)
+
+	if !csr {
+		// Generation failure occured
+		return false, []string{"CSR Generation Failure"}, &x509.CertificateRequest{}, RealKeyPair{}, err
+	}
+
+	// Read in the CSR PEM file lol
+	caCSRPEM, err := readCSRFromFile(absPathCSRFile)
+	check(err)
+
+	return true, []string{"Sucessfully generated CSR "}, caCSRPEM, RealKeyPair{PrivateKey: privateKey, PublicKey: publicKey}, err
+
 }

@@ -34,12 +34,11 @@ func listIntermediateCAsAPI(w http.ResponseWriter, r *http.Request) {
 		returnResponse, _ := json.Marshal(returnData)
 		fmt.Fprintf(w, string(returnResponse))
 	} else {
-		logStdOut("parentPath " + parentPath)
 
 		// Check if the directory exists
 		absPath, err := filepath.Abs(readConfig.Locksmith.PKIRoot + "/roots/" + parentPath)
 		checkAndFail(err)
-		logStdOut("absPath: " + absPath)
+
 		intermedCAParentPathExists, err := DirectoryExists(absPath)
 		check(err)
 
@@ -98,10 +97,11 @@ func createNewIntermediateCAAPI(w http.ResponseWriter, r *http.Request) {
 	intermedCAParentPathExists, err := DirectoryExists(absPath)
 	check(err)
 
-	caName := intermedCAInfo.CertificateConfiguration.Subject.CommonName
-	sluggedName := slugger(caName)
-
 	if intermedCAParentPathExists {
+
+		caName := intermedCAInfo.CertificateConfiguration.Subject.CommonName
+		sluggedName := slugger(caName)
+
 		// If the intermediate's parent path exists, check if the intermediate ca exists before (re)creating it
 		logNeworkRequestStdOut(caName+" ("+sluggedName+"): Checking "+absPath+"/intermed-ca/"+sluggedName, r)
 		intermedCAPathExists, err := DirectoryExists(absPath + "/intermed-ca/" + sluggedName)
@@ -112,7 +112,7 @@ func createNewIntermediateCAAPI(w http.ResponseWriter, r *http.Request) {
 			logNeworkRequestStdOut(caName+" ("+sluggedName+") intermed-ca-exists", r)
 			returnData := &ReturnGenericMessage{
 				Status:   "intermed-ca-exists",
-				Errors:   []string{"Intermediate CA " + caName + " exists!"},
+				Errors:   []string{"Intermediate CA '" + caName + "' exists!"},
 				Messages: []string{}}
 			returnResponse, _ := json.Marshal(returnData)
 			fmt.Fprintf(w, string(returnResponse))
@@ -128,7 +128,7 @@ func createNewIntermediateCAAPI(w http.ResponseWriter, r *http.Request) {
 				returnData := &ReturnPostRoots{
 					Status:   "intermed-ca-created",
 					Errors:   []string{},
-					Messages: []string{"Successfully created Intermediate CA " + caName + "!"},
+					Messages: []string{"Successfully created Intermediate CA '" + caName + "'!"},
 					Root: RootInfo{
 						Slug:     sluggedName,
 						CertInfo: icaCert,
@@ -139,7 +139,7 @@ func createNewIntermediateCAAPI(w http.ResponseWriter, r *http.Request) {
 				logNeworkRequestStdOut(caName+" ("+sluggedName+") error-creating-intermed-ca", r)
 				returnData := &ReturnGenericMessage{
 					Status:   "intermed-ca-creation-error",
-					Errors:   []string{"Error creating Intermediate CA " + caName + "!"},
+					Errors:   []string{"Error creating Intermediate CA '" + caName + "'!"},
 					Messages: []string{}}
 				returnResponse, _ := json.Marshal(returnData)
 				fmt.Fprintf(w, string(returnResponse))

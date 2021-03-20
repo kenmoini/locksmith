@@ -1,6 +1,7 @@
 package locksmith
 
 import (
+	"crypto/rsa"
 	"crypto/x509"
 	"math/big"
 	"net"
@@ -209,12 +210,27 @@ type KeyPair struct {
 	PrivateKey string `json:"private_key,omitempty"`
 }
 
+// KeyPair combines a string for a Public and Private Key objects
+type RealKeyPair struct {
+	PublicKey  *rsa.PublicKey  `json:"public_key,omitempty"`
+	PrivateKey *rsa.PrivateKey `json:"private_key,omitempty"`
+}
+
 // RESTPOSTNewKeyPairIn organizes the data required for creating a new Key Pair
 type RESTPOSTNewKeyPairIn struct {
 	KeyPairID       string `json:"key_pair_id"`
 	KeyStoreID      string `json:"key_store_id,omitempty"`
 	Passphrase      string `json:"passphrase,omitempty"`
 	StorePrivateKey bool   `json:"store_private_key"`
+}
+
+// RESTPOSTNewKeyPairReturn handles the data returned by the POST /keys endpoint for generated key pairs
+type RESTPOSTNewKeyPairReturn struct {
+	Status    string   `json:"status"`
+	Errors    []string `json:"errors"`
+	Messages  []string `json:"messages"`
+	KeyPair   KeyPair  `json:"key_pair,omitempty"`
+	KeyPairID string   `json:"key_pair_id,omitempty"`
 }
 
 /*====================================================================================================
@@ -310,8 +326,9 @@ type RESTPOSTCertificateRequestJSONReturn struct {
 
 // CertificateRequestInfo provides general Certificate Request information
 type CertificateRequestInfo struct {
-	Slug               string                  `json:"slug"`
-	CertificateRequest x509.CertificateRequest `json:"certificate_request"`
+	Slug               string                   `json:"slug"`
+	CertificateRequest *x509.CertificateRequest `json:"certificate_request"`
+	KeyPair            KeyPair                  `json:"key_pair,omitempty"`
 }
 
 /*====================================================================================================

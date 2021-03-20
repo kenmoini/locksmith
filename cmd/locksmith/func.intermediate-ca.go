@@ -63,33 +63,20 @@ func setupIntermediateCACert(serialNumber int64, commonName string, organization
 
 // createNewIntermediateCA - creates a new Intermediate Certificate Authority
 func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath string) (bool, []string, x509.Certificate, error) {
-	checkInputError := false
-	var checkInputErrors []string
+	// Define needed variables
 	var rootSlug string
 	var caName string
 
-	if configWrapper.CertificateConfiguration.Subject.CommonName == "" {
-		checkInputError = true
-		checkInputErrors = append(checkInputErrors, "Missing common name field")
-	} else {
-		caName = configWrapper.CertificateConfiguration.Subject.CommonName
-		rootSlug = slugger(caName)
+	// Check if the certificate configuration is valid
+	certificateValid, validationMsgs, err := ValidateCertificateConfiguration(configWrapper.CertificateConfiguration)
+	check(err)
+
+	if !certificateValid {
+		return false, validationMsgs, x509.Certificate{}, Stoerr("cert-config-error")
 	}
-	if len(configWrapper.CertificateConfiguration.Subject.Organization) == 0 {
-		checkInputError = true
-		checkInputErrors = append(checkInputErrors, "Missing Organization field")
-	}
-	if len(configWrapper.CertificateConfiguration.Subject.OrganizationalUnit) == 0 {
-		checkInputError = true
-		checkInputErrors = append(checkInputErrors, "Missing OrganizationalUnit field")
-	}
-	if len(configWrapper.CertificateConfiguration.ExpirationDate) != 3 {
-		checkInputError = true
-		checkInputErrors = append(checkInputErrors, "Missing Expiration Date field")
-	}
-	if checkInputError {
-		return false, checkInputErrors, x509.Certificate{}, Stoerr("cert-config-error")
-	}
+
+	caName = configWrapper.CertificateConfiguration.Subject.CommonName
+	rootSlug = slugger(caName)
 
 	rootSlugPath := parentPath + "/intermed-ca/" + rootSlug
 	rsaPrivateKeyPassword := configWrapper.CertificateConfiguration.RSAPrivateKeyPassphrase
