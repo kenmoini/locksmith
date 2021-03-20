@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -40,6 +41,25 @@ func DirectoryListingNames(path string) []string {
 	var fileNames []string
 	for _, name := range list {
 		fileNames = append(fileNames, name)
+		//fmt.Println(name)
+	}
+	return fileNames
+}
+
+// DirectoryListingNamesNoExt lists just the name of files in a certain directory without their extensions
+func DirectoryListingNamesNoExt(path string) []string {
+	if path == "" {
+		path = "."
+	}
+
+	file, err := os.Open(path)
+	check(err)
+	defer file.Close()
+
+	list, _ := file.Readdirnames(0) // 0 to read all files and folders
+	var fileNames []string
+	for _, name := range list {
+		fileNames = append(fileNames, strings.TrimSuffix(name, filepath.Ext(name)))
 		//fmt.Println(name)
 	}
 	return fileNames

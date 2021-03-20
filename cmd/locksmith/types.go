@@ -111,6 +111,14 @@ type RESTGETIntermedCAJSONReturn struct {
 	IntermediateCAs []string `json:"intermediate_certificate_authorities"`
 }
 
+// RESTGETCertificateRequestsJSONReturn handles the data returned by the GET /certificate-requests endpoint
+type RESTGETCertificateRequestsJSONReturn struct {
+	Status              string   `json:"status"`
+	Errors              []string `json:"errors"`
+	Messages            []string `json:"messages"`
+	CertificateRequests []string `json:"certificate_requests"`
+}
+
 // RESTGETKeyPairsJSONReturn handles the data returned by the GET /keys endpoint for key pair listings
 type RESTGETKeyPairsJSONReturn struct {
 	Status   string   `json:"status"`
