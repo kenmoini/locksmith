@@ -19,7 +19,7 @@ Get the slugged list of Root Certificate Authorities.  The slug is a DNS/file-sa
 A cURL request would look like this:
 
 ```
-curl http://pkiserver/locksmith/v1/roots
+curl http://$PKI_SERVER/locksmith/v1/roots
 ```
 
 And the data returned would be the minified version of the following JSON:

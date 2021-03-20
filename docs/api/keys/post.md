@@ -42,10 +42,10 @@ A cURL request would look like this:
 
 ```
 curl --header "Content-Type: application/json" --request POST \
-  --data '{"key_pair_id": "OpenVPN Server"}' http://pkiserver/locksmith/v1/keys
+  --data '{"key_pair_id": "OpenVPN Server"}' http://$PKI_SERVER/locksmith/v1/keys
 
 curl --header "Content-Type: application/json" --request POST \
-  --data '{"key_pair_id": "Server Key Pair", "key_store_id": "example-labs"}' http://pkiserver/locksmith/v1/keys
+  --data '{"key_pair_id": "Server Key Pair", "key_store_id": "example-labs"}' http://$PKI_SERVER/locksmith/v1/keys
 ```
 
 ## Success Responses

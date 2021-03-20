@@ -30,7 +30,7 @@ A cURL request would look like this:
 
 ```
 curl --header "Content-Type: application/json" --request POST \
-  --data '{"key_store_name": "Example Labs"}' http://pkiserver/locksmith/v1/keystores
+  --data '{"key_store_name": "Example Labs"}' http://$PKI_SERVER/locksmith/v1/keystores
 ```
 
 ## Success Responses

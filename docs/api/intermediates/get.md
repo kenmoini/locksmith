@@ -35,8 +35,8 @@ To use a slugged CommonName chain, pass the `parent_slug_path` parameter.
 A cURL request would look like this:
 
 ```
-curl --request GET -G --data-urlencode "parent_cn_path=Example Labs Root Certificate Authority" "http://pkiserver/locksmith/v1/intermediates"
-curl --request GET -G --data-urlencode "parent_slug_path=example-labs-root-certificate-authority" "http://pkiserver/locksmith/v1/intermediates"
+curl --request GET -G --data-urlencode "parent_cn_path=Example Labs Root Certificate Authority" "http://$PKI_SERVER/locksmith/v1/intermediates"
+curl --request GET -G --data-urlencode "parent_slug_path=example-labs-root-certificate-authority" "http://$PKI_SERVER/locksmith/v1/intermediates"
 ```
 
 And the data returned would be the minified version of the following JSON:

@@ -20,7 +20,7 @@ A cURL request would look like this:
 
 ```
 # List Key Store IDs
-curl http://pkiserver/locksmith/v1/keystores
+curl http://$PKI_SERVER/locksmith/v1/keystores
 ```
 
 And the data returned would be the minified version of the following JSON:

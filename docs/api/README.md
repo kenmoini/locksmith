@@ -1,6 +1,6 @@
 # Locksmith APIDocs
 
-Where full URLs are provided in responses they will be rendered as if the service is running on 'http://pkiserver/'.
+Where full URLs are provided in responses they will be rendered as if the service is running on 'http://$PKI_SERVER/'.  This way you can `export PKI_SERVER="localhost:8080"` or wherever it is your PKI server is and run the cURL examples in your terminal directly from the API Documentation.
 
 The base of the API URL path is variably defined via the Configuration YAML - in these documents it's represented as `/locksmith`.
 
@@ -8,7 +8,7 @@ All endpoints are open - authentication is handled by an external API Gateway an
 
 - [Root Certificate Authorities](#root-certificate-authorities)
 - [Intermediate Certificate Authorities](#intermediate-certificate-authorities)
-- Certificate Requests
+- [Certificate Requests](#certificate-requests)
 - Certificates
 - Renewals
 - Revocations

@@ -32,13 +32,13 @@ A cURL request would look like this:
 
 ```
 # List Key Pair IDs in the 'default' Key Store 
-curl http://pkiserver/locksmith/v1/keys
+curl http://$PKI_SERVER/locksmith/v1/keys
 
 # Get Public Key for OpenVPN Server (openvpn-server) in the 'networking' Key Store ID
-curl --request GET -G --data-urlencode "key_store_id=networking" --data-urlencode "key_pair_id=OpenVPN Server" http://pkiserver/locksmith/v1/keys
+curl --request GET -G --data-urlencode "key_store_id=networking" --data-urlencode "key_pair_id=OpenVPN Server" http://$PKI_SERVER/locksmith/v1/keys
 
 # Get full key pair for OpenVPN Server (openvpn-server)
-curl --request GET --data-urlencode "key_pair_id=OpenVPN Server" --data-urlencode "passphrase=s3cr3t" http://pkiserver/locksmith/v1/keys
+curl --request GET --data-urlencode "key_pair_id=OpenVPN Server" --data-urlencode "passphrase=s3cr3t" http://$PKI_SERVER/locksmith/v1/keys
 ```
 
 And the data returned would be the minified version of the following JSON, respective of the 3 different example cURLs:
