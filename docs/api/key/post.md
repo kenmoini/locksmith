@@ -2,7 +2,7 @@
 
 **API Version** : Version 1 (v1)
 
-**URL** : `/locksmith/v1/keys`
+**URL** : `/locksmith/v1/key`
 
 **Method** : `POST`
 
@@ -42,10 +42,10 @@ A cURL request would look like this:
 
 ```
 curl --header "Content-Type: application/json" --request POST \
-  --data '{"key_pair_id": "OpenVPN Server"}' http://$PKI_SERVER/locksmith/v1/keys
+  --data '{"key_pair_id": "OpenVPN Server"}' http://$PKI_SERVER/locksmith/v1/key
 
 curl --header "Content-Type: application/json" --request POST \
-  --data '{"key_pair_id": "Server Key Pair", "key_store_id": "example-labs"}' http://$PKI_SERVER/locksmith/v1/keys
+  --data '{"key_pair_id": "Server Key Pair", "key_store_id": "example-labs"}' http://$PKI_SERVER/locksmith/v1/key
 ```
 
 ## Success Responses

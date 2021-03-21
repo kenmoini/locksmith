@@ -6,11 +6,15 @@ The base of the API URL path is variably defined via the Configuration YAML - in
 
 All endpoints are open - authentication is handled by an external API Gateway and is outside of the scope of Locksmith.
 
+Make note of pluralism - for example, you query a list of Certificates but will request information about a single Certificate.  The API endpoints reflect this pluralism.
+
 - [Root Certificate Authorities](#root-certificate-authorities)
 - [Intermediate Certificate Authorities](#intermediate-certificate-authorities)
-- [Authorities](#authorities)
+- [Authority](#authority)
 - [Certificate Requests](#certificate-requests)
-- Certificates
+- [Certificate Request](#certificate-request)
+- [Certificates](#certificates)
+- [Certificate](#certificate)
 - Renewals
 - Revocations
 - [Key Pairs](#key-pairs)
@@ -19,7 +23,7 @@ All endpoints are open - authentication is handled by an external API Gateway an
 ## Root Certificate Authorities
 
 * [List Root Certificate Authorities](roots/get.md) : `GET /locksmith/roots`
-* [Create New Root CA](roots/post.md) : `POST /locksmith/roots`
+* [Create New Root CA](root/post.md) : `POST /locksmith/root`
 
 ## Intermediate Certificate Authorities
 
@@ -38,13 +42,22 @@ The Slugged CommonName chain (what is stored in the filesystem) would be: `examp
 You can address the CA Path with either the CommonName Chain or Slugged CommonName Chain - you could even mix and match since input is slugged anyway.
 
 * [List Intermediate Certificate Authorities](intermediates/get.md) : `GET /locksmith/intermediates`
-* [Create New Intermediate Certificate Authority](intermediates/post.md) : `POST /locksmith/intermediates`
+* [Create New Intermediate Certificate Authority](intermediate/post.md) : `POST /locksmith/intermediate`
 
-## Authorities
+## Authority
 
-Authorities is the structure used to read any Certificate Authority, Root or Intermediate, up and down a CA Path.
+Authority is the structure used to read any Certificate Authority, Root or Intermediate, up and down a CA Path.
 
 * [Read Certificate Authority](authority/get.md) : `GET /locksmith/authority`
+
+## Certificate Requests
+
+* [List Certificate Requests](certificate-requests/get.md) : `GET /locksmith/certificate-requests`
+
+## Certificate Request
+
+* [Read Certificate Request](certificate-request/get.md) : `GET /locksmith/certificate-request`
+* [Create New Certificate Request](certificate-request/post.md) : `GET /locksmith/certificate-request`
 
 ---
 
@@ -53,8 +66,8 @@ Authorities is the structure used to read any Certificate Authority, Root or Int
 Key Pairs provide key pair management outside of the scope of x509 PKI - this is useful when you want key pairs for CSRs, Servers, and Clients.
 
 * [List Key Pairs](keys/get.md) : `GET /locksmith/keys`
-* [Create New Key Pairs](keys/post.md) : `POST /locksmith/keys`
 
+* [Create New Key Pairs](key/post.md) : `POST /locksmith/key`
 * [Retrieve Key Pair](key/get.md) : `GET /locksmith/key`
 
 ## Key Stores
@@ -62,4 +75,6 @@ Key Pairs provide key pair management outside of the scope of x509 PKI - this is
 Key Stores organize groups of Key Pairs.
 
 * [List Key Stores](keystores/get.md) : `GET /locksmith/keystores`
-* [Create New Key Store](keystores/post.md) : `POST /locksmith/keystores`
+
+* Retrieve Key Store Information : `GET /locksmith/keystore`
+* [Create New Key Store](keystore/post.md) : `POST /locksmith/keystore`

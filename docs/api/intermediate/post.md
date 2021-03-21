@@ -2,7 +2,7 @@
 
 **API Version** : Version 1 (v1)
 
-**URL** : `/locksmith/v1/intermediates`
+**URL** : `/locksmith/v1/intermediate`
 
 **Method** : `POST`
 
@@ -63,7 +63,7 @@ A cURL request would look like this:
 curl --header "Content-Type: application/json" \
   --request POST \
   --data '{"parent_cn_path": "Example Labs Root Certificate Authority", "certificate_config":{"subject": {"common_name": "Example Labs Intermediate Certificate Authority", "organization": ["Example Labs"], "organizational_unit": ["Example Labs Cyber and Information Security"]}, "expiration_date": [3,0,1], "san_data": {"email_addresses":["certmaster@example.labs"],"uris":["https://ca.example.labs:443/"]}}}' \
-  http://$PKI_SERVER/locksmith/v1/intermediates
+  http://$PKI_SERVER/locksmith/v1/intermediate
 ```
 
 ## Success Responses

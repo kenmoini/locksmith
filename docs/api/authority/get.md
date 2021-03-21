@@ -14,7 +14,7 @@ The slug is a DNS/file-safe filter on the CA CommonName and used to query and us
 
 ## Input Parameters
 
-When operating against Intermediate CAs there is a Certificate Authority Path that is needed - this can be the CommonName chain or the slugged version of the CommonName Chain, eg with the following 3 chained CAs:
+When operating against the PKI Chain there is a Certificate Authority Path that is needed - this can be the CommonName chain or the slugged version of the CommonName Chain, eg with the following 3 chained CAs:
 
 - Example Labs Root CA
   - Example Labs Intermediate CA

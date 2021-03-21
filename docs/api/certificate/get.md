@@ -1,16 +1,16 @@
-# Read Certificate Request along Certificate Path [WIP]
+# Read Certificate along Certificate Path [WIP]
 
-Get the information of a Certificate Request for a given Certificate Path.
+Get the information of a Certificate for a given Certificate Path.
 
 The slug is a DNS/file-safe filter on the CA CommonName and used to query and use the CA in other workflows.
 
 **API Version** : Version 1 (v1)
 
-**URL** : `/locksmith/v1/certificate-request`
+**URL** : `/locksmith/v1/certificate`
 
 **Method** : `GET`
 
-**Data required** : Certificate Authority Path as a Slash-Delimited String and Certificate Request ID.
+**Data required** : Certificate Authority Path as a Slash-Delimited String and Certificate ID.
 
 ## Input Parameters
 
@@ -28,9 +28,9 @@ The slugged CommonName chain (what is stored in the filesystem) would be: `examp
 To use a CommonName chain, pass the `parent_cn_path` parameter.
 To use a slugged CommonName chain, pass the `parent_slug_path` parameter.
 
-### Certificate Request ID
+### Certificate ID
 
-The Certificate Request ID is the CommonName or the slugged CommonName of the Certificate Request - pass the `certificate_request_id` parameter.
+The Certificate ID is the CommonName or the slugged CommonName of the Certificate - pass the `certificate_id` parameter.
 
 ## Success Response
 
@@ -41,8 +41,8 @@ The Certificate Request ID is the CommonName or the slugged CommonName of the Ce
 A cURL request would look like this:
 
 ```
-curl --request GET -G --data-urlencode "cn_path=Example Labs Root Certificate Authority" --data-urlencode "certificate_request_id=OpenVPN Server" "http://$PKI_SERVER/locksmith/v1/certificate-request"
-curl --request GET -G --data-urlencode "slug_path=example-labs-root-certificate-authority/Example Labs Intermediate Certificate Authority" --data-urlencode "certificate_request_id=OpenVPN Server" "http://$PKI_SERVER/locksmith/v1/certificate-request"
+curl --request GET -G --data-urlencode "parent_cn_path=Example Labs Root Certificate Authority" --data-urlencode "certificate_id=Example Labs Intermediate Certificate Authority" "http://$PKI_SERVER/locksmith/v1/certificate"
+curl --request GET -G --data-urlencode "parent_slug_path=example-labs-root-certificate-authority/Example Labs Intermediate Certificate Authority" --data-urlencode "certificate_id=OpenVPN Server" "http://$PKI_SERVER/locksmith/v1/certificate"
 ```
 
 And the data returned would be the minified version of the following JSON:
