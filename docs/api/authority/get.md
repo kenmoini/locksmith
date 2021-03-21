@@ -18,9 +18,9 @@ When operating against the PKI Chain there is a Certificate Authority Path that 
 
 - Example Labs Root CA
   - Example Labs Intermediate CA
-    - Example Labs Server Signing CA
+    - Example Labs Signing CA
 
-The CommonName chain would be represented as: `Example Labs Root CA/Example Labs Intermediate CA/Example Labs Server Signing CA`
+The CommonName chain would be represented as: `Example Labs Root CA/Example Labs Intermediate CA/Example Labs Signing CA`
 The slugged CommonName chain (what is stored in the filesystem) would be: `example-labs-root-ca/example-labs-intermediate-ca/example-labs-server-signing-ca`
 
 To use a CommonName chain, pass the `cn_path` parameter.
