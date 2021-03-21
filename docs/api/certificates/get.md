@@ -21,7 +21,7 @@ When operating against Certificates there is a Certificate Authority Path that i
     - Example Labs Signing CA
 
 The full CommonName chain would be a string represented as: `Example Labs Root CA/Example Labs Intermediate CA/Example Labs Signing CA`
-The full slugged CommonName chain (what is stored in the filesystem) would be this string: `example-labs-root-ca/example-labs-intermediate-ca/example-labs-server-signing-ca`
+The full slugged CommonName chain (what is stored in the filesystem) would be this string: `example-labs-root-ca/example-labs-intermediate-ca/example-labs-signing-ca`
 
 To use a CommonName chain, pass the `parent_cn_path` string parameter.
 To use a slugged CommonName chain, pass the `parent_slug_path` string parameter.

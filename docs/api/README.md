@@ -37,7 +37,7 @@ When operating against Intermediate CAs there is a Certificate Authority Path th
 
 The CommonName chain would be represented as: `Example Labs Root CA/Example Labs Intermediate CA/Example Labs Signing CA`
 
-The Slugged CommonName chain (what is stored in the filesystem) would be: `example-labs-root-ca/example-labs-intermediate-ca/example-labs-server-signing-ca`
+The Slugged CommonName chain (what is stored in the filesystem) would be: `example-labs-root-ca/example-labs-intermediate-ca/example-labs-signing-ca`
 
 You can address the CA Path with either the CommonName Chain or Slugged CommonName Chain - you could even mix and match since input is slugged anyway.
 
