@@ -78,6 +78,17 @@ func NewRouter(basePath string) *http.ServeMux {
 		case "GET":
 			// index - get list of keys in key store
 			listKeyPairsAPI(w, r)
+		default:
+			methodNotAllowedAPI(w, r)
+		}
+	})
+
+	router.HandleFunc(formattedBasePath+apiVersionTag+"/key", func(w http.ResponseWriter, r *http.Request) {
+		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
+		switch r.Method {
+		case "GET":
+			// index - get key pair in key store
+			readKeyPairAPI(w, r)
 		case "POST":
 			// create - create new keys in key store
 			createKeyPairAPI(w, r)
@@ -95,6 +106,14 @@ func NewRouter(basePath string) *http.ServeMux {
 		case "GET":
 			// index - get list of key stores
 			listKeyStoresAPI(w, r)
+		default:
+			methodNotAllowedAPI(w, r)
+		}
+	})
+
+	router.HandleFunc(formattedBasePath+apiVersionTag+"/keystore", func(w http.ResponseWriter, r *http.Request) {
+		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
+		switch r.Method {
 		case "POST":
 			// create - create new key store
 			createKeyStoreAPI(w, r)
@@ -113,6 +132,14 @@ func NewRouter(basePath string) *http.ServeMux {
 			// index - get list of roots
 			listRootCAsAPI(w, r)
 			// http.ServeFile(w, r, "form.html")
+		default:
+			methodNotAllowedAPI(w, r)
+		}
+	})
+
+	router.HandleFunc(formattedBasePath+apiVersionTag+"/root", func(w http.ResponseWriter, r *http.Request) {
+		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
+		switch r.Method {
 		case "POST":
 			// create - create new root
 			createNewRootCAAPI(w, r)
@@ -130,6 +157,14 @@ func NewRouter(basePath string) *http.ServeMux {
 		case "GET":
 			// index - get list of intermediate CAs in parent path
 			listIntermediateCAsAPI(w, r)
+		default:
+			methodNotAllowedAPI(w, r)
+		}
+	})
+
+	router.HandleFunc(formattedBasePath+apiVersionTag+"/intermediate", func(w http.ResponseWriter, r *http.Request) {
+		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
+		switch r.Method {
 		case "POST":
 			// create - create new intermediate CA in parent path
 			createNewIntermediateCAAPI(w, r)
@@ -161,6 +196,14 @@ func NewRouter(basePath string) *http.ServeMux {
 		case "GET":
 			// index - get list of CSRs in cert path
 			listCSRsAPI(w, r)
+		default:
+			methodNotAllowedAPI(w, r)
+		}
+	})
+
+	router.HandleFunc(formattedBasePath+apiVersionTag+"/certificate-request", func(w http.ResponseWriter, r *http.Request) {
+		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
+		switch r.Method {
 		case "POST":
 			// create - create new csr in cert path
 			createNewCSRAPI(w, r)
@@ -178,6 +221,17 @@ func NewRouter(basePath string) *http.ServeMux {
 		case "GET":
 			// index - get list of certs for a ca path
 			listCertsAPI(w, r)
+		default:
+			methodNotAllowedAPI(w, r)
+		}
+	})
+
+	router.HandleFunc(formattedBasePath+apiVersionTag+"/certificate", func(w http.ResponseWriter, r *http.Request) {
+		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
+		switch r.Method {
+		case "GET":
+			// index - read cert info in a ca path
+			readCertificateAPI(w, r)
 		case "POST":
 			// create - make a new cert
 			createNewCertAPI(w, r)
@@ -221,6 +275,19 @@ func (config Config) RunHTTPServer() {
 	// Alert the user that the server is starting
 	log.Printf("Server is starting on %s\n", server.Addr)
 
+	// QUIK N DUURTY TESTS
+	//csrPrivKey, csrPubKey, err := GenerateRSAKeypair(4096)
+	//check(err)
+	//
+	//pemEncodedPrivateKey, encryptedPrivateKeyBytes := pemEncodeRSAPrivateKey(csrPrivKey, "s3cr3t")
+	//
+	//logStdOut("privateKeyPEM: " + string(pemEncodedPrivateKey.Bytes()))
+	//logStdOut("encryptedPrivateKeyBytes: " + string(encryptedPrivateKeyBytes.Bytes()))
+	//base, _ := b64.StdEncoding.DecodeString(string(encryptedPrivateKeyBytes.Bytes()))
+	//_, decrypt, _ := decryptBytes(base, "s3cr3t")
+	//logStdOut("decrypted: " + string(decrypt))
+	//logStdOut("publicKeyPEM: " + string(pemEncodeRSAPublicKey(csrPubKey).Bytes()))
+
 	// Run the server on a new goroutine
 	go func() {
 		//if err := server.ListenAndServe(); err != nil {
@@ -231,6 +298,7 @@ func (config Config) RunHTTPServer() {
 				log.Fatalf("Server failed to start due to err: %v", err)
 			}
 		}
+
 	}()
 
 	// Block on this channel listeninf for those previously defined syscalls assign

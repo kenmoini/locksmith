@@ -113,7 +113,7 @@ func TouchFile(fileName string, updateTime bool) {
 
 // CopyFile copies a file
 func CopyFile(src, dst string, BUFFERSIZE int64) error {
-	log.Printf("Copying  %s to %s\n", src, dst)
+	//log.Printf("Copying  %s to %s\n", src, dst)
 	if BUFFERSIZE == 0 {
 		BUFFERSIZE = 4096
 	}
@@ -263,7 +263,7 @@ func Untar(dst string, srcFile string) error {
 
 // CreateDirectory is self explanitory
 func CreateDirectory(path string) {
-	log.Printf("Creating directory %s\n", path)
+	//log.Printf("Creating directory %s\n", path)
 	_, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		errDir := os.MkdirAll(path, 0755)
@@ -273,7 +273,7 @@ func CreateDirectory(path string) {
 
 // DeleteFile deletes a file
 func DeleteFile(path string) {
-	log.Printf("Deleting %s\n", path)
+	//log.Printf("Deleting %s\n", path)
 	e := os.Remove(path)
 	check(e)
 }
@@ -365,9 +365,7 @@ func setupCAFileStructure(basePath string) CertificateAuthorityPaths {
 	// Check to see if there is an Index file
 	IndexFile, err := WriteFile(rootCACertIndexFilePath, "", 0600, false)
 	check(err)
-	if IndexFile {
-		logStdOut("Created Index file")
-	} else {
+	if !IndexFile {
 		logStdOut("Index file exists")
 	}
 
@@ -376,9 +374,7 @@ func setupCAFileStructure(basePath string) CertificateAuthorityPaths {
 	// Check to see if there is a serial file
 	serialFile, err := WriteFile(rootCACertSerialFilePath, "01", 0600, false)
 	check(err)
-	if serialFile {
-		logStdOut("Created serial file")
-	} else {
+	if !serialFile {
 		logStdOut("Serial file exists")
 	}
 
@@ -387,9 +383,7 @@ func setupCAFileStructure(basePath string) CertificateAuthorityPaths {
 	// Check to see if there is a crlNum file
 	crlNumFile, err := WriteFile(rootCACrlnumFilePath, "00", 0600, false)
 	check(err)
-	if crlNumFile {
-		logStdOut("Created crlnum file")
-	} else {
+	if !crlNumFile {
 		logStdOut("crlnum file exists")
 	}
 

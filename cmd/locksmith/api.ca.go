@@ -67,7 +67,7 @@ func createNewRootCAAPI(w http.ResponseWriter, r *http.Request) {
 
 			logNeworkRequestStdOut(caName+" ("+sluggedName+") root-created", r)
 			returnData := &ReturnPostRoots{
-				Status:   "root-created",
+				Status:   "success",
 				Errors:   []string{},
 				Messages: []string{"Root CA " + caName + " created!"},
 				Root: RootInfo{

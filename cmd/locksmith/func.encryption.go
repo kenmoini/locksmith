@@ -83,7 +83,9 @@ func decryptBytes(bytesIn []byte, passphrase string) (decrypted bool, plaintextB
 		log.Panic(err)
 		return false, []byte{}, err
 	}
-	return false, plaintextBytes, nil
+
+	// successfully decrypted
+	return true, plaintextBytes, nil
 }
 
 // isPEMEncrypted Checks to see if the byte slice from a file contains a plain-text PEM file

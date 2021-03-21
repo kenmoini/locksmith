@@ -75,8 +75,9 @@ func writePrivateKey(pem *bytes.Buffer, path string) (bool, error) {
 }
 
 // pemEncodeRSAPrivateKey
-func pemEncodeRSAPrivateKey(caPrivKey *rsa.PrivateKey, rsaPrivateKeyPassword string) *bytes.Buffer {
-	caPrivKeyPEM := new(bytes.Buffer)
+func pemEncodeRSAPrivateKey(caPrivKey *rsa.PrivateKey, rsaPrivateKeyPassword string) (caPrivKeyPEM *bytes.Buffer, b *bytes.Buffer) {
+	caPrivKeyPEM = new(bytes.Buffer)
+	b = new(bytes.Buffer)
 
 	privateKeyBlock := &pem.Block{
 		Type:  "RSA PRIVATE KEY",
@@ -94,12 +95,20 @@ func pemEncodeRSAPrivateKey(caPrivKey *rsa.PrivateKey, rsaPrivateKeyPassword str
 
 	if rsaPrivateKeyPassword != "" {
 		encBytes := encryptBytes(caPrivKeyPEM.Bytes(), rsaPrivateKeyPassword)
-		var b bytes.Buffer
 		b.Write(encBytes)
-		return &b
 	}
 
-	return caPrivKeyPEM
+	return caPrivKeyPEM, b
+}
+
+// pemToEncryptedBytes takes a PEM byte buffer and encrypts it
+func pemToEncryptedBytes(pem *bytes.Buffer, passphrase string) (b *bytes.Buffer) {
+	b = new(bytes.Buffer)
+
+	encBytes := encryptBytes(pem.Bytes(), passphrase)
+	b.Write(encBytes)
+
+	return b
 }
 
 // pemEncodeRSAPublicKey

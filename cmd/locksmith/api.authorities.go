@@ -62,7 +62,7 @@ func readAuthorityAPI(w http.ResponseWriter, r *http.Request) {
 					Status:          "success",
 					Errors:          []string{},
 					Messages:        []string{"Certificate Authority information for '" + caPathRaw + "'"},
-					Slug:            parentSlugPath[0],
+					Slug:            caPathRaw,
 					CertificatePEM:  b64.StdEncoding.EncodeToString(pem.Bytes),
 					CertificateInfo: certificate}
 				returnResponse, _ := json.Marshal(returnData)

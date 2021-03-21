@@ -1,11 +1,13 @@
 package locksmith
 
 import (
+	"bytes"
 	"crypto/rsa"
 	"crypto/sha1"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
+	b64 "encoding/base64"
 	"math/big"
 	"path/filepath"
 	"time"
@@ -108,11 +110,26 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, x509.Cert
 		rootPrivKey, rootPubKey, err := GenerateRSAKeypair(4096)
 		check(err)
 
-		rootPrivKeyFile, rootPubKeyFile, err := writeRSAKeyPair(pemEncodeRSAPrivateKey(rootPrivKey, ""), pemEncodeRSAPublicKey(rootPubKey), certPaths.RootCACertKeysPath+"/ca")
-		check(err)
-		if !rootPrivKeyFile || !rootPubKeyFile {
-			return false, []string{"Root CA Private Key Failure"}, x509.Certificate{}, err
+		pemEncodedPrivateKey, encryptedPrivateKeyBytes := pemEncodeRSAPrivateKey(rootPrivKey, rsaPrivateKeyPassword)
+
+		if rsaPrivateKeyPassword == "" {
+			rootPrivKeyFile, rootPubKeyFile, err := writeRSAKeyPair(pemEncodedPrivateKey, pemEncodeRSAPublicKey(rootPubKey), certPaths.RootCACertKeysPath+"/ca")
+			check(err)
+			if !rootPrivKeyFile || !rootPubKeyFile {
+				return false, []string{"Root CA Private Key Failure"}, x509.Certificate{}, err
+			}
+		} else {
+
+			encStr := b64.StdEncoding.EncodeToString(encryptedPrivateKeyBytes.Bytes())
+			encBufferB := bytes.NewBufferString(encStr)
+
+			rootPrivKeyFile, rootPubKeyFile, err := writeRSAKeyPair(encBufferB, pemEncodeRSAPublicKey(rootPubKey), certPaths.RootCACertKeysPath+"/ca")
+			check(err)
+			if !rootPrivKeyFile || !rootPubKeyFile {
+				return false, []string{"Root CA Private Key Failure"}, x509.Certificate{}, err
+			}
 		}
+
 	}
 
 	// Read in the Private key

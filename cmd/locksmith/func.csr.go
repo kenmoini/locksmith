@@ -149,11 +149,22 @@ func createNewCertificateRequest(config RESTPOSTCertificateRequestJSONIn, parent
 			csrPrivKey, csrPubKey, err := GenerateRSAKeypair(4096)
 			check(err)
 
-			csrPrivKeyFile, csrPubKeyFile, err := writeRSAKeyPair(pemEncodeRSAPrivateKey(csrPrivKey, ""), pemEncodeRSAPublicKey(csrPubKey), parentPath+"/keys/"+csrCommonNameSlug)
-			check(err)
-			if !csrPrivKeyFile || !csrPubKeyFile {
-				return false, []string{"CSR Key Pair Failure"}, &x509.CertificateRequest{}, RealKeyPair{}, err
+			pemEncodedPrivateKey, encryptedPrivateKeyBytes := pemEncodeRSAPrivateKey(csrPrivKey, config.CertificateConfiguration.RSAPrivateKeyPassphrase)
+
+			if encryptedPrivateKeyBytes == nil {
+				csrPrivKeyFile, csrPubKeyFile, err := writeRSAKeyPair(pemEncodedPrivateKey, pemEncodeRSAPublicKey(csrPubKey), parentPath+"/keys/"+csrCommonNameSlug)
+				check(err)
+				if !csrPrivKeyFile || !csrPubKeyFile {
+					return false, []string{"CSR Key Pair Failure"}, &x509.CertificateRequest{}, RealKeyPair{}, err
+				}
+			} else {
+				csrPrivKeyFile, csrPubKeyFile, err := writeRSAKeyPair(encryptedPrivateKeyBytes, pemEncodeRSAPublicKey(csrPubKey), parentPath+"/keys/"+csrCommonNameSlug)
+				check(err)
+				if !csrPrivKeyFile || !csrPubKeyFile {
+					return false, []string{"CSR Key Pair Failure"}, &x509.CertificateRequest{}, RealKeyPair{}, err
+				}
 			}
+
 		}
 
 		// Read in the Private key

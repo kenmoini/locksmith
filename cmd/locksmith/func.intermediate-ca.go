@@ -1,11 +1,13 @@
 package locksmith
 
 import (
+	"bytes"
 	"crypto/rsa"
 	"crypto/sha1"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
+	b64 "encoding/base64"
 	"math/big"
 	"time"
 )
@@ -94,11 +96,26 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 		rootPrivKey, rootPubKey, err := GenerateRSAKeypair(4096)
 		check(err)
 
-		rootPrivKeyFile, rootPubKeyFile, err := writeRSAKeyPair(pemEncodeRSAPrivateKey(rootPrivKey, ""), pemEncodeRSAPublicKey(rootPubKey), certPaths.RootCACertKeysPath+"/ca")
-		check(err)
-		if !rootPrivKeyFile || !rootPubKeyFile {
-			return false, []string{"Root CA Private Key Failure"}, x509.Certificate{}, err
+		pemEncodedPrivateKey, encryptedPrivateKeyBytes := pemEncodeRSAPrivateKey(rootPrivKey, rsaPrivateKeyPassword)
+
+		if rsaPrivateKeyPassword == "" {
+			rootPrivKeyFile, rootPubKeyFile, err := writeRSAKeyPair(pemEncodedPrivateKey, pemEncodeRSAPublicKey(rootPubKey), certPaths.RootCACertKeysPath+"/ca")
+			check(err)
+			if !rootPrivKeyFile || !rootPubKeyFile {
+				return false, []string{"Root CA Private Key Failure"}, x509.Certificate{}, err
+			}
+		} else {
+
+			encStr := b64.StdEncoding.EncodeToString(encryptedPrivateKeyBytes.Bytes())
+			encBufferB := bytes.NewBufferString(encStr)
+
+			rootPrivKeyFile, rootPubKeyFile, err := writeRSAKeyPair(encBufferB, pemEncodeRSAPublicKey(rootPubKey), certPaths.RootCACertKeysPath+"/ca")
+			check(err)
+			if !rootPrivKeyFile || !rootPubKeyFile {
+				return false, []string{"Root CA Private Key Failure"}, x509.Certificate{}, err
+			}
 		}
+
 	}
 
 	// Read in the Private key
@@ -132,6 +149,10 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 	caCSRPEM, err := readCSRFromFile(certPaths.RootCACertRequestsPath + "/ca.pem")
 	check(err)
 	//log.Printf("Created CSR with CN: %v", caCSRPEM.Subject.CommonName)
+
+	// Copy Intermediate CA Certificate Request File to the Signing CA's certreqs folder
+	copyCSRErr := CopyFile(certPaths.RootCACertRequestsPath+"/ca.pem", parentPath+"/certreqs/"+slugger(caCSRPEM.Subject.CommonName)+".pem", 4096)
+	check(copyCSRErr)
 
 	// Check for certificate file
 	certificateFileCheck, err := FileExists(certPaths.RootCACertsPath + "/ca.pem")
@@ -178,6 +199,10 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 	// Read in Certificate File lol
 	caCert, err := ReadCertFromFile(certPaths.RootCACertsPath + "/ca.pem")
 	check(err)
+
+	// Copy Intermediate CA Certificate File to the Signing CA's certs folder
+	copyCertErr := CopyFile(certPaths.RootCACertsPath+"/ca.pem", parentPath+"/certs/"+slugger(caCert.Subject.CommonName)+".pem", 4096)
+	check(copyCertErr)
 
 	// Add Certificate to Signing CA Index
 	addedEntry, err := AddEntryToCAIndex(parentPath+"/ca.index", certPaths.RootCACertsPath+"/ca.pem")

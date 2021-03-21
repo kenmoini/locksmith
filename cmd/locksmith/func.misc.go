@@ -118,7 +118,7 @@ func IncreaseSerialNumber(rootSlug string) (bool, error) {
 
 // IncreaseSerialNumberAbs just updates a root CAs serial via absolute path to the serial file
 func IncreaseSerialNumberAbs(path string) (bool, error) {
-	logStdOut("incrementing " + path)
+	//logStdOut("incrementing " + path)
 	serNum := readSerialNumberAsInt64Abs(path)
 
 	counter := Counter{serNum}
