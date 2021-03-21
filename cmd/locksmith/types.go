@@ -210,7 +210,7 @@ type KeyPair struct {
 	PrivateKey string `json:"private_key,omitempty"`
 }
 
-// KeyPair combines a string for a Public and Private Key objects
+// RealKeyPair combines a string for a Public and Private Key objects
 type RealKeyPair struct {
 	PublicKey  *rsa.PublicKey  `json:"public_key,omitempty"`
 	PrivateKey *rsa.PrivateKey `json:"private_key,omitempty"`

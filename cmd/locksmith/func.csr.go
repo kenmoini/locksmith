@@ -193,7 +193,7 @@ func createNewCertificateRequest(config RESTPOSTCertificateRequestJSONIn, parent
 	check(err)
 
 	if !csr {
-		// Generation failure occured
+		// Generation failure occurred
 		return false, []string{"CSR Generation Failure"}, &x509.CertificateRequest{}, RealKeyPair{}, err
 	}
 
@@ -201,6 +201,6 @@ func createNewCertificateRequest(config RESTPOSTCertificateRequestJSONIn, parent
 	caCSRPEM, err := readCSRFromFile(absPathCSRFile)
 	check(err)
 
-	return true, []string{"Sucessfully generated CSR "}, caCSRPEM, RealKeyPair{PrivateKey: privateKey, PublicKey: publicKey}, err
+	return true, []string{"Successfully generated CSR "}, caCSRPEM, RealKeyPair{PrivateKey: privateKey, PublicKey: publicKey}, err
 
 }

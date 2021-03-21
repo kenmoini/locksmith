@@ -134,7 +134,7 @@ if [[ $VERBOSITY == "2" ]]; then echo -e "${CMND}\n"; fi
 
 echo ""
 
-###################################################################################- INTERMEDIATE CA
+###################################################################################- INTERMEDIATE CAs
 # Generate an Intermediate Certificate Authority
 CMND=$(curl $CURL_POST_OPTS --data '{"parent_cn_path": "Example Labs Root Certificate Authority", "certificate_config":{"subject":{"common_name":"Example Labs Intermediate Certificate Authority","organization":["Example Labs"],"organizational_unit":["Example Labs Cyber and Information Security"]},"expiration_date": [3,0,1],"san_data":{"email_addresses":["certmaster@example.labs"],"uris":["https://ca.example.labs:443/"]}}}' \
   http://localhost:8080/locksmith/v1/intermediate)
