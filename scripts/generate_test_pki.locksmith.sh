@@ -142,10 +142,23 @@ CMND_STATUS=$(echo "$CMND" | jq .status)
 checkStatus "[INTERMEDIATE][POST][CREATE]" $CMND_STATUS "Creating Example Labs Intermediate CA in Root CA"
 if [[ $VERBOSITY == "2" ]]; then echo -e "${CMND}\n"; fi
 
+# Generate an Intermediate Certificate Authority under the first ICA
+CMND=$(curl $CURL_POST_OPTS --data '{"parent_cn_path": "Example Labs Root Certificate Authority/Example Labs Intermediate Certificate Authority", "certificate_config":{"subject":{"common_name":"Example Labs Signing Certificate Authority","organization":["Example Labs"],"organizational_unit":["Example Labs Cyber and Information Security"]},"expiration_date": [3,0,1],"san_data":{"email_addresses":["certmaster@example.labs"],"uris":["https://ca.example.labs:443/"]}}}' \
+  http://localhost:8080/locksmith/v1/intermediate)
+CMND_STATUS=$(echo "$CMND" | jq .status)
+checkStatus "[INTERMEDIATE][POST][CREATE]" $CMND_STATUS "Creating Example Labs Signing CA in Intermediate CA"
+if [[ $VERBOSITY == "2" ]]; then echo -e "${CMND}\n"; fi
+
 # Read the Intermediate Certificate Authorities of the Root CA
 CMND=$(curl $CURL_GET_OPTS -G --data-urlencode "parent_cn_path=Example Labs Root Certificate Authority" http://localhost:8080/locksmith/v1/intermediates)
 CMND_STATUS=$(echo "$CMND" | jq .status)
 checkStatus "[INTERMEDIATES][GET][LIST]" $CMND_STATUS "Listing Intermediate CAs in Example Labs Root CA"
+if [[ $VERBOSITY == "2" ]]; then echo -e "${CMND}\n"; fi
+
+# Read the Intermediate Certificate Authorities of the Root CA
+CMND=$(curl $CURL_GET_OPTS -G --data-urlencode "parent_cn_path=Example Labs Root Certificate Authority/Example Labs Intermediate Certificate Authority" http://localhost:8080/locksmith/v1/intermediates)
+CMND_STATUS=$(echo "$CMND" | jq .status)
+checkStatus "[INTERMEDIATES][GET][LIST]" $CMND_STATUS "Listing Intermediate CAs in Example Labs Intermediate CA"
 if [[ $VERBOSITY == "2" ]]; then echo -e "${CMND}\n"; fi
 
 # Read the Intermediate Certificate Authority
