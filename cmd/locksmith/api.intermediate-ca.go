@@ -14,12 +14,12 @@ func listIntermediateCAsAPI(w http.ResponseWriter, r *http.Request) {
 
 	// Read in the submitted parameters
 	queryParams := r.URL.Query()
-	parentCNPath, presentCN := queryParams["parent_cn_path"]
+	parentCNPath, presentCN := queryParams["cn_path"]
 	if presentCN {
 		parentPath = splitCACNChainToPath(parentCNPath[0])
 		parentPathRaw = parentCNPath[0]
 	}
-	parentSlugPath, presentSlug := queryParams["parent_slug_path"]
+	parentSlugPath, presentSlug := queryParams["slug_path"]
 	if presentSlug {
 		parentPath = splitCACNChainToPath(parentSlugPath[0])
 		parentPathRaw = parentSlugPath[0]
@@ -29,7 +29,7 @@ func listIntermediateCAsAPI(w http.ResponseWriter, r *http.Request) {
 	if parentPath == "" {
 		returnData := &ReturnGenericMessage{
 			Status:   "missing-parent-path",
-			Errors:   []string{"Missing parent path!  Must supply either `parent_cn_path` or `parent_slug_path`"},
+			Errors:   []string{"Missing parent path!  Must supply either `cn_path` or `slug_path`"},
 			Messages: []string{}}
 		returnResponse, _ := json.Marshal(returnData)
 		fmt.Fprintf(w, string(returnResponse))
@@ -83,7 +83,7 @@ func createNewIntermediateCAAPI(w http.ResponseWriter, r *http.Request) {
 	if parentPath == "" {
 		returnData := &ReturnGenericMessage{
 			Status:   "missing-parent-path",
-			Errors:   []string{"Missing parent path!  Must supply either `parent_cn_path` or `parent_slug_path`"},
+			Errors:   []string{"Missing parent path!  Must supply either `cn_path` or `slug_path`"},
 			Messages: []string{}}
 		returnResponse, _ := json.Marshal(returnData)
 		fmt.Fprintf(w, string(returnResponse))

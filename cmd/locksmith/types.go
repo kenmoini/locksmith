@@ -291,8 +291,8 @@ type RESTGETAuthorityJSONReturn struct {
 
 // RESTGETIntermedCAJSONIn handles the data required by the GET /intermediates endpoint
 type RESTGETIntermedCAJSONIn struct {
-	CommonNamePath string `json:"parent_cn_path,omitempty"`
-	SlugPath       string `json:"parent_slug_path,omitempty"`
+	CommonNamePath string `json:"cn_path,omitempty"`
+	SlugPath       string `json:"slug_path,omitempty"`
 }
 
 // RESTGETIntermedCAJSONReturn handles the data returned by the GET /intermediates endpoint
@@ -305,8 +305,8 @@ type RESTGETIntermedCAJSONReturn struct {
 
 // RESTPOSTIntermedCAJSONIn handles the data required by the POST /intermediates endpoint
 type RESTPOSTIntermedCAJSONIn struct {
-	CommonNamePath              string                   `json:"parent_cn_path,omitempty"`
-	SlugPath                    string                   `json:"parent_slug_path,omitempty"`
+	CommonNamePath              string                   `json:"cn_path,omitempty"`
+	SlugPath                    string                   `json:"slug_path,omitempty"`
 	CertificateConfiguration    CertificateConfiguration `json:"certificate_config"`
 	SigningPrivateKeyPassphrase string                   `json:"rsa_private_key_passphrase,omitempty"`
 }
@@ -334,8 +334,8 @@ type RESTGETCertificateRequestJSONReturn struct {
 
 // RESTPOSTCertificateRequestJSONIn handles the data required by the POST /certificate-requests endpoint
 type RESTPOSTCertificateRequestJSONIn struct {
-	CommonNamePath              string                   `json:"parent_cn_path,omitempty"`
-	SlugPath                    string                   `json:"parent_slug_path,omitempty"`
+	CommonNamePath              string                   `json:"cn_path,omitempty"`
+	SlugPath                    string                   `json:"slug_path,omitempty"`
 	CertificateConfiguration    CertificateConfiguration `json:"certificate_config"`
 	SigningPrivateKeyPassphrase string                   `json:"rsa_private_key_passphrase,omitempty"`
 }
@@ -379,8 +379,8 @@ type RESTGETCertificateInformationJSONReturn struct {
 
 // RESTPOSTCertificateJSONIn handles the data required by the POST /certificate endpoint
 type RESTPOSTCertificateJSONIn struct {
-	CommonNamePath              string                   `json:"parent_cn_path,omitempty"`
-	SlugPath                    string                   `json:"parent_slug_path,omitempty"`
+	CommonNamePath              string                   `json:"cn_path,omitempty"`
+	SlugPath                    string                   `json:"slug_path,omitempty"`
 	CertificateConfiguration    CertificateConfiguration `json:"certificate_config"`
 	SigningPrivateKeyPassphrase string                   `json:"rsa_private_key_passphrase,omitempty"`
 }

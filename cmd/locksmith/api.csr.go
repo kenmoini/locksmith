@@ -16,8 +16,8 @@ func listCSRsAPI(w http.ResponseWriter, r *http.Request) {
 
 	// Read in the submitted GET URL parameters
 	queryParams := r.URL.Query()
-	parentCNPath, presentCN := queryParams["parent_cn_path"]
-	parentSlugPath, presentSlug := queryParams["parent_slug_path"]
+	parentCNPath, presentCN := queryParams["cn_path"]
+	parentSlugPath, presentSlug := queryParams["slug_path"]
 	if presentCN {
 		parentPath = splitCACNChainToPath(parentCNPath[0])
 		parentPathRaw = parentCNPath[0]
@@ -31,7 +31,7 @@ func listCSRsAPI(w http.ResponseWriter, r *http.Request) {
 	if parentPath == "" {
 		returnData := &ReturnGenericMessage{
 			Status:   "missing-parent-path",
-			Errors:   []string{"Missing parent path!  Must supply either `parent_cn_path` or `parent_slug_path`"},
+			Errors:   []string{"Missing parent path!  Must supply either `cn_path` or `slug_path`"},
 			Messages: []string{}}
 		returnResponse, _ := json.Marshal(returnData)
 		fmt.Fprintf(w, string(returnResponse))
@@ -103,7 +103,7 @@ func createNewCSRAPI(w http.ResponseWriter, r *http.Request) {
 	if parentPath == "" {
 		returnData := &ReturnGenericMessage{
 			Status:   "missing-parent-path",
-			Errors:   []string{"Missing parent path!  Must supply either `parent_cn_path` or `parent_slug_path`"},
+			Errors:   []string{"Missing parent path!  Must supply either `cn_path` or `slug_path`"},
 			Messages: []string{}}
 		returnResponse, _ := json.Marshal(returnData)
 		fmt.Fprintf(w, string(returnResponse))

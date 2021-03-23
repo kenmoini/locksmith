@@ -23,8 +23,8 @@ When operating against Certificate Requests there is a Certificate Authority Pat
 The full CommonName chain would be a string represented as: `Example Labs Root CA/Example Labs Intermediate CA/Example Labs Signing CA`
 The full slugged CommonName chain (what is stored in the filesystem) would be this string: `example-labs-root-ca/example-labs-intermediate-ca/example-labs-signing-ca`
 
-To use a CommonName chain, pass the `parent_cn_path` string parameter.
-To use a slugged CommonName chain, pass the `parent_slug_path` string parameter.
+To use a CommonName chain, pass the `cn_path` string parameter.
+To use a slugged CommonName chain, pass the `slug_path` string parameter.
 
 ## Success Response
 
@@ -35,9 +35,9 @@ To use a slugged CommonName chain, pass the `parent_slug_path` string parameter.
 A cURL request would look like this:
 
 ```
-curl --request GET -G --data-urlencode "parent_cn_path=Example Labs Root Certificate Authority" "http://$PKI_SERVER/locksmith/v1/certificate-requests"
-curl --request GET -G --data-urlencode "parent_slug_path=example-labs-root-certificate-authority" "http://$PKI_SERVER/locksmith/v1/certificate-requests"
-curl --request GET -G --data-urlencode "parent_cn_path=Example Labs Root Certificate Authority/example-labs-intermediate-certificate-authority" "http://$PKI_SERVER/locksmith/v1/certificate-requests"
+curl --request GET -G --data-urlencode "cn_path=Example Labs Root Certificate Authority" "http://$PKI_SERVER/locksmith/v1/certificate-requests"
+curl --request GET -G --data-urlencode "slug_path=example-labs-root-certificate-authority" "http://$PKI_SERVER/locksmith/v1/certificate-requests"
+curl --request GET -G --data-urlencode "cn_path=Example Labs Root Certificate Authority/example-labs-intermediate-certificate-authority" "http://$PKI_SERVER/locksmith/v1/certificate-requests"
 ```
 
 And the data returned would be the minified version of the following JSON:

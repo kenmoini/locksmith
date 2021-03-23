@@ -25,8 +25,8 @@ When operating against PKI Chain there is a Certificate Authority Path that is n
 The CommonName chain would be represented as: `Example Labs Root CA/Example Labs Intermediate CA/Example Labs Signing CA`
 The slugged CommonName chain (what is stored in the filesystem) would be: `example-labs-root-ca/example-labs-intermediate-ca/example-labs-signing-ca`
 
-To use a CommonName chain, pass the `parent_cn_path` parameter.
-To use a slugged CommonName chain, pass the `parent_slug_path` parameter.
+To use a CommonName chain, pass the `cn_path` parameter.
+To use a slugged CommonName chain, pass the `slug_path` parameter.
 
 ### Certificate ID
 
@@ -41,8 +41,8 @@ The Certificate ID is the CommonName or the slugged CommonName of the Certificat
 A cURL request would look like this:
 
 ```
-curl --request GET -G --data-urlencode "parent_cn_path=Example Labs Root Certificate Authority" --data-urlencode "certificate_id=Example Labs Intermediate Certificate Authority" "http://$PKI_SERVER/locksmith/v1/certificate"
-curl --request GET -G --data-urlencode "parent_slug_path=example-labs-root-certificate-authority/Example Labs Intermediate Certificate Authority" --data-urlencode "certificate_id=OpenVPN Server" "http://$PKI_SERVER/locksmith/v1/certificate"
+curl --request GET -G --data-urlencode "cn_path=Example Labs Root Certificate Authority" --data-urlencode "certificate_id=Example Labs Intermediate Certificate Authority" "http://$PKI_SERVER/locksmith/v1/certificate"
+curl --request GET -G --data-urlencode "slug_path=example-labs-root-certificate-authority/Example Labs Intermediate Certificate Authority" --data-urlencode "certificate_id=OpenVPN Server" "http://$PKI_SERVER/locksmith/v1/certificate"
 ```
 
 And the data returned would be the minified version of the following JSON:

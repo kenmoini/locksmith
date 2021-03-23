@@ -23,8 +23,8 @@ When operating against Intermediate CAs there is a Certificate Authority Path th
 The CommonName chain would be represented as: `Example Labs Root CA/Example Labs Intermediate CA/Example Labs Signing CA`
 The slugged CommonName chain (what is stored in the filesystem) would be: `example-labs-root-ca/example-labs-intermediate-ca/example-labs-signing-ca`
 
-To use a CommonName chain, pass the `parent_cn_path` parameter.
-To use a slugged CommonName chain, pass the `parent_slug_path` parameter.
+To use a CommonName chain, pass the `cn_path` parameter.
+To use a slugged CommonName chain, pass the `slug_path` parameter.
 
 ## Success Response
 
@@ -35,8 +35,8 @@ To use a slugged CommonName chain, pass the `parent_slug_path` parameter.
 A cURL request would look like this:
 
 ```
-curl --request GET -G --data-urlencode "parent_cn_path=Example Labs Root Certificate Authority" "http://$PKI_SERVER/locksmith/v1/intermediates"
-curl --request GET -G --data-urlencode "parent_slug_path=example-labs-root-certificate-authority" "http://$PKI_SERVER/locksmith/v1/intermediates"
+curl --request GET -G --data-urlencode "cn_path=Example Labs Root Certificate Authority" "http://$PKI_SERVER/locksmith/v1/intermediates"
+curl --request GET -G --data-urlencode "slug_path=example-labs-root-certificate-authority" "http://$PKI_SERVER/locksmith/v1/intermediates"
 ```
 
 And the data returned would be the minified version of the following JSON:
