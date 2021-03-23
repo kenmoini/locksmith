@@ -1,6 +1,7 @@
 package locksmith
 
 import (
+	"crypto/x509"
 	b64 "encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -166,6 +167,106 @@ func createNewCSRAPI(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
+		} else {
+			// Parent path does not exist, return invalid-parent-path
+			returnData := &ReturnGenericMessage{
+				Status:   "invalid-parent-path",
+				Errors:   []string{"Invalid parent path, no chain exists!"},
+				Messages: []string{}}
+			returnResponse, _ := json.Marshal(returnData)
+			fmt.Fprintf(w, string(returnResponse))
+		}
+
+	}
+
+}
+
+// readCSRAPI handles the GET /v1/certificate-request endpoint
+func readCSRAPI(w http.ResponseWriter, r *http.Request) {
+	var parentPath string
+	var parentPathRaw string
+	var certificateID string
+
+	// Read in the submitted GET URL parameters
+	queryParams := r.URL.Query()
+	parentCNPath, presentCN := queryParams["cn_path"]
+	parentSlugPath, presentSlug := queryParams["slug_path"]
+	certificateIn, presentCertificateID := queryParams["certificate_request_id"]
+
+	if presentCN {
+		parentPath = splitCACNChainToPath(parentCNPath[0])
+		parentPathRaw = parentCNPath[0]
+	}
+	if presentSlug {
+		parentPath = splitCACNChainToPath(parentSlugPath[0])
+		parentPathRaw = parentSlugPath[0]
+	}
+	if presentCertificateID {
+		certificateID = slugger(certificateIn[0])
+	}
+
+	// Neither options are submitted - error
+	if parentPath == "" {
+		returnData := &ReturnGenericMessage{
+			Status:   "missing-parent-path",
+			Errors:   []string{"Missing parent path!  Must supply either `cn_path` or `slug_path`"},
+			Messages: []string{}}
+		returnResponse, _ := json.Marshal(returnData)
+		fmt.Fprintf(w, string(returnResponse))
+	} else {
+		// Check if the CA Path directory exists
+		absPath, err := filepath.Abs(readConfig.Locksmith.PKIRoot + "/roots/" + parentPath)
+		checkAndFail(err)
+
+		certParentPathExists, err := DirectoryExists(absPath)
+		check(err)
+
+		if certParentPathExists {
+			// certificateID has to be present and not null
+			if certificateID == "" {
+				returnData := &ReturnGenericMessage{
+					Status:   "missing-certificate-id",
+					Errors:   []string{"Missing Certificate Request ID!  Must supply `certificate_id`"},
+					Messages: []string{}}
+				returnResponse, _ := json.Marshal(returnData)
+				fmt.Fprintf(w, string(returnResponse))
+			} else {
+				// certificateID is defined - validate that it exists
+
+				certFileExists, err := FileExists(absPath + "/certreqs/" + certificateID + ".pem")
+				check(err)
+
+				if certFileExists {
+					// Certificate exists, read it in and spit it out
+
+					// Read in PEM file
+					pem, err := readPEMFile(absPath+"/certreqs/"+certificateID+".pem", "CERTIFICATE REQUEST")
+					check(err)
+
+					// Decode to Certfificate object
+					certificate, err := x509.ParseCertificateRequest(pem.Bytes)
+					check(err)
+
+					returnData := &RESTGETCertificateRequestJSONReturn{
+						Status:                "success",
+						Errors:                []string{},
+						Messages:              []string{"Certificate Request information for '" + parentPathRaw + "'"},
+						CertificateRequestPEM: b64.StdEncoding.EncodeToString(pem.Bytes),
+						CertificateRequest:    certificate}
+					returnResponse, _ := json.Marshal(returnData)
+					fmt.Fprintf(w, string(returnResponse))
+
+				} else {
+					// Certificate does not exist
+					returnData := &ReturnGenericMessage{
+						Status:   "no-certificate",
+						Errors:   []string{},
+						Messages: []string{"Certificate Request '" + certificateIn[0] + "' PEM File does not exists in '" + parentPathRaw + "'!"}}
+					returnResponse, _ := json.Marshal(returnData)
+					fmt.Fprintf(w, string(returnResponse))
+				}
+
+			}
 		} else {
 			// Parent path does not exist, return invalid-parent-path
 			returnData := &ReturnGenericMessage{

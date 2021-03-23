@@ -179,6 +179,7 @@ if [[ $VERBOSITY == "2" ]]; then echo -e "${CMND}\n"; fi
 echo ""
 
 ###################################################################################- CERTIFICATES
+# Read the list of Certificates
 CMND=$(curl $CURL_GET_OPTS -G --data-urlencode "parent_cn_path=Example Labs Root Certificate Authority" http://localhost:8080/locksmith/v1/certificates)
 CMND_STATUS=$(echo "$CMND" | jq .status)
 checkStatus "[CERTIFICATES][GET][LIST]" $CMND_STATUS "Listing Certificates in Example Labs Root CA"

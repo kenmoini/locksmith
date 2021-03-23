@@ -218,6 +218,9 @@ func NewRouter(basePath string) *http.ServeMux {
 	router.HandleFunc(formattedBasePath+apiVersionTag+"/certificate-request", func(w http.ResponseWriter, r *http.Request) {
 		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
 		switch r.Method {
+		case "GET":
+			// index - read a CSR in cert path
+			readCSRAPI(w, r)
 		case "POST":
 			// create - create new csr in cert path
 			createNewCSRAPI(w, r)

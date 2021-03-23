@@ -286,20 +286,6 @@ type RESTGETAuthorityJSONReturn struct {
 }
 
 /*====================================================================================================
-  API - Certificate Revocation Lists
-====================================================================================================*/
-
-// RESTGETRevocationListJSONReturn handles the data returned by the GET /authority endpoint
-type RESTGETRevocationListJSONReturn struct {
-	Status          string                `json:"status"`
-	Errors          []string              `json:"errors"`
-	Messages        []string              `json:"messages"`
-	Slug            string                `json:"slug"`
-	CertificatePEM  string                `json:"crl_pem"`
-	CertificateList *pkix.CertificateList `json:"crl_list"`
-}
-
-/*====================================================================================================
   API - Intermediate CAs
 ====================================================================================================*/
 
@@ -335,6 +321,15 @@ type RESTGETCertificateRequestsJSONReturn struct {
 	Errors              []string `json:"errors"`
 	Messages            []string `json:"messages"`
 	CertificateRequests []string `json:"certificate_requests"`
+}
+
+// RESTGETCertificateRequestJSONReturn handles the data returned by the GET /certificate-request endpoint
+type RESTGETCertificateRequestJSONReturn struct {
+	Status                string                   `json:"status"`
+	Errors                []string                 `json:"errors"`
+	Messages              []string                 `json:"messages"`
+	CertificateRequestPEM string                   `json:"csr_pem"`
+	CertificateRequest    *x509.CertificateRequest `json:"certificate_request"`
 }
 
 // RESTPOSTCertificateRequestJSONIn handles the data required by the POST /certificate-requests endpoint
@@ -388,4 +383,18 @@ type RESTPOSTCertificateJSONIn struct {
 	SlugPath                    string                   `json:"parent_slug_path,omitempty"`
 	CertificateConfiguration    CertificateConfiguration `json:"certificate_config"`
 	SigningPrivateKeyPassphrase string                   `json:"rsa_private_key_passphrase,omitempty"`
+}
+
+/*====================================================================================================
+  API - Certificate Revocation Lists
+====================================================================================================*/
+
+// RESTGETRevocationListJSONReturn handles the data returned by the GET /authority endpoint
+type RESTGETRevocationListJSONReturn struct {
+	Status          string                `json:"status"`
+	Errors          []string              `json:"errors"`
+	Messages        []string              `json:"messages"`
+	Slug            string                `json:"slug"`
+	CertificatePEM  string                `json:"crl_pem"`
+	CertificateList *pkix.CertificateList `json:"crl_list"`
 }
