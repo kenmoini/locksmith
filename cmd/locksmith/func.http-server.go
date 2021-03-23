@@ -174,7 +174,7 @@ func NewRouter(basePath string) *http.ServeMux {
 	})
 
 	//====================================================================================
-	// AUTHORITy
+	// AUTHORITY
 	// Reading a Certificate Authority's Information
 	router.HandleFunc(formattedBasePath+apiVersionTag+"/authority", func(w http.ResponseWriter, r *http.Request) {
 		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
@@ -182,6 +182,20 @@ func NewRouter(basePath string) *http.ServeMux {
 		case "GET":
 			// index - get information for CA in parent path
 			readAuthorityAPI(w, r)
+		default:
+			methodNotAllowedAPI(w, r)
+		}
+	})
+
+	//====================================================================================
+	// REVOCATIONS
+	// Reading a Certificate Authority's Certificate Revocation List
+	router.HandleFunc(formattedBasePath+apiVersionTag+"/revocations", func(w http.ResponseWriter, r *http.Request) {
+		logNeworkRequestStdOut(r.Method+" "+r.RequestURI, r)
+		switch r.Method {
+		case "GET":
+			// index - get CRL for CA in parent path
+			readRevocationListAPI(w, r)
 		default:
 			methodNotAllowedAPI(w, r)
 		}
