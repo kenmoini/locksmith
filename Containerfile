@@ -8,7 +8,7 @@ FROM scratch AS bin
 
 COPY --from=build /opt/app-root/src/dist/locksmith /usr/local/bin/
 #COPY container_root/ /
-RUN mkdir -p /etc/locksmith
+#RUN mkdir -p /etc/locksmith
 
 EXPOSE 8080
 
