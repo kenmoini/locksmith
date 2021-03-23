@@ -59,6 +59,12 @@ Authority is the structure used to read any Certificate Authority, Root or Inter
 * [Read Certificate Request](certificate-request/get.md) : `GET /locksmith/certificate-request`
 * [Create New Certificate Request](certificate-request/post.md) : `GET /locksmith/certificate-request`
 
+## Certificate Revocations
+
+Certificate Revocations provides reading of a Certificate Authority's Certificate Revocation List
+
+* [Read Certificate Authority CRL](revocations/get.md) : `GET /locksmith/revocations`
+
 ---
 
 ## Key Pairs

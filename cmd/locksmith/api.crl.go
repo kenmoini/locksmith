@@ -45,7 +45,7 @@ func readRevocationListAPI(w http.ResponseWriter, r *http.Request) {
 		check(err)
 
 		if caParentPathExists {
-			// Check to see if the ca.pem file exists
+			// Check to see if the ca.crl file exists
 			caCertExists, err := FileExists(absPath + "/crl/ca.crl")
 			check(err)
 
@@ -68,7 +68,7 @@ func readRevocationListAPI(w http.ResponseWriter, r *http.Request) {
 				returnResponse, _ := json.Marshal(returnData)
 				fmt.Fprintf(w, string(returnResponse))
 			} else {
-				// Certificate Authority Certificate PEM File does not exists
+				// Certificate Authority CRL File does not exists
 				returnData := &ReturnGenericMessage{
 					Status:   "no-ca-crl",
 					Errors:   []string{err.Error()},
