@@ -16,7 +16,7 @@ Make note of pluralism - for example, you query a list of Certificates but will 
 - [Certificates](#certificates)
 - [Certificate](#certificate)
 - Renewals
-- Revocations
+- [Certificate Revocations](#certificate-revocations)
 - [Key Pairs](#key-pairs)
 - [Key Stores](#key-stores)
 

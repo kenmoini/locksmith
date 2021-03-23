@@ -188,6 +188,14 @@ echo ""
 
 ###################################################################################- CERTIFICATE REVOCATION LISTS
 
+# Read the Root Certificate Authority CRL
+CMND=$(curl $CURL_GET_OPTS -G --data-urlencode "cn_path=Example Labs Root Certificate Authority" http://localhost:8080/locksmith/v1/revocations)
+CMND_STATUS=$(echo "$CMND" | jq .status)
+checkStatus "[REVOCATIONS][GET][READ]" $CMND_STATUS "Reading Example Labs Root CA CRL"
+if [[ $VERBOSITY == "2" ]]; then echo -e "${CMND}\n"; fi
+
+echo ""
+
 ###################################################################################- CERTIFICATE BUNDLE
 
 # Generate a Server Certificate for OpenVPN
