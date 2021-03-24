@@ -8,6 +8,7 @@ import (
 	"crypto/x509/pkix"
 	"encoding/asn1"
 	b64 "encoding/base64"
+	"fmt"
 	"math/big"
 	"time"
 )
@@ -203,6 +204,11 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 	// Copy Intermediate CA Certificate File to the Signing CA's certs folder
 	copyCertErr := CopyFile(certPaths.RootCACertsPath+"/ca.pem", parentPath+"/certs/"+slugger(caCert.Subject.CommonName)+".pem", 4096)
 	check(copyCertErr)
+
+	// Copy Intermediate CA Certificate File to the Signing CA's newcerts folder
+	serialNumber := fmt.Sprintf("%02d", caCert.SerialNumber)
+	copyNewCertsErr := CopyFile(certPaths.RootCACertsPath+"/ca.pem", parentPath+"/newcerts/"+serialNumber+".pem", 4096)
+	check(copyNewCertsErr)
 
 	// Add Certificate to Signing CA Index
 	addedEntry, err := AddEntryToCAIndex(parentPath+"/ca.index", certPaths.RootCACertsPath+"/ca.pem")

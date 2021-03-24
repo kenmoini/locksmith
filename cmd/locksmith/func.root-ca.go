@@ -8,6 +8,7 @@ import (
 	"crypto/x509/pkix"
 	"encoding/asn1"
 	b64 "encoding/base64"
+	"fmt"
 	"math/big"
 	"path/filepath"
 	"time"
@@ -194,6 +195,11 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, x509.Cert
 	// Read in Certificate File lol
 	caCert, err := ReadCertFromFile(certPaths.RootCACertsPath + "/ca.pem")
 	check(err)
+
+	// Copy CA Certificate File to the CA's newcerts folder
+	serialNumber := fmt.Sprintf("%02d", caCert.SerialNumber)
+	copyCertErr := CopyFile(certPaths.RootCACertsPath+"/ca.pem", certPaths.RootCANewCertsPath+"/"+serialNumber+".pem", 4096)
+	check(copyCertErr)
 
 	// Add Certificate to Root CA Index
 	absoluteCertPath, _ := filepath.Abs(certPaths.RootCACertsPath + "/ca.pem")

@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 )
 
+//==============================================================================
+// [LIST] CSRs
 // listCSRsAPI handles the GET /v1/certificate-requests endpoint
 func listCSRsAPI(w http.ResponseWriter, r *http.Request) {
 	var parentPath string
@@ -79,6 +81,8 @@ func listCSRsAPI(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//==============================================================================
+// [CREATE] CSR
 // createNewCSRAPI handles the POST /v1/certificate-requests endpoint
 func createNewCSRAPI(w http.ResponseWriter, r *http.Request) {
 	// Load in POST JSON Data
@@ -181,6 +185,8 @@ func createNewCSRAPI(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//==============================================================================
+// [READ] CSR - done
 // readCSRAPI handles the GET /v1/certificate-request endpoint
 func readCSRAPI(w http.ResponseWriter, r *http.Request) {
 	var parentPath string

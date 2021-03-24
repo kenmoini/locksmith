@@ -334,10 +334,10 @@ type RESTGETCertificateRequestJSONReturn struct {
 
 // RESTPOSTCertificateRequestJSONIn handles the data required by the POST /certificate-requests endpoint
 type RESTPOSTCertificateRequestJSONIn struct {
-	CommonNamePath              string                   `json:"cn_path,omitempty"`
-	SlugPath                    string                   `json:"slug_path,omitempty"`
-	CertificateConfiguration    CertificateConfiguration `json:"certificate_config"`
-	SigningPrivateKeyPassphrase string                   `json:"rsa_private_key_passphrase,omitempty"`
+	CommonNamePath           string                   `json:"cn_path,omitempty"`
+	SlugPath                 string                   `json:"slug_path,omitempty"`
+	CertificateConfiguration CertificateConfiguration `json:"certificate_config"`
+	//SigningPrivateKeyPassphrase string                   `json:"rsa_private_key_passphrase,omitempty"`
 }
 
 // RESTPOSTCertificateRequestJSONReturn handles the data returned by the POST /certificate-requests endpoint
