@@ -150,7 +150,7 @@ func createNewCSRAPI(w http.ResponseWriter, r *http.Request) {
 
 					check(err)
 					returnData := &RESTPOSTCertificateRequestJSONReturn{
-						Status:   "certificate-request-created",
+						Status:   "success",
 						Errors:   []string{},
 						Messages: []string{"Successfully created Certificate Request " + csrName + " in '" + parentPathRaw + "'!"},
 						CSRInfo: CertificateRequestInfo{
