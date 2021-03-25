@@ -148,13 +148,15 @@ func createNewCSRAPI(w http.ResponseWriter, r *http.Request) {
 					logNeworkRequestStdOut(csrName+" ("+sluggedCSRCommonName+") csr-created in '"+parentPathRaw+"'", r)
 					pemEncodedPrivateKey, _ := pemEncodeRSAPrivateKey(keyPair.PrivateKey, csrInfo.CertificateConfiguration.RSAPrivateKeyPassphrase)
 
+					check(err)
 					returnData := &RESTPOSTCertificateRequestJSONReturn{
 						Status:   "certificate-request-created",
 						Errors:   []string{},
 						Messages: []string{"Successfully created Certificate Request " + csrName + " in '" + parentPathRaw + "'!"},
 						CSRInfo: CertificateRequestInfo{
-							Slug:               sluggedCSRCommonName,
-							CertificateRequest: csrCert,
+							Slug:                  sluggedCSRCommonName,
+							CertificateRequest:    csrCert,
+							CertificateRequestPEM: b64.StdEncoding.EncodeToString(pemEncodeCSR(csrCert.Raw).Bytes()),
 							KeyPair: KeyPair{
 								PublicKey:  b64.StdEncoding.EncodeToString(pemEncodeRSAPublicKey(keyPair.PublicKey).Bytes()),
 								PrivateKey: b64.StdEncoding.EncodeToString(pemEncodedPrivateKey.Bytes())}}}

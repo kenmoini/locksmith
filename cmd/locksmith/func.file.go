@@ -353,7 +353,11 @@ func setupCAFileStructure(basePath string) CertificateAuthorityPaths {
 	CreateDirectory(rootCANewCertsPath)
 
 	// Create private path for CA keys
-	rootCACertKeysPath := rootCAPath + "/private"
+	rootCAKeysPath := rootCAPath + "/private"
+	CreateDirectory(rootCAKeysPath)
+
+	// Create private path for generated keys in the CA
+	rootCACertKeysPath := rootCAPath + "/keys"
 	CreateDirectory(rootCACertKeysPath)
 
 	// Create intermediate CA path
@@ -394,6 +398,7 @@ func setupCAFileStructure(basePath string) CertificateAuthorityPaths {
 		RootCACertRevListPath:    rootCACertRevListPath,
 		RootCANewCertsPath:       rootCANewCertsPath,
 		RootCACertKeysPath:       rootCACertKeysPath,
+		RootCAKeysPath:           rootCAKeysPath,
 		RootCAIntermediateCAPath: rootCAIntermediateCAPath,
 		RootCACertIndexFilePath:  rootCACertIndexFilePath,
 		RootCACertSerialFilePath: rootCACertSerialFilePath,

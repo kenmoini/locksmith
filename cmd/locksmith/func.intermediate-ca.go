@@ -89,7 +89,7 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 	certPaths := setupCAFileStructure(rootSlugPath)
 
 	// Check for Intermediate CA key pair
-	caKeyCheck, err := FileExists(certPaths.RootCACertKeysPath + "/ca.priv.pem")
+	caKeyCheck, err := FileExists(certPaths.RootCAKeysPath + "/ca.priv.pem")
 	check(err)
 
 	if !caKeyCheck {
@@ -100,7 +100,7 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 		pemEncodedPrivateKey, encryptedPrivateKeyBytes := pemEncodeRSAPrivateKey(rootPrivKey, rsaPrivateKeyPassword)
 
 		if rsaPrivateKeyPassword == "" {
-			rootPrivKeyFile, rootPubKeyFile, err := writeRSAKeyPair(pemEncodedPrivateKey, pemEncodeRSAPublicKey(rootPubKey), certPaths.RootCACertKeysPath+"/ca")
+			rootPrivKeyFile, rootPubKeyFile, err := writeRSAKeyPair(pemEncodedPrivateKey, pemEncodeRSAPublicKey(rootPubKey), certPaths.RootCAKeysPath+"/ca")
 			check(err)
 			if !rootPrivKeyFile || !rootPubKeyFile {
 				return false, []string{"Root CA Private Key Failure"}, x509.Certificate{}, err
@@ -110,7 +110,7 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 			encStr := b64.StdEncoding.EncodeToString(encryptedPrivateKeyBytes.Bytes())
 			encBufferB := bytes.NewBufferString(encStr)
 
-			rootPrivKeyFile, rootPubKeyFile, err := writeRSAKeyPair(encBufferB, pemEncodeRSAPublicKey(rootPubKey), certPaths.RootCACertKeysPath+"/ca")
+			rootPrivKeyFile, rootPubKeyFile, err := writeRSAKeyPair(encBufferB, pemEncodeRSAPublicKey(rootPubKey), certPaths.RootCAKeysPath+"/ca")
 			check(err)
 			if !rootPrivKeyFile || !rootPubKeyFile {
 				return false, []string{"Root CA Private Key Failure"}, x509.Certificate{}, err
@@ -120,10 +120,10 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 	}
 
 	// Read in the Private key
-	privateKeyFromFile := GetPrivateKey(certPaths.RootCACertKeysPath+"/ca.priv.pem", rsaPrivateKeyPassword)
+	privateKeyFromFile := GetPrivateKey(certPaths.RootCAKeysPath+"/ca.priv.pem", rsaPrivateKeyPassword)
 
 	// Read in the Public key
-	pubKeyFromFile := GetPublicKey(certPaths.RootCACertKeysPath + "/ca.pub.pem")
+	pubKeyFromFile := GetPublicKey(certPaths.RootCAKeysPath + "/ca.pub.pem")
 
 	// Create Self-signed Certificate Request
 	csrFileCheck, err := FileExists(certPaths.RootCACertRequestsPath + "/ca.pem")

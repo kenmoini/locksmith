@@ -12,21 +12,27 @@
 
 ```
 {
-  "subject": {
-    "common_name": string,
-    "organization": []string,
-    "organizational_unit": []string, // optional
-    "country": []string, // optional
-    "province": []string, // optional
-    "locality": []string, // optional
-    "street_address": []string, // optional
-    "postal_code": []string, // optional
-  },
-  "rsa_private_key_passphrase": string, // optional
-  "expiration_date": []int, // [ years, months, days ]
-  "san_data": {
-    "email_addresses": []string,
-    "uris": []string
+  "cn_path": string,
+  "slug_path": string,
+  "certificate_config": {
+    "subject": {
+      "common_name": string,
+      "organization": []string,
+      "organizational_unit": []string, // optional
+      "country": []string, // optional
+      "province": []string, // optional
+      "locality": []string, // optional
+      "street_address": []string, // optional
+      "postal_code": []string, // optional
+    },
+    "certificate_type": string, // optional
+    "rsa_private_key": string, // optional
+    "rsa_private_key_passphrase": string, // optional
+    "expiration_date": []int, // [ years, months, days ]
+    "san_data": { // optional
+      "email_addresses": []string, // optional
+      "uris": []string // optional
+    }
   }
 }
 ```

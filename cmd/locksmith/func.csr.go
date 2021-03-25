@@ -7,6 +7,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
+	b64 "encoding/base64"
 	"encoding/pem"
 )
 
@@ -149,16 +150,24 @@ func createNewCertificateRequest(config RESTPOSTCertificateRequestJSONIn, parent
 			csrPrivKey, csrPubKey, err := GenerateRSAKeypair(4096)
 			check(err)
 
+			// Save the Private Key to the file system
+			var csrPrivKeyFile bool
+			var csrPubKeyFile bool
+
 			pemEncodedPrivateKey, encryptedPrivateKeyBytes := pemEncodeRSAPrivateKey(csrPrivKey, config.CertificateConfiguration.RSAPrivateKeyPassphrase)
 
-			if encryptedPrivateKeyBytes == nil {
-				csrPrivKeyFile, csrPubKeyFile, err := writeRSAKeyPair(pemEncodedPrivateKey, pemEncodeRSAPublicKey(csrPubKey), parentPath+"/keys/"+csrCommonNameSlug)
+			if config.CertificateConfiguration.RSAPrivateKeyPassphrase == "" {
+				csrPrivKeyFile, csrPubKeyFile, err = writeRSAKeyPair(pemEncodedPrivateKey, pemEncodeRSAPublicKey(csrPubKey), parentPath+"/keys/"+csrCommonNameSlug)
 				check(err)
 				if !csrPrivKeyFile || !csrPubKeyFile {
-					return false, []string{"CSR Key Pair Failure"}, &x509.CertificateRequest{}, RealKeyPair{}, err
+					return false, []string{"CSR Key Pair Failure epkbNil"}, &x509.CertificateRequest{}, RealKeyPair{}, err
 				}
 			} else {
-				csrPrivKeyFile, csrPubKeyFile, err := writeRSAKeyPair(encryptedPrivateKeyBytes, pemEncodeRSAPublicKey(csrPubKey), parentPath+"/keys/"+csrCommonNameSlug)
+
+				encStr := b64.StdEncoding.EncodeToString(encryptedPrivateKeyBytes.Bytes())
+				encBufferB := bytes.NewBufferString(encStr)
+
+				csrPrivKeyFile, csrPubKeyFile, err = writeRSAKeyPair(encBufferB, pemEncodeRSAPublicKey(csrPubKey), parentPath+"/keys/"+csrCommonNameSlug)
 				check(err)
 				if !csrPrivKeyFile || !csrPubKeyFile {
 					return false, []string{"CSR Key Pair Failure"}, &x509.CertificateRequest{}, RealKeyPair{}, err

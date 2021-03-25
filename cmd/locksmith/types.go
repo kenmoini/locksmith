@@ -69,6 +69,7 @@ type CertificateAuthorityPaths struct {
 	RootCACertRevListPath    string
 	RootCANewCertsPath       string
 	RootCACertKeysPath       string
+	RootCAKeysPath           string
 	RootCAIntermediateCAPath string
 	RootCACertIndexFilePath  string
 	RootCACertSerialFilePath string
@@ -350,9 +351,10 @@ type RESTPOSTCertificateRequestJSONReturn struct {
 
 // CertificateRequestInfo provides general Certificate Request information
 type CertificateRequestInfo struct {
-	Slug               string                   `json:"slug"`
-	CertificateRequest *x509.CertificateRequest `json:"certificate_request"`
-	KeyPair            KeyPair                  `json:"key_pair,omitempty"`
+	Slug                  string                   `json:"slug"`
+	CertificateRequestPEM string                   `json:"csr_pem"`
+	CertificateRequest    *x509.CertificateRequest `json:"certificate_request"`
+	KeyPair               KeyPair                  `json:"key_pair,omitempty"`
 }
 
 /*====================================================================================================
