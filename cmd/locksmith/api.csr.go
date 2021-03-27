@@ -10,7 +10,7 @@ import (
 )
 
 //==============================================================================
-// [LIST] CSRs
+// [LIST] CSRs - done
 // listCSRsAPI handles the GET /v1/certificate-requests endpoint
 func listCSRsAPI(w http.ResponseWriter, r *http.Request) {
 	var parentPath string
@@ -82,7 +82,7 @@ func listCSRsAPI(w http.ResponseWriter, r *http.Request) {
 }
 
 //==============================================================================
-// [CREATE] CSR
+// [CREATE] CSR - done?
 // createNewCSRAPI handles the POST /v1/certificate-requests endpoint
 func createNewCSRAPI(w http.ResponseWriter, r *http.Request) {
 	// Load in POST JSON Data
@@ -130,7 +130,7 @@ func createNewCSRAPI(w http.ResponseWriter, r *http.Request) {
 			check(err)
 
 			if sluggedCSRFileExists {
-				// if the intermediate exists, return with an intermed-ca-exists error
+				// if the CSR exists, return with an certificate-request-exists error
 				logNeworkRequestStdOut(csrName+" ("+sluggedCSRCommonName+") csr-exists in '"+parentPathRaw+"'", r)
 				returnData := &ReturnGenericMessage{
 					Status:   "certificate-request-exists",
@@ -144,6 +144,7 @@ func createNewCSRAPI(w http.ResponseWriter, r *http.Request) {
 				logNeworkRequestStdOut(csrName+" ("+sluggedCSRCommonName+") creating certificate request in '"+parentPathRaw+"'", r)
 				csrCreated, messages, csrCert, keyPair, err := createNewCertificateRequest(csrInfo, absPath)
 				check(err)
+
 				if csrCreated {
 					logNeworkRequestStdOut(csrName+" ("+sluggedCSRCommonName+") csr-created in '"+parentPathRaw+"'", r)
 					pemEncodedPrivateKey, _ := pemEncodeRSAPrivateKey(keyPair.PrivateKey, csrInfo.CertificateConfiguration.RSAPrivateKeyPassphrase)

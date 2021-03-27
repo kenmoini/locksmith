@@ -341,7 +341,7 @@ type RESTPOSTCertificateRequestJSONIn struct {
 	//SigningPrivateKeyPassphrase string                   `json:"rsa_private_key_passphrase,omitempty"`
 }
 
-// RESTPOSTCertificateRequestJSONReturn handles the data returned by the POST /certificate-requests endpoint
+// RESTPOSTCertificateRequestJSONReturn handles the data returned by the POST /certificate-request endpoint
 type RESTPOSTCertificateRequestJSONReturn struct {
 	Status   string                 `json:"status"`
 	Errors   []string               `json:"errors"`
@@ -384,7 +384,23 @@ type RESTPOSTCertificateJSONIn struct {
 	CommonNamePath              string                   `json:"cn_path,omitempty"`
 	SlugPath                    string                   `json:"slug_path,omitempty"`
 	CertificateConfiguration    CertificateConfiguration `json:"certificate_config"`
-	SigningPrivateKeyPassphrase string                   `json:"rsa_private_key_passphrase,omitempty"`
+	SigningPrivateKeyPassphrase string                   `json:"signing_key_passphrase,omitempty"`
+}
+
+// RESTPOSTCertificateJSONReturn handles the data returned by the POST /certificate endpoint
+type RESTPOSTCertificateJSONReturn struct {
+	Status   string          `json:"status"`
+	Errors   []string        `json:"errors"`
+	Messages []string        `json:"messages"`
+	CSRInfo  CertificateInfo `json:"csr_info"`
+}
+
+// CertificateInfo provides general Certificate information
+type CertificateInfo struct {
+	Slug           string            `json:"slug"`
+	CertificatePEM string            `json:"certificate_pem"`
+	Certificate    *x509.Certificate `json:"certificate"`
+	KeyPair        KeyPair           `json:"key_pair,omitempty"`
 }
 
 /*====================================================================================================

@@ -110,36 +110,6 @@ func readCertificateAPI(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// createNewCertAPI handles the POST /v1/certificates endpoint
-func createNewCertAPI(w http.ResponseWriter, r *http.Request) {
-	// Load in POST JSON Data
-	csrInfo := RESTPOSTCertificateJSONIn{}
-	err := json.NewDecoder(r.Body).Decode(&csrInfo)
-	check(err)
-
-	// Set up Parent Path
-	var parentPath string
-	if csrInfo.CommonNamePath != "" {
-		parentPath = splitCACNChainToPath(csrInfo.CommonNamePath)
-	}
-	if csrInfo.SlugPath != "" {
-		parentPath = splitCACNChainToPath(csrInfo.SlugPath)
-	}
-
-	// Neither options are submitted - error
-	if parentPath == "" {
-		returnData := &ReturnGenericMessage{
-			Status:   "missing-parent-path",
-			Errors:   []string{"Missing parent path!  Must supply either `cn_path` or `slug_path`"},
-			Messages: []string{}}
-		returnResponse, _ := json.Marshal(returnData)
-		fmt.Fprintf(w, string(returnResponse))
-	} else {
-		//logStdOut("parentPath " + parentPath)
-	}
-
-}
-
 // listCertsAPI handles the GET /v1/certificates endpoint
 func listCertsAPI(w http.ResponseWriter, r *http.Request) {
 	var parentPath string
@@ -208,4 +178,80 @@ func listCertsAPI(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, string(returnResponse))
 		}
 	}
+}
+
+// createNewCertAPI handles the POST /v1/certificate endpoint
+func createNewCertAPI(w http.ResponseWriter, r *http.Request) {
+	// Load in POST JSON Data
+	certInfo := RESTPOSTCertificateJSONIn{}
+	err := json.NewDecoder(r.Body).Decode(&certInfo)
+	check(err)
+
+	// Set up Parent Path
+	var parentPath string
+	var parentPathRaw string
+
+	if certInfo.CommonNamePath != "" {
+		parentPath = splitCACNChainToPath(certInfo.CommonNamePath)
+		parentPathRaw = certInfo.CommonNamePath
+	}
+	if certInfo.SlugPath != "" {
+		parentPath = splitCACNChainToPath(certInfo.SlugPath)
+		parentPathRaw = certInfo.SlugPath
+	}
+
+	// Neither options are submitted - error
+	if parentPath == "" {
+		returnData := &ReturnGenericMessage{
+			Status:   "missing-parent-path",
+			Errors:   []string{"Missing parent path!  Must supply either `cn_path` or `slug_path`"},
+			Messages: []string{}}
+		returnResponse, _ := json.Marshal(returnData)
+		fmt.Fprintf(w, string(returnResponse))
+	} else {
+
+		// Check if the parent path directory exists
+		absPath, err := filepath.Abs(readConfig.Locksmith.PKIRoot + "/roots/" + parentPath)
+		checkAndFail(err)
+
+		certCAParentPathExists, err := DirectoryExists(absPath)
+		check(err)
+
+		if certCAParentPathExists {
+
+			certName := certInfo.CertificateConfiguration.Subject.CommonName
+			sluggedCertCommonName := slugger(certName)
+
+			// If the Cert's parent path exists, check if the cert exists before (re)creating it
+			logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+"): Checking "+absPath+"/certs/"+sluggedCertCommonName+".pem", r)
+			sluggedCertFileExists, err := DirectoryExists(absPath + "/certs/" + sluggedCertCommonName + ".pem")
+			check(err)
+
+			if sluggedCertFileExists {
+				// if the cert exists, return with an certificate-exists error
+				logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") certificate exists in '"+parentPathRaw+"'", r)
+				returnData := &ReturnGenericMessage{
+					Status:   "certificate-exists",
+					Errors:   []string{"Certificate " + certName + " exists in '" + parentPathRaw + "'!"},
+					Messages: []string{}}
+				returnResponse, _ := json.Marshal(returnData)
+				fmt.Fprintf(w, string(returnResponse))
+			} else {
+				// Cert does not exist, go ahead with creation
+
+				logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") creating certificate in '"+parentPathRaw+"'", r)
+				//csrCreated, messages, csrCert, keyPair, err := createNewCertificateRequest(csrInfo, absPath)
+				//check(err)
+			}
+		} else {
+			// Parent path does not exist, return invalid-parent-path
+			returnData := &ReturnGenericMessage{
+				Status:   "invalid-parent-path",
+				Errors:   []string{"Invalid parent path, no chain exists!"},
+				Messages: []string{}}
+			returnResponse, _ := json.Marshal(returnData)
+			fmt.Fprintf(w, string(returnResponse))
+		}
+	}
+
 }
