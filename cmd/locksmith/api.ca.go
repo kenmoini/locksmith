@@ -19,7 +19,7 @@ func listRootCAsAPI(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(returnResponse))
 }
 
-// createNewRootCAAPI handles the POST /v1/roots endpoint
+// createNewRootCAAPI handles the POST /v1/root endpoint
 func createNewRootCAAPI(w http.ResponseWriter, r *http.Request) {
 	// Parse the JSON body into the CertificateConfiguration struct
 	certInfo := CertificateConfiguration{}
@@ -59,6 +59,7 @@ func createNewRootCAAPI(w http.ResponseWriter, r *http.Request) {
 		returnResponse, _ := json.Marshal(returnData)
 		fmt.Fprintf(w, string(returnResponse))
 	} else {
+
 		// Generate a new Certificate Authority
 		newCAState, newCA, caCert, err := createNewCA(certInfo)
 		check(err)
