@@ -315,8 +315,34 @@ func createNewCertAPI(w http.ResponseWriter, r *http.Request) {
 				// Cert does not exist, go ahead with creation
 
 				logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") Creating certificate in '"+parentPathRaw+"'", r)
-				//csrCreated, messages, csrCert, keyPair, err := createNewCertificateRequest(csrInfo, absPath)
-				//check(err)
+				certCreated, certificate, messages, err := createNewCertificateFromCSR(absPath, certInfo.SigningPrivateKeyPassphrase, csr)
+				check(err)
+
+				if certCreated {
+					logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") cert-created in '"+parentPathRaw+"'", r)
+					returnData := &RESTPOSTCertificateJSONReturn{
+						Status:   "success",
+						Errors:   []string{},
+						Messages: []string{"Successfully created Certificate " + certName + " in '" + parentPathRaw + "'!"},
+						CertInfo: CertificateInfo{
+							Slug:           sluggedCertCommonName,
+							Certificate:    certificate,
+							CertificatePEM: b64.StdEncoding.EncodeToString(pemEncodeCSR(certificate.Raw).Bytes())}}
+					returnResponse, _ := json.Marshal(returnData)
+					fmt.Fprintf(w, string(returnResponse))
+					return
+
+				} else {
+					// Certificate wasn't created, return error
+					logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") error-creating-cert", r)
+					returnData := &ReturnGenericMessage{
+						Status:   "certificate-creation-error",
+						Errors:   []string{"Error creating Certificate " + certName + " in '" + parentPathRaw + "'!"},
+						Messages: messages}
+					returnResponse, _ := json.Marshal(returnData)
+					fmt.Fprintf(w, string(returnResponse))
+					return
+				}
 			}
 		} else {
 			// Parent path does not exist, return invalid-parent-path

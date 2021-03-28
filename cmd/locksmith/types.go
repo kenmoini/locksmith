@@ -405,7 +405,7 @@ type RESTPOSTCertificateJSONReturn struct {
 	Status   string          `json:"status"`
 	Errors   []string        `json:"errors"`
 	Messages []string        `json:"messages"`
-	CSRInfo  CertificateInfo `json:"csr_info"`
+	CertInfo CertificateInfo `json:"csr_info"`
 }
 
 // CertificateInfo provides general Certificate information
@@ -413,7 +413,6 @@ type CertificateInfo struct {
 	Slug           string            `json:"slug"`
 	CertificatePEM string            `json:"certificate_pem"`
 	Certificate    *x509.Certificate `json:"certificate"`
-	KeyPair        KeyPair           `json:"key_pair,omitempty"`
 }
 
 /*====================================================================================================

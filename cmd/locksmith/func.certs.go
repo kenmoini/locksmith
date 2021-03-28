@@ -12,6 +12,34 @@ import (
 	"time"
 )
 
+// createNewCertificateFromCSR allows the maturation of a CSR to a Certificate
+func createNewCertificateFromCSR(signingCAPath string, signingCAPassphrase string, csr *x509.CertificateRequest) (certCreated bool, certificate *x509.Certificate, messages []string, err error) {
+	// Check to make sure the ca.pem file exists
+	signingCACertExists, err := FileExists(signingCAPath + "/certs/ca.pem")
+	if !signingCACertExists {
+		// Signing CA does not exist, can't sign certificate
+		return false, &x509.Certificate{}, []string{"Signing CA Certificate does not exist!"}, Stoerr("no-signing-ca-certificate")
+	}
+	// Open Signing CA Certificate file
+	//caCertFileBytes, err := ReadCertFromFile(signingCAPath + "/certs/ca.pem")
+	check(err)
+
+	// Open Signing CA Private Key file
+	signingCAPrivateKeyExists, err := FileExists(signingCAPath + "/private/ca.priv.pem")
+	check(err)
+
+	if !signingCAPrivateKeyExists {
+		// Signing CA private key does not exist, can't sign certificate
+		return false, &x509.Certificate{}, []string{"Signing CA Private Key does not exist!"}, Stoerr("no-signing-ca-key")
+	}
+	// Open Signing CA Private Key
+	//signingCAPrivateKey := GetPrivateKey(signingCAPath+"/private/ca.priv.pem", signingCAPassphrase)
+
+	// Assemble certificate
+
+	return
+}
+
 // setupServerCert
 func setupServerCert(serialNumber int64, organization string, country string, province string, locality string, streetAddress string, postalCode string, addTime []int) *x509.Certificate {
 	return &x509.Certificate{
