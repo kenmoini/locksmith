@@ -381,10 +381,23 @@ type RESTGETCertificateInformationJSONReturn struct {
 
 // RESTPOSTCertificateJSONIn handles the data required by the POST /certificate endpoint
 type RESTPOSTCertificateJSONIn struct {
-	CommonNamePath              string                   `json:"cn_path,omitempty"`
-	SlugPath                    string                   `json:"slug_path,omitempty"`
-	CertificateConfiguration    CertificateConfiguration `json:"certificate_config"`
-	SigningPrivateKeyPassphrase string                   `json:"signing_key_passphrase,omitempty"`
+	CommonNamePath              string                  `json:"cn_path,omitempty"`
+	SlugPath                    string                  `json:"slug_path,omitempty"`
+	CertificateRequestInput     CertificateRequestInput `json:"csr_input"`
+	SigningPrivateKeyPassphrase string                  `json:"signing_key_passphrase,omitempty"`
+}
+
+// CertificateRequestInput provides a set of possible input sources for a CSR in Certificate Generation
+type CertificateRequestInput struct {
+	FromPEM    string          `json:"from_pem,omitempty"`
+	FromCAPath TargetAndCAPath `json:"from_ca_path,omitempty"`
+}
+
+// TargetAndCAPath provides a structure to target items under a CA path such as certificates, CSRs, etc
+// Target could be certs/slug-here, certreqs/slug-here
+type TargetAndCAPath struct {
+	Target string `json:"target"`
+	CNPath string `json:"cn_path"`
 }
 
 // RESTPOSTCertificateJSONReturn handles the data returned by the POST /certificate endpoint

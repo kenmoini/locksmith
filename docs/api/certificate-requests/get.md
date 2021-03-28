@@ -36,7 +36,9 @@ A cURL request would look like this:
 
 ```
 curl --request GET -G --data-urlencode "cn_path=Example Labs Root Certificate Authority" "http://$PKI_SERVER/locksmith/v1/certificate-requests"
+
 curl --request GET -G --data-urlencode "slug_path=example-labs-root-certificate-authority" "http://$PKI_SERVER/locksmith/v1/certificate-requests"
+
 curl --request GET -G --data-urlencode "cn_path=Example Labs Root Certificate Authority/example-labs-intermediate-certificate-authority" "http://$PKI_SERVER/locksmith/v1/certificate-requests"
 ```
 

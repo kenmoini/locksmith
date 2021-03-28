@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
+	"strings"
 )
 
 // readCertificateAPI handles the GET /v1/certificate endpoint
@@ -190,6 +191,7 @@ func createNewCertAPI(w http.ResponseWriter, r *http.Request) {
 	// Set up Parent Path
 	var parentPath string
 	var parentPathRaw string
+	var csr *x509.CertificateRequest
 
 	if certInfo.CommonNamePath != "" {
 		parentPath = splitCACNChainToPath(certInfo.CommonNamePath)
@@ -200,6 +202,77 @@ func createNewCertAPI(w http.ResponseWriter, r *http.Request) {
 		parentPathRaw = certInfo.SlugPath
 	}
 
+	// Check to see if the CSR is passed in via base64 encoded input
+	if certInfo.CertificateRequestInput.FromPEM != "" {
+		csrSource, err := b64.StdEncoding.DecodeString(certInfo.CertificateRequestInput.FromPEM)
+		check(err)
+
+		csrPEM, err := decodeByteSliceToPEM(csrSource, "CERTIFICATE REQUEST")
+		check(err)
+
+		csr, err = readCSR(csrPEM.Bytes)
+		check(err)
+	}
+	// Check to see if we can retreive the CSR from the file system
+	if certInfo.CertificateRequestInput.FromCAPath.Target != "" && certInfo.CertificateRequestInput.FromCAPath.CNPath != "" {
+		// See if the CAPath is valid
+		csrCAPath := splitCACNChainToPath(certInfo.CertificateRequestInput.FromCAPath.CNPath)
+
+		csrCAAbsPath, err := filepath.Abs(readConfig.Locksmith.PKIRoot + "/roots/" + csrCAPath)
+		checkAndFail(err)
+
+		csrCAParentPathExists, err := DirectoryExists(csrCAAbsPath)
+		check(err)
+		if !csrCAParentPathExists {
+			// Path invalid, return error
+			returnData := &ReturnGenericMessage{
+				Status:   "invalid-csr-parent-path",
+				Errors:   []string{"Invalid parent path for CSR, no chain exists!"},
+				Messages: []string{}}
+			returnResponse, _ := json.Marshal(returnData)
+			fmt.Fprintf(w, string(returnResponse))
+			return
+		}
+		// Explode Target - See if the Target is a valid CSR target type
+		csrTarget := strings.Split(certInfo.CertificateRequestInput.FromCAPath.Target, "/")
+		if csrTarget[0] != "certreqs" {
+			// Target type invalid, return error
+			returnData := &ReturnGenericMessage{
+				Status:   "invalid-csr-target-type",
+				Errors:   []string{"Invalid target type for CSR, expecting 'certreqs/target_id'!"},
+				Messages: []string{}}
+			returnResponse, _ := json.Marshal(returnData)
+			fmt.Fprintf(w, string(returnResponse))
+			return
+		}
+
+		// See if the Target is a valid CSR
+		csrFileExists, err := FileExists(csrCAAbsPath + "/certreqs/" + slugger(csrTarget[1]) + ".req.pem")
+		if csrFileExists {
+			csr, err = readCSRFromFile(csrCAAbsPath + "/certreqs/" + slugger(csrTarget[1]) + ".req.pem")
+			check(err)
+		} else {
+			// Target doesn't exist, return error
+			returnData := &ReturnGenericMessage{
+				Status:   "invalid-csr-target",
+				Errors:   []string{"Invalid target for CSR, no such target exists!"},
+				Messages: []string{}}
+			returnResponse, _ := json.Marshal(returnData)
+			fmt.Fprintf(w, string(returnResponse))
+			return
+		}
+	}
+	if csr == nil {
+		// No CSR, return error
+		returnData := &ReturnGenericMessage{
+			Status:   "no-csr-supplied",
+			Errors:   []string{"No CSR was provided, no certificate to build from!"},
+			Messages: []string{}}
+		returnResponse, _ := json.Marshal(returnData)
+		fmt.Fprintf(w, string(returnResponse))
+		return
+	}
+
 	// Neither options are submitted - error
 	if parentPath == "" {
 		returnData := &ReturnGenericMessage{
@@ -208,6 +281,7 @@ func createNewCertAPI(w http.ResponseWriter, r *http.Request) {
 			Messages: []string{}}
 		returnResponse, _ := json.Marshal(returnData)
 		fmt.Fprintf(w, string(returnResponse))
+		return
 	} else {
 
 		// Check if the parent path directory exists
@@ -219,12 +293,12 @@ func createNewCertAPI(w http.ResponseWriter, r *http.Request) {
 
 		if certCAParentPathExists {
 
-			certName := certInfo.CertificateConfiguration.Subject.CommonName
+			certName := csr.Subject.CommonName
 			sluggedCertCommonName := slugger(certName)
 
 			// If the Cert's parent path exists, check if the cert exists before (re)creating it
 			logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+"): Checking "+absPath+"/certs/"+sluggedCertCommonName+".pem", r)
-			sluggedCertFileExists, err := DirectoryExists(absPath + "/certs/" + sluggedCertCommonName + ".pem")
+			sluggedCertFileExists, err := FileExists(absPath + "/certs/" + sluggedCertCommonName + ".pem")
 			check(err)
 
 			if sluggedCertFileExists {
@@ -236,10 +310,11 @@ func createNewCertAPI(w http.ResponseWriter, r *http.Request) {
 					Messages: []string{}}
 				returnResponse, _ := json.Marshal(returnData)
 				fmt.Fprintf(w, string(returnResponse))
+				return
 			} else {
 				// Cert does not exist, go ahead with creation
 
-				logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") creating certificate in '"+parentPathRaw+"'", r)
+				logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") Creating certificate in '"+parentPathRaw+"'", r)
 				//csrCreated, messages, csrCert, keyPair, err := createNewCertificateRequest(csrInfo, absPath)
 				//check(err)
 			}
@@ -251,6 +326,7 @@ func createNewCertAPI(w http.ResponseWriter, r *http.Request) {
 				Messages: []string{}}
 			returnResponse, _ := json.Marshal(returnData)
 			fmt.Fprintf(w, string(returnResponse))
+			return
 		}
 	}
 

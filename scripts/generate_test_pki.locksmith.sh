@@ -176,6 +176,12 @@ CMND_STATUS=$(echo "$CMND" | jq .status)
 checkStatus "[CERTIFICATE REQUESTS][GET][LIST]" $CMND_STATUS "Listing CSRs in Example Labs Root CA"
 if [[ $VERBOSITY == "2" ]]; then echo -e "${CMND}\n"; fi
 
+# Create OpenVPN Server CSR
+CMND=$(curl $CURL_POST_OPTS --data '{"cn_path": "Example Labs Root Certificate Authority/Example Labs Intermediate Certificate Authority/Example Labs Signing Certificate Authority", "certificate_config":{"subject": {"common_name": "Example Labs OpenVPN Server", "organization": ["Example Labs"], "organizational_unit": ["Example Labs Cyber and Information Security"]}, "expiration_date": [1,0,1], "san_data": {"email_addresses":["certmaster@example.labs"],"uris":["https://ca.example.labs:443/"]}}}' http://localhost:8080/locksmith/v1/certificate-request)
+CMND_STATUS=$(echo "$CMND" | jq .status)
+checkStatus "[CERTIFICATE REQUEST][POST][CREATE]" $CMND_STATUS "Creating OpenVPN Server CSR in Example Labs Signing CA CA"
+if [[ $VERBOSITY == "2" ]]; then echo -e "${CMND}\n"; fi
+
 echo ""
 
 ###################################################################################- CERTIFICATES
@@ -185,10 +191,10 @@ CMND_STATUS=$(echo "$CMND" | jq .status)
 checkStatus "[CERTIFICATES][GET][LIST]" $CMND_STATUS "Listing Certificates in Example Labs Root CA"
 if [[ $VERBOSITY == "2" ]]; then echo -e "${CMND}\n"; fi
 
-# Create OpenVPN Server CSR
-CMND=$(curl $CURL_POST_OPTS --data '{"cn_path": "Example Labs Root Certificate Authority/Example Labs Intermediate Certificate Authority/Example Labs Signing Certificate Authority", "certificate_config":{"subject": {"common_name": "Example Labs OpenVPN Server", "organization": ["Example Labs"], "organizational_unit": ["Example Labs Cyber and Information Security"]}, "expiration_date": [1,0,1], "san_data": {"email_addresses":["certmaster@example.labs"],"uris":["https://ca.example.labs:443/"]}}}' http://localhost:8080/locksmith/v1/certificate-request)
+# Create OpenVPN Server Certificate
+CMND=$(curl $CURL_POST_OPTS --data '{"cn_path": "Example Labs Root Certificate Authority/Example Labs Intermediate Certificate Authority/Example Labs Signing Certificate Authority", "csr_input": {"from_ca_path": {"target":"certreqs/Example Labs OpenVPN Server", "cn_path": "Example Labs Root Certificate Authority/Example Labs Intermediate Certificate Authority/Example Labs Signing Certificate Authority"}}}' http://localhost:8080/locksmith/v1/certificate)
 CMND_STATUS=$(echo "$CMND" | jq .status)
-checkStatus "[CERTIFICATE REQUESTS][POST][CREATE]" $CMND_STATUS "Creating OpenVPN Server CSR in Example Labs Signing CA CA"
+checkStatus "[CERTIFICATE][POST][CREATE]" $CMND_STATUS "Creating OpenVPN Server Certificate in Example Labs Signing CA CA"
 if [[ $VERBOSITY == "2" ]]; then echo -e "${CMND}\n"; fi
 
 echo ""

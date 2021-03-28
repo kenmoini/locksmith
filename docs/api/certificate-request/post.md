@@ -76,7 +76,7 @@ curl --header "Content-Type: application/json" \
 
 **Code** : `200 OK`
 
-**Content example** : Response will reflect back the slugged ID of the certificate, the next certificate serial number, and the full representation of the generated CA Certificate.
+**Content example** : Response will reflect back the slugged ID of the certificate, CSR PEM encoded in Base64, the full representation of the generated Certificate Request, and RSA Key Pair.
 
 ```json
 {
