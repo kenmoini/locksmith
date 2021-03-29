@@ -7,9 +7,8 @@ RUN make build
 FROM scratch AS bin
 
 COPY --from=build /opt/app-root/src/dist/locksmith /usr/local/bin/
-#COPY container_root/ /
-RUN mkdir -p /etc/locksmith
+COPY container_root/ /
 
 EXPOSE 8080
 
-CMD [ "locksmith -config /etc/locksmith/config.yml" ]
+CMD [ "/etc/locksmith/container_start.sh" ]
