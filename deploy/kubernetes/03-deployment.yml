@@ -28,14 +28,15 @@ spec:
             httpGet:
               path: /healthz
               port: api
-            initialDelaySeconds: 10
-            periodSeconds: 10
+            initialDelaySeconds: 5
+            periodSeconds: 30
           startupProbe:
             httpGet:
               path: /healthz
-              port: liveness-port
+              port: api
+            initialDelaySeconds: 5
             failureThreshold: 30
-            periodSeconds: 10
+            periodSeconds: 5
           ports:
             - containerPort: 8080
               name: api
