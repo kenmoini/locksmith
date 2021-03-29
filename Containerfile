@@ -9,6 +9,9 @@ FROM registry.access.redhat.com/ubi8/ubi-minimal:latest AS bin
 COPY --from=build /opt/app-root/src/dist/locksmith /opt/app-root/bin/
 COPY container_root/ /
 
+RUN mkdir -p /etc/locksmith/certs \
+ && chmod 777 /etc/locksmith/certs
+
 EXPOSE 8080
 
 CMD [ "/opt/app-root/bin/container_start.sh" ]

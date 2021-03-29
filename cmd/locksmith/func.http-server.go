@@ -31,7 +31,7 @@ func NewRouter(basePath string) *http.ServeMux {
 	//====================================================================================
 	// TEST ENDPOINT
 	// Test out a random function maybe
-	router.HandleFunc(formattedBasePath+"/test", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
 		returnData := &ReturnGenericMessage{
 			Status:   "test",
 			Errors:   []string{},
@@ -43,12 +43,12 @@ func NewRouter(basePath string) *http.ServeMux {
 	//====================================================================================
 	// KUBERNETES ENDPOINTS
 	// Version Output - reads from variables.go
-	router.HandleFunc(formattedBasePath+"/version", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
 		applicationVersionAPI(w, r)
 	})
 
 	// Healthz endpoint for kubernetes platforms
-	router.HandleFunc(formattedBasePath+"/healthz", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		healthZAPI(w, r)
 	})
 

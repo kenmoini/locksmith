@@ -24,6 +24,18 @@ spec:
         - name: locksmith
           imagePullPolicy: Always
           image: quay.io/kenmoini/locksmith:latest
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: api
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: liveness-port
+            failureThreshold: 30
+            periodSeconds: 10
           ports:
             - containerPort: 8080
               name: api
@@ -41,3 +53,4 @@ spec:
             items:
               - key: "config.yml"
                 path: "config.yml"
+            defaultMode: 0644

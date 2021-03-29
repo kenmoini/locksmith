@@ -10,7 +10,7 @@ metadata:
 data:
   config.yml: |
     locksmith:
-      pki_root: /etc/locksmith/.generated
+      pki_root: /etc/locksmith/certs
       server:
         host: 0.0.0.0
         base_path: "/locksmith"
