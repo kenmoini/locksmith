@@ -2,7 +2,6 @@ package locksmith
 
 import (
 	"crypto/x509"
-	b64 "encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -157,10 +156,10 @@ func createNewCSRAPI(w http.ResponseWriter, r *http.Request) {
 						CSRInfo: CertificateRequestInfo{
 							Slug:                  sluggedCSRCommonName,
 							CertificateRequest:    csrCert,
-							CertificateRequestPEM: b64.StdEncoding.EncodeToString(pemEncodeCSR(csrCert.Raw).Bytes()),
+							CertificateRequestPEM: B64EncodeBytesToStr(pemEncodeCSR(csrCert.Raw).Bytes()),
 							KeyPair: KeyPair{
-								PublicKey:  b64.StdEncoding.EncodeToString(pemEncodeRSAPublicKey(keyPair.PublicKey).Bytes()),
-								PrivateKey: b64.StdEncoding.EncodeToString(pemEncodedPrivateKey.Bytes())}}}
+								PublicKey:  B64EncodeBytesToStr(pemEncodeRSAPublicKey(keyPair.PublicKey).Bytes()),
+								PrivateKey: B64EncodeBytesToStr(pemEncodedPrivateKey.Bytes())}}}
 					returnResponse, _ := json.Marshal(returnData)
 					fmt.Fprintf(w, string(returnResponse))
 				} else {
@@ -260,7 +259,7 @@ func readCSRAPI(w http.ResponseWriter, r *http.Request) {
 						Status:                "success",
 						Errors:                []string{},
 						Messages:              []string{"Certificate Request information for '" + parentPathRaw + "'"},
-						CertificateRequestPEM: b64.StdEncoding.EncodeToString(pem.Bytes),
+						CertificateRequestPEM: B64EncodeBytesToStr(pem.Bytes),
 						CertificateRequest:    certificate}
 					returnResponse, _ := json.Marshal(returnData)
 					fmt.Fprintf(w, string(returnResponse))

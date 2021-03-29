@@ -81,7 +81,7 @@ func readCertificateAPI(w http.ResponseWriter, r *http.Request) {
 						Errors:          []string{},
 						Messages:        []string{"Certificate information for '" + parentPathRaw + "'"},
 						Slug:            certificateID,
-						CertificatePEM:  b64.StdEncoding.EncodeToString(pem.Bytes),
+						CertificatePEM:  B64EncodeBytesToStr(pem.Bytes),
 						CertificateInfo: certificate}
 					returnResponse, _ := json.Marshal(returnData)
 					fmt.Fprintf(w, string(returnResponse))
@@ -314,8 +314,27 @@ func createNewCertAPI(w http.ResponseWriter, r *http.Request) {
 			} else {
 				// Cert does not exist, go ahead with creation
 
+				// Make sure the CSR PublicKey was passed in as a base64 encoded string
+				if certInfo.CertificateRequestInput.PublicKey == "" {
+					// empty csr public key
+					logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") empty public key", r)
+					returnData := &ReturnGenericMessage{
+						Status:   "empty-public-key",
+						Errors:   []string{"Certificate public key empty - provide with '.csr_input.public_key'!"},
+						Messages: []string{}}
+					returnResponse, _ := json.Marshal(returnData)
+					fmt.Fprintf(w, string(returnResponse))
+					return
+				}
+
+				decodedPublicKey, err := B64DecodeStrToBytes(certInfo.CertificateRequestInput.PublicKey)
+				check(err)
+
+				_, pubKeyPEMBytes := DecodePublicKeyPem(decodedPublicKey)
+				csrPublicKey := parsePublicKey(pubKeyPEMBytes)
+
 				logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") Creating certificate in '"+parentPathRaw+"'", r)
-				certCreated, certificate, messages, err := createNewCertificateFromCSR(absPath, certInfo.SigningPrivateKeyPassphrase, csr)
+				certCreated, certificate, messages, err := createNewCertificateFromCSR(absPath, certInfo.SigningPrivateKeyPassphrase, csr, certInfo.CertificateRequestInput.CertificateType, csrPublicKey)
 				check(err)
 
 				if certCreated {
@@ -327,7 +346,7 @@ func createNewCertAPI(w http.ResponseWriter, r *http.Request) {
 						CertInfo: CertificateInfo{
 							Slug:           sluggedCertCommonName,
 							Certificate:    certificate,
-							CertificatePEM: b64.StdEncoding.EncodeToString(pemEncodeCSR(certificate.Raw).Bytes())}}
+							CertificatePEM: B64EncodeBytesToStr(pemEncodeCertificate(certificate.Raw).Bytes())}}
 					returnResponse, _ := json.Marshal(returnData)
 					fmt.Fprintf(w, string(returnResponse))
 					return

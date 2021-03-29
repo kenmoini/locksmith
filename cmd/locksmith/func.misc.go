@@ -2,6 +2,7 @@ package locksmith
 
 import (
 	"bufio"
+	b64 "encoding/base64"
 	"errors"
 	"fmt"
 	"net/url"
@@ -242,4 +243,19 @@ func rmStrFromStrSlice(r string, s []string) []string {
 		}
 	}
 	return s
+}
+
+// B64EncodeBytesToStr converts a byte slice to a Base64 Encoded String
+func B64EncodeBytesToStr(input []byte) string {
+	return b64.StdEncoding.EncodeToString(input)
+}
+
+// B64DecodeBytesToStr converts a Base64 byte slice to a Base64 Decoded Byte slice
+func B64DecodeBytesToBytes(input []byte) ([]byte, error) {
+	return B64DecodeStrToBytes(string(input))
+}
+
+// B64DecodeStrToBytes converts a Base64 string to a Base64 Decoded Byte slice
+func B64DecodeStrToBytes(input string) ([]byte, error) {
+	return b64.StdEncoding.DecodeString(input)
 }

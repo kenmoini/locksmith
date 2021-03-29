@@ -2,7 +2,6 @@ package locksmith
 
 import (
 	"crypto/x509"
-	b64 "encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -63,7 +62,7 @@ func readRevocationListAPI(w http.ResponseWriter, r *http.Request) {
 					Errors:          []string{},
 					Messages:        []string{"Certificate Revocation List for '" + caPathRaw + "'"},
 					Slug:            caPathRaw,
-					CertificatePEM:  b64.StdEncoding.EncodeToString(pem.Bytes),
+					CertificatePEM:  B64EncodeBytesToStr(pem.Bytes),
 					CertificateList: certificateList}
 				returnResponse, _ := json.Marshal(returnData)
 				fmt.Fprintf(w, string(returnResponse))

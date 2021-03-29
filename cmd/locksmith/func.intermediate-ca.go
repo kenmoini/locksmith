@@ -7,7 +7,6 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
-	b64 "encoding/base64"
 	"fmt"
 	"math/big"
 	"time"
@@ -37,7 +36,8 @@ func setupIntermediateCACert(serialNumber int64, commonName string, organization
 	subjectKeyID := h[:]
 
 	return &x509.Certificate{
-		SerialNumber: big.NewInt(serialNumber),
+		SignatureAlgorithm: x509.SHA512WithRSA,
+		SerialNumber:       big.NewInt(serialNumber),
 		Subject: pkix.Name{
 			CommonName:         commonName,
 			Organization:       organization,
@@ -107,7 +107,7 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 			}
 		} else {
 
-			encStr := b64.StdEncoding.EncodeToString(encryptedPrivateKeyBytes.Bytes())
+			encStr := B64EncodeBytesToStr(encryptedPrivateKeyBytes.Bytes())
 			encBufferB := bytes.NewBufferString(encStr)
 
 			rootPrivKeyFile, rootPubKeyFile, err := writeRSAKeyPair(encBufferB, pemEncodeRSAPublicKey(rootPubKey), certPaths.RootCAKeysPath+"/ca")
@@ -139,6 +139,7 @@ func createNewIntermediateCA(configWrapper RESTPOSTIntermedCAJSONIn, parentPath 
 			configWrapper.CertificateConfiguration.Subject.Locality,
 			configWrapper.CertificateConfiguration.Subject.StreetAddress,
 			configWrapper.CertificateConfiguration.Subject.PostalCode,
+			configWrapper.CertificateConfiguration.SANData,
 			true)
 		if !caCSR {
 			check(err)

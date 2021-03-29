@@ -7,7 +7,6 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
-	b64 "encoding/base64"
 	"fmt"
 	"math/big"
 	"path/filepath"
@@ -38,7 +37,8 @@ func setupCACert(serialNumber int64, commonName string, organization []string, o
 	subjectKeyID := h[:]
 
 	return &x509.Certificate{
-		SerialNumber: big.NewInt(serialNumber),
+		SignatureAlgorithm: x509.SHA512WithRSA,
+		SerialNumber:       big.NewInt(serialNumber),
 		Subject: pkix.Name{
 			CommonName:         commonName,
 			Organization:       organization,
@@ -121,7 +121,7 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, x509.Cert
 			}
 		} else {
 
-			encStr := b64.StdEncoding.EncodeToString(encryptedPrivateKeyBytes.Bytes())
+			encStr := B64EncodeBytesToStr(encryptedPrivateKeyBytes.Bytes())
 			encBufferB := bytes.NewBufferString(encStr)
 
 			rootPrivKeyFile, rootPubKeyFile, err := writeRSAKeyPair(encBufferB, pemEncodeRSAPublicKey(rootPubKey), certPaths.RootCAKeysPath+"/ca")
@@ -130,7 +130,6 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, x509.Cert
 				return false, []string{"Root CA Private Key Failure"}, x509.Certificate{}, err
 			}
 		}
-
 	}
 
 	// Read in the Private key
@@ -153,6 +152,7 @@ func createNewCA(certConfig CertificateConfiguration) (bool, []string, x509.Cert
 			certConfig.Subject.Locality,
 			certConfig.Subject.StreetAddress,
 			certConfig.Subject.PostalCode,
+			certConfig.SANData,
 			true)
 		if !caCSR {
 			check(err)

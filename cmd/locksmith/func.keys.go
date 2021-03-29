@@ -74,31 +74,31 @@ func writePrivateKey(pem *bytes.Buffer, path string) (bool, error) {
 	return keyFile, nil
 }
 
-// pemEncodeRSAPrivateKey
-func pemEncodeRSAPrivateKey(caPrivKey *rsa.PrivateKey, rsaPrivateKeyPassword string) (caPrivKeyPEM *bytes.Buffer, b *bytes.Buffer) {
-	caPrivKeyPEM = new(bytes.Buffer)
+// pemEncodeRSAPrivateKey creates a PEM from an RSA Private key, and optionally returns an encrypted version
+func pemEncodeRSAPrivateKey(privKey *rsa.PrivateKey, rsaPrivateKeyPassword string) (privKeyPEM *bytes.Buffer, b *bytes.Buffer) {
+	privKeyPEM = new(bytes.Buffer)
 	b = new(bytes.Buffer)
 
 	privateKeyBlock := &pem.Block{
 		Type:  "RSA PRIVATE KEY",
-		Bytes: x509.MarshalPKCS1PrivateKey(caPrivKey),
+		Bytes: x509.MarshalPKCS1PrivateKey(privKey),
 	}
 
 	/*
-		Legacy encryption, insecure
+		Legacy encryption, insecure, replaced with AES-GCM encryption
 		if rsaPrivateKeyPassword != "" {
 			privateKeyBlock, _ = x509.EncryptPEMBlock(rand.Reader, privateKeyBlock.Type, privateKeyBlock.Bytes, []byte(rsaPrivateKeyPassword), x509.PEMCipherAES256)
 		}
 	*/
 
-	pem.Encode(caPrivKeyPEM, privateKeyBlock)
+	pem.Encode(privKeyPEM, privateKeyBlock)
 
 	if rsaPrivateKeyPassword != "" {
-		encBytes := encryptBytes(caPrivKeyPEM.Bytes(), rsaPrivateKeyPassword)
+		encBytes := encryptBytes(privKeyPEM.Bytes(), rsaPrivateKeyPassword)
 		b.Write(encBytes)
 	}
 
-	return caPrivKeyPEM, b
+	return privKeyPEM, b
 }
 
 // pemToEncryptedBytes takes a PEM byte buffer and encrypts it

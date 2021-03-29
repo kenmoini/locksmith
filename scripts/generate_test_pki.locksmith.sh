@@ -2,6 +2,8 @@
 
 # Exits on any error
 set -e
+# Shows executed commands
+#set -x
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -30,6 +32,7 @@ rm -rf ${CUR_DIR}/.generated/roots/example-labs-root-certificate-authority
 rm -rf ${CUR_DIR}/.generated/keystores/
 
 ## Run the Locksmith application in the background
+echo "" > nohup.out
 nohup ${CUR_DIR}/dist/locksmith -config configs/config.yml.example &
 
 RUN_PID=$!
@@ -177,8 +180,9 @@ checkStatus "[CERTIFICATE REQUESTS][GET][LIST]" $CMND_STATUS "Listing CSRs in Ex
 if [[ $VERBOSITY == "2" ]]; then echo -e "${CMND}\n"; fi
 
 # Create OpenVPN Server CSR
-CMND=$(curl $CURL_POST_OPTS --data '{"cn_path": "Example Labs Root Certificate Authority/Example Labs Intermediate Certificate Authority/Example Labs Signing Certificate Authority", "certificate_config":{"subject": {"common_name": "Example Labs OpenVPN Server", "organization": ["Example Labs"], "organizational_unit": ["Example Labs Cyber and Information Security"]}, "expiration_date": [1,0,1], "san_data": {"email_addresses":["certmaster@example.labs"],"uris":["https://ca.example.labs:443/"]}}}' http://localhost:8080/locksmith/v1/certificate-request)
+CMND=$(curl $CURL_POST_OPTS --data '{"cn_path": "Example Labs Root Certificate Authority/Example Labs Intermediate Certificate Authority/Example Labs Signing Certificate Authority", "certificate_config":{"subject": {"common_name": "vpn.example.labs", "organization": ["Example Labs"], "organizational_unit": ["Example Labs Cyber and Information Security"]}, "expiration_date": [1,0,1], "san_data": {"email_addresses":["certmaster@example.labs"],"uris":["https://ca.example.labs:443/"]}}}' http://localhost:8080/locksmith/v1/certificate-request)
 CMND_STATUS=$(echo "$CMND" | jq .status)
+OPENVPN_SERVER_CSR_PUBLIC_KEY=$(echo "$CMND" | jq .csr_info.key_pair.public_key)
 checkStatus "[CERTIFICATE REQUEST][POST][CREATE]" $CMND_STATUS "Creating OpenVPN Server CSR in Example Labs Signing CA CA"
 if [[ $VERBOSITY == "2" ]]; then echo -e "${CMND}\n"; fi
 
@@ -192,7 +196,7 @@ checkStatus "[CERTIFICATES][GET][LIST]" $CMND_STATUS "Listing Certificates in Ex
 if [[ $VERBOSITY == "2" ]]; then echo -e "${CMND}\n"; fi
 
 # Create OpenVPN Server Certificate
-CMND=$(curl $CURL_POST_OPTS --data '{"cn_path": "Example Labs Root Certificate Authority/Example Labs Intermediate Certificate Authority/Example Labs Signing Certificate Authority", "csr_input": {"from_ca_path": {"target":"certreqs/Example Labs OpenVPN Server", "cn_path": "Example Labs Root Certificate Authority/Example Labs Intermediate Certificate Authority/Example Labs Signing Certificate Authority"}}}' http://localhost:8080/locksmith/v1/certificate)
+CMND=$(curl $CURL_POST_OPTS --data '{"cn_path": "Example Labs Root Certificate Authority/Example Labs Intermediate Certificate Authority/Example Labs Signing Certificate Authority", "csr_input": {"public_key": '${OPENVPN_SERVER_CSR_PUBLIC_KEY}', "from_ca_path": {"target":"certreqs/vpn.example.labs", "cn_path": "Example Labs Root Certificate Authority/Example Labs Intermediate Certificate Authority/Example Labs Signing Certificate Authority"}}}' http://localhost:8080/locksmith/v1/certificate)
 CMND_STATUS=$(echo "$CMND" | jq .status)
 checkStatus "[CERTIFICATE][POST][CREATE]" $CMND_STATUS "Creating OpenVPN Server Certificate in Example Labs Signing CA CA"
 if [[ $VERBOSITY == "2" ]]; then echo -e "${CMND}\n"; fi
@@ -210,12 +214,6 @@ if [[ $VERBOSITY == "2" ]]; then echo -e "${CMND}\n"; fi
 echo ""
 
 ###################################################################################- CERTIFICATE BUNDLE
-
-# Generate a Server Certificate for OpenVPN
-#CMND=$(curl $CURL_POST--data '{"cn_path": "Example Labs Root Certificate Authority/Example Labs Intermediate Certificate Authority", "certificate_config":{"subject":{"common_name":"Example Labs OpenVPN Server","organization":["Example Labs"],"organizational_unit":["Example Labs Cyber and Information Security"]},"expiration_date": [1,0,1]}}' \
-#  http://localhost:8080/locksmith/v1/certificates)
-#checkStatus "[CERTIFICATE]" $CMND_STATUS "Create OpenVPN Server Certificate in Example Labs Signing CA"
-
 
 kill -9 $RUN_PID
 

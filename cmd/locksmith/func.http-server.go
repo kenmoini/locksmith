@@ -34,7 +34,7 @@ func NewRouter(basePath string) *http.ServeMux {
 	// Test out a random function maybe
 	router.HandleFunc(formattedBasePath+"/test", func(w http.ResponseWriter, r *http.Request) {
 
-		logStdOut(b64.StdEncoding.EncodeToString(encryptBytes([]byte("This is my secret text!"), "passw0rd")))
+		logStdOut(B64EncodeBytesToStr(encryptBytes([]byte("This is my secret text!"), "passw0rd")))
 
 		encoded := "R59BHVuy9FYc0jFkb8pbMseZn/98tnXf/0zl7lqOJMxtW494z7NLpp9I23faiMv7hRiw"
 		encodedBytes, err := b64.StdEncoding.DecodeString(encoded)

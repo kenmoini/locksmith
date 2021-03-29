@@ -305,7 +305,7 @@ func WriteFile(path string, content string, mode int, overwrite bool) (bool, err
 	return false, nil
 }
 
-// WriteByteFile creates a file only if it's new and populates it
+// WriteByteFile creates a file from a byte slice with an optional filemode, only if it's new, and populates it - can force overwrite optionally
 func WriteByteFile(path string, content []byte, mode int, overwrite bool) (bool, error) {
 	var fileMode os.FileMode
 	if mode == 0 {

@@ -55,6 +55,7 @@ func encryptBytes(bytesIn []byte, passphrase string) []byte {
 	return gcm.Seal(nonce, nonce, bytesIn, nil)
 }
 
+// decryptBytes takes in a byte slice from a file and a passphrase then returns if the encrypted byte slice was decrypted, if so the plaintext contents, and any errors
 func decryptBytes(bytesIn []byte, passphrase string) (decrypted bool, plaintextBytes []byte, err error) {
 	// bytesIn must be decoded from base 64 first
 	// b64.StdEncoding.DecodeString(bytesIn)

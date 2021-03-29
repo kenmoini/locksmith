@@ -7,17 +7,16 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
-	b64 "encoding/base64"
 	"encoding/pem"
 )
 
 // generateCSR takes the full lifecycle of generating and saving a CSR
-func generateCSR(path string, signingKey interface{}, commonName string, organization []string, organizationalUnit []string, country []string, province []string, locality []string, streetAddress []string, postalCode []string, isCA bool) (bool, error) {
+func generateCSR(path string, signingKey interface{}, commonName string, organization []string, organizationalUnit []string, country []string, province []string, locality []string, streetAddress []string, postalCode []string, sanData SANData, isCA bool) (bool, error) {
 	// Generate PKIX Name object
 	csrSubjectName := setupCSRSubjectName(commonName, organization, organizationalUnit, country, province, locality, streetAddress, postalCode)
 
 	// Setup CSR Template Object
-	csrTemplate := setupCSR(csrSubjectName, isCA)
+	csrTemplate := setupCSR(csrSubjectName, isCA, sanData)
 
 	// Create CSR object
 	csr, err := createCSR(csrTemplate, signingKey)
@@ -48,7 +47,12 @@ func setupCSRSubjectName(commonName string, organization []string, organizationa
 
 // setupCSR creates configuration information and returns a CSR Template
 //func setupCSR(commonName string, organization []string, organizationalUnit []string, country []string, province []string, locality []string, streetAddress []string, postalCode []string, isCA bool) *x509.CertificateRequest {
-func setupCSR(names pkix.Name, isCA bool) *x509.CertificateRequest {
+func setupCSR(names pkix.Name, isCA bool, sanData SANData) *x509.CertificateRequest {
+
+	// Convert string slice of URLs into actual URI objects
+	actualURIs, err := bakeURIs(sanData.URIs)
+	check(err)
+
 	if isCA {
 		val, err := asn1.Marshal(basicConstraints{true, 0})
 		check(err)
@@ -56,6 +60,10 @@ func setupCSR(names pkix.Name, isCA bool) *x509.CertificateRequest {
 		return &x509.CertificateRequest{
 			Subject:            names,
 			SignatureAlgorithm: x509.SHA512WithRSA,
+			DNSNames:           sanData.DNSNames,
+			EmailAddresses:     sanData.EmailAddresses,
+			IPAddresses:        sanData.IPAddresses,
+			URIs:               actualURIs,
 			ExtraExtensions: []pkix.Extension{
 				{
 					// This identifies that the CSR is a CA
@@ -69,6 +77,10 @@ func setupCSR(names pkix.Name, isCA bool) *x509.CertificateRequest {
 	return &x509.CertificateRequest{
 		Subject:            names,
 		SignatureAlgorithm: x509.SHA512WithRSA,
+		DNSNames:           sanData.DNSNames,
+		EmailAddresses:     sanData.EmailAddresses,
+		IPAddresses:        sanData.IPAddresses,
+		URIs:               actualURIs,
 	}
 }
 
@@ -164,7 +176,7 @@ func createNewCertificateRequest(config RESTPOSTCertificateRequestJSONIn, parent
 				}
 			} else {
 
-				encStr := b64.StdEncoding.EncodeToString(encryptedPrivateKeyBytes.Bytes())
+				encStr := B64EncodeBytesToStr(encryptedPrivateKeyBytes.Bytes())
 				encBufferB := bytes.NewBufferString(encStr)
 
 				csrPrivKeyFile, csrPubKeyFile, err = writeRSAKeyPair(encBufferB, pemEncodeRSAPublicKey(csrPubKey), parentPath+"/keys/"+csrCommonNameSlug)
@@ -198,6 +210,7 @@ func createNewCertificateRequest(config RESTPOSTCertificateRequestJSONIn, parent
 		config.CertificateConfiguration.Subject.Locality,
 		config.CertificateConfiguration.Subject.StreetAddress,
 		config.CertificateConfiguration.Subject.PostalCode,
+		config.CertificateConfiguration.SANData,
 		csrIsCA)
 	check(err)
 

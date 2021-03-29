@@ -108,7 +108,7 @@ func createKeyPairAPI(w http.ResponseWriter, r *http.Request) {
 					//logStdOut("passphrase!=nil pemEncodedPrivateKey: " + string(pemEncodedPrivateKey.Bytes()))
 					//logStdOut("passphrase!=nil encryptedPrivateKeyBytes: " + string(encryptedPrivateKeyBytes.Bytes()))
 
-					encStr := b64.StdEncoding.EncodeToString(encryptedPrivateKeyBytes.Bytes())
+					encStr := B64EncodeBytesToStr(encryptedPrivateKeyBytes.Bytes())
 					encBufferB := bytes.NewBufferString(encStr)
 
 					//logStdOut("encBuffer" + string(encBufferB.Bytes()))
@@ -136,7 +136,7 @@ func createKeyPairAPI(w http.ResponseWriter, r *http.Request) {
 						Errors:    []string{},
 						Messages:  []string{"Successfully created Key Pair '" + slugger(keyPairInfo.KeyPairID) + "' in Key Store '" + sluggedKeyStoreID + "'!"},
 						KeyPairID: slugger(keyPairInfo.KeyPairID),
-						KeyPair:   KeyPair{PublicKey: b64.StdEncoding.EncodeToString(pemEncodeRSAPublicKey(pubKey).Bytes()), PrivateKey: b64.StdEncoding.EncodeToString(pemEncodedPrivateKey.Bytes())}}
+						KeyPair:   KeyPair{PublicKey: B64EncodeBytesToStr(pemEncodeRSAPublicKey(pubKey).Bytes()), PrivateKey: B64EncodeBytesToStr(pemEncodedPrivateKey.Bytes())}}
 					returnResponse, _ := json.Marshal(returnData)
 					fmt.Fprintf(w, string(returnResponse))
 				}
@@ -161,7 +161,7 @@ func createKeyPairAPI(w http.ResponseWriter, r *http.Request) {
 						Errors:    []string{},
 						Messages:  []string{"Successfully created Key Pair '" + slugger(keyPairInfo.KeyPairID) + "' in Key Store '" + sluggedKeyStoreID + "'!"},
 						KeyPairID: slugger(keyPairInfo.KeyPairID),
-						KeyPair:   KeyPair{PublicKey: b64.StdEncoding.EncodeToString(pemEncodeRSAPublicKey(pubKey).Bytes()), PrivateKey: b64.StdEncoding.EncodeToString(pemEncodedPrivateKey.Bytes())}}
+						KeyPair:   KeyPair{PublicKey: B64EncodeBytesToStr(pemEncodeRSAPublicKey(pubKey).Bytes()), PrivateKey: B64EncodeBytesToStr(pemEncodedPrivateKey.Bytes())}}
 					returnResponse, _ := json.Marshal(returnData)
 					fmt.Fprintf(w, string(returnResponse))
 				}
@@ -262,7 +262,7 @@ func readKeyPairAPI(w http.ResponseWriter, r *http.Request) {
 									Status:   "success",
 									Errors:   []string{},
 									Messages: []string{"Loaded Key Pair ID '" + keyPairID[0] + "' (" + slugger(keyPairID[0]) + ") in Key Store '" + sluggedKeyStoreID + "'"},
-									KeyPair:  KeyPair{PublicKey: b64.StdEncoding.EncodeToString(pubKeyBytes), PrivateKey: b64.StdEncoding.EncodeToString(byted)}}
+									KeyPair:  KeyPair{PublicKey: B64EncodeBytesToStr(pubKeyBytes), PrivateKey: B64EncodeBytesToStr(byted)}}
 								returnResponse, _ := json.Marshal(returnData)
 								fmt.Fprintf(w, string(returnResponse))
 
@@ -281,7 +281,7 @@ func readKeyPairAPI(w http.ResponseWriter, r *http.Request) {
 								Status:   "success",
 								Errors:   []string{},
 								Messages: []string{"Loaded Key Pair ID '" + keyPairID[0] + "' (" + slugger(keyPairID[0]) + ") in Key Store '" + sluggedKeyStoreID + "'"},
-								KeyPair:  KeyPair{PublicKey: b64.StdEncoding.EncodeToString(pubKeyBytes), PrivateKey: b64.StdEncoding.EncodeToString(privKeyBytes)}}
+								KeyPair:  KeyPair{PublicKey: B64EncodeBytesToStr(pubKeyBytes), PrivateKey: B64EncodeBytesToStr(privKeyBytes)}}
 							returnResponse, _ := json.Marshal(returnData)
 							fmt.Fprintf(w, string(returnResponse))
 						}
@@ -308,7 +308,7 @@ func readKeyPairAPI(w http.ResponseWriter, r *http.Request) {
 						Status:   "success",
 						Errors:   []string{},
 						Messages: []string{"Public Key for Key Pair ID '" + keyPairID[0] + "' (" + slugger(keyPairID[0]) + ") in Key Store '" + sluggedKeyStoreID + "'"},
-						KeyPair:  KeyPair{PublicKey: b64.StdEncoding.EncodeToString(keyBytes)}}
+						KeyPair:  KeyPair{PublicKey: B64EncodeBytesToStr(keyBytes)}}
 					returnResponse, _ := json.Marshal(returnData)
 					fmt.Fprintf(w, string(returnResponse))
 				} else {
