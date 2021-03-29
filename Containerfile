@@ -12,4 +12,4 @@ COPY --from=build /opt/app-root/src/dist/locksmith /usr/local/bin/
 
 EXPOSE 8080
 
-CMD [ "locksmith -config /etc/locksmith/config.yml" ]
+CMD [ "/usr/local/bin/locksmith -config /etc/locksmith/config.yml" ]
