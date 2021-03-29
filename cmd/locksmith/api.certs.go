@@ -334,7 +334,7 @@ func createNewCertAPI(w http.ResponseWriter, r *http.Request) {
 				csrPublicKey := parsePublicKey(pubKeyPEMBytes)
 
 				logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") Creating certificate in '"+parentPathRaw+"'", r)
-				certCreated, certificate, messages, err := createNewCertificateFromCSR(absPath, certInfo.SigningPrivateKeyPassphrase, csr, certInfo.CertificateRequestInput.CertificateType, csrPublicKey)
+				certCreated, certificate, messages, err := createNewCertificateFromCSR(absPath, certInfo.SigningPrivateKeyPassphrase, csr, certInfo.CertificateRequestInput.CertificateType, csrPublicKey, certInfo.ExpirationDate)
 				check(err)
 
 				if certCreated {

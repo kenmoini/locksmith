@@ -13,7 +13,7 @@ import (
 )
 
 // createNewCertificateFromCSR allows the maturation of a CSR to a Certificate
-func createNewCertificateFromCSR(signingCAPath string, signingCAPassphrase string, csr *x509.CertificateRequest, certificateType string, csrPublicKey *rsa.PublicKey) (certCreated bool, certificate *x509.Certificate, messages []string, err error) {
+func createNewCertificateFromCSR(signingCAPath string, signingCAPassphrase string, csr *x509.CertificateRequest, certificateType string, csrPublicKey *rsa.PublicKey, expirationDate []int) (certCreated bool, certificate *x509.Certificate, messages []string, err error) {
 	// Check to make sure the ca.pem file exists
 	signingCACertExists, err := FileExists(signingCAPath + "/certs/ca.pem")
 	check(err)
@@ -58,6 +58,11 @@ func createNewCertificateFromCSR(signingCAPath string, signingCAPassphrase strin
 		return false, &x509.Certificate{}, []string{"Signing CA Index DB does not exist!"}, Stoerr("no-signing-ca-index-db")
 	}
 
+	// Ensure the ExpirationDate is a valid int slice
+	if len(expirationDate) != 3 {
+		return false, &x509.Certificate{}, []string{"Invalid expiration date!"}, Stoerr("invalid-expiration-date")
+	}
+
 	// Assemble certificate
 	switch certificateType {
 	case "authority":
@@ -65,7 +70,7 @@ func createNewCertificateFromCSR(signingCAPath string, signingCAPassphrase strin
 	case "server":
 	default:
 		// by default, we'll generate a server type certificate
-		certificate = setupServerCert(currentSerial, csr, []int{1, 0, 1}, signingCAPublicKey)
+		certificate = setupServerCert(currentSerial, csr, expirationDate, signingCAPublicKey)
 	}
 
 	// Sign Certificate

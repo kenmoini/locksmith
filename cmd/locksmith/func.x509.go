@@ -230,11 +230,6 @@ func ValidateCertificateConfiguration(c CertificateConfiguration) (bool, []strin
 		checkInputError = true
 		checkInputErrors = append(checkInputErrors, "Missing OrganizationalUnit field")
 	}
-	// Ensure the ExpirationDate is a valid int slice
-	if len(c.ExpirationDate) != 3 {
-		checkInputError = true
-		checkInputErrors = append(checkInputErrors, "Missing Expiration Date field")
-	}
 
 	// Validate certificate types
 	switch c.CertificateType {

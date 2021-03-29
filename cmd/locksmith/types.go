@@ -385,6 +385,7 @@ type RESTPOSTCertificateJSONIn struct {
 	SlugPath                    string                  `json:"slug_path,omitempty"`
 	SigningPrivateKeyPassphrase string                  `json:"signing_key_passphrase,omitempty"`
 	CertificateRequestInput     CertificateRequestInput `json:"csr_input"`
+	ExpirationDate              []int                   `json:"expiration_date,omitempty"`
 }
 
 // CertificateRequestInput provides a set of possible input sources for a CSR in Certificate Generation
