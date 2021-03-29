@@ -250,7 +250,7 @@ func B64EncodeBytesToStr(input []byte) string {
 	return b64.StdEncoding.EncodeToString(input)
 }
 
-// B64DecodeBytesToStr converts a Base64 byte slice to a Base64 Decoded Byte slice
+// B64DecodeBytesToBytes converts a Base64 byte slice to a Base64 Decoded Byte slice
 func B64DecodeBytesToBytes(input []byte) ([]byte, error) {
 	return B64DecodeStrToBytes(string(input))
 }

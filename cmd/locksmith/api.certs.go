@@ -213,7 +213,7 @@ func createNewCertAPI(w http.ResponseWriter, r *http.Request) {
 		csr, err = readCSR(csrPEM.Bytes)
 		check(err)
 	}
-	// Check to see if we can retreive the CSR from the file system
+	// Check to see if we can retrieve the CSR from the file system
 	if certInfo.CertificateRequestInput.FromCAPath.Target != "" && certInfo.CertificateRequestInput.FromCAPath.CNPath != "" {
 		// See if the CAPath is valid
 		csrCAPath := splitCACNChainToPath(certInfo.CertificateRequestInput.FromCAPath.CNPath)
@@ -248,10 +248,9 @@ func createNewCertAPI(w http.ResponseWriter, r *http.Request) {
 
 		// See if the Target is a valid CSR
 		csrFileExists, err := FileExists(csrCAAbsPath + "/certreqs/" + slugger(csrTarget[1]) + ".req.pem")
-		if csrFileExists {
-			csr, err = readCSRFromFile(csrCAAbsPath + "/certreqs/" + slugger(csrTarget[1]) + ".req.pem")
-			check(err)
-		} else {
+		check(err)
+
+		if !csrFileExists {
 			// Target doesn't exist, return error
 			returnData := &ReturnGenericMessage{
 				Status:   "invalid-csr-target",
@@ -261,6 +260,9 @@ func createNewCertAPI(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, string(returnResponse))
 			return
 		}
+
+		csr, err = readCSRFromFile(csrCAAbsPath + "/certreqs/" + slugger(csrTarget[1]) + ".req.pem")
+		check(err)
 	}
 	if csr == nil {
 		// No CSR, return error
@@ -282,97 +284,94 @@ func createNewCertAPI(w http.ResponseWriter, r *http.Request) {
 		returnResponse, _ := json.Marshal(returnData)
 		fmt.Fprintf(w, string(returnResponse))
 		return
-	} else {
-
-		// Check if the parent path directory exists
-		absPath, err := filepath.Abs(readConfig.Locksmith.PKIRoot + "/roots/" + parentPath)
-		checkAndFail(err)
-
-		certCAParentPathExists, err := DirectoryExists(absPath)
-		check(err)
-
-		if certCAParentPathExists {
-
-			certName := csr.Subject.CommonName
-			sluggedCertCommonName := slugger(certName)
-
-			// If the Cert's parent path exists, check if the cert exists before (re)creating it
-			logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+"): Checking "+absPath+"/certs/"+sluggedCertCommonName+".pem", r)
-			sluggedCertFileExists, err := FileExists(absPath + "/certs/" + sluggedCertCommonName + ".pem")
-			check(err)
-
-			if sluggedCertFileExists {
-				// if the cert exists, return with an certificate-exists error
-				logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") certificate exists in '"+parentPathRaw+"'", r)
-				returnData := &ReturnGenericMessage{
-					Status:   "certificate-exists",
-					Errors:   []string{"Certificate " + certName + " exists in '" + parentPathRaw + "'!"},
-					Messages: []string{}}
-				returnResponse, _ := json.Marshal(returnData)
-				fmt.Fprintf(w, string(returnResponse))
-				return
-			} else {
-				// Cert does not exist, go ahead with creation
-
-				// Make sure the CSR PublicKey was passed in as a base64 encoded string
-				if certInfo.CertificateRequestInput.PublicKey == "" {
-					// empty csr public key
-					logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") empty public key", r)
-					returnData := &ReturnGenericMessage{
-						Status:   "empty-public-key",
-						Errors:   []string{"Certificate public key empty - provide with '.csr_input.public_key'!"},
-						Messages: []string{}}
-					returnResponse, _ := json.Marshal(returnData)
-					fmt.Fprintf(w, string(returnResponse))
-					return
-				}
-
-				decodedPublicKey, err := B64DecodeStrToBytes(certInfo.CertificateRequestInput.PublicKey)
-				check(err)
-
-				_, pubKeyPEMBytes := DecodePublicKeyPem(decodedPublicKey)
-				csrPublicKey := parsePublicKey(pubKeyPEMBytes)
-
-				logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") Creating certificate in '"+parentPathRaw+"'", r)
-				certCreated, certificate, messages, err := createNewCertificateFromCSR(absPath, certInfo.SigningPrivateKeyPassphrase, csr, certInfo.CertificateRequestInput.CertificateType, csrPublicKey, certInfo.ExpirationDate)
-				check(err)
-
-				if certCreated {
-					logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") cert-created in '"+parentPathRaw+"'", r)
-					returnData := &RESTPOSTCertificateJSONReturn{
-						Status:   "success",
-						Errors:   []string{},
-						Messages: []string{"Successfully created Certificate " + certName + " in '" + parentPathRaw + "'!"},
-						CertInfo: CertificateInfo{
-							Slug:           sluggedCertCommonName,
-							Certificate:    certificate,
-							CertificatePEM: B64EncodeBytesToStr(pemEncodeCertificate(certificate.Raw).Bytes())}}
-					returnResponse, _ := json.Marshal(returnData)
-					fmt.Fprintf(w, string(returnResponse))
-					return
-
-				} else {
-					// Certificate wasn't created, return error
-					logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") error-creating-cert", r)
-					returnData := &ReturnGenericMessage{
-						Status:   "certificate-creation-error",
-						Errors:   []string{"Error creating Certificate " + certName + " in '" + parentPathRaw + "'!"},
-						Messages: messages}
-					returnResponse, _ := json.Marshal(returnData)
-					fmt.Fprintf(w, string(returnResponse))
-					return
-				}
-			}
-		} else {
-			// Parent path does not exist, return invalid-parent-path
-			returnData := &ReturnGenericMessage{
-				Status:   "invalid-parent-path",
-				Errors:   []string{"Invalid parent path, no chain exists!"},
-				Messages: []string{}}
-			returnResponse, _ := json.Marshal(returnData)
-			fmt.Fprintf(w, string(returnResponse))
-			return
-		}
 	}
+
+	// Check if the parent path directory exists
+	absPath, err := filepath.Abs(readConfig.Locksmith.PKIRoot + "/roots/" + parentPath)
+	checkAndFail(err)
+
+	certCAParentPathExists, err := DirectoryExists(absPath)
+	check(err)
+
+	if !certCAParentPathExists {
+		// Parent path does not exist, return invalid-parent-path
+		returnData := &ReturnGenericMessage{
+			Status:   "invalid-parent-path",
+			Errors:   []string{"Invalid parent path, no chain exists!"},
+			Messages: []string{}}
+		returnResponse, _ := json.Marshal(returnData)
+		fmt.Fprintf(w, string(returnResponse))
+		return
+	}
+
+	certName := csr.Subject.CommonName
+	sluggedCertCommonName := slugger(certName)
+
+	// If the Cert's parent path exists, check if the cert exists before (re)creating it
+	logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+"): Checking "+absPath+"/certs/"+sluggedCertCommonName+".pem", r)
+	sluggedCertFileExists, err := FileExists(absPath + "/certs/" + sluggedCertCommonName + ".pem")
+	check(err)
+
+	if sluggedCertFileExists {
+		// if the cert exists, return with an certificate-exists error
+		logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") certificate exists in '"+parentPathRaw+"'", r)
+		returnData := &ReturnGenericMessage{
+			Status:   "certificate-exists",
+			Errors:   []string{"Certificate " + certName + " exists in '" + parentPathRaw + "'!"},
+			Messages: []string{}}
+		returnResponse, _ := json.Marshal(returnData)
+		fmt.Fprintf(w, string(returnResponse))
+		return
+	}
+	// Cert does not exist, go ahead with creation
+
+	// Make sure the CSR PublicKey was passed in as a base64 encoded string
+	if certInfo.CertificateRequestInput.PublicKey == "" {
+		// empty csr public key
+		logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") empty public key", r)
+		returnData := &ReturnGenericMessage{
+			Status:   "empty-public-key",
+			Errors:   []string{"Certificate public key empty - provide with '.csr_input.public_key'!"},
+			Messages: []string{}}
+		returnResponse, _ := json.Marshal(returnData)
+		fmt.Fprintf(w, string(returnResponse))
+		return
+	}
+
+	decodedPublicKey, err := B64DecodeStrToBytes(certInfo.CertificateRequestInput.PublicKey)
+	check(err)
+
+	_, pubKeyPEMBytes := DecodePublicKeyPem(decodedPublicKey)
+	csrPublicKey := parsePublicKey(pubKeyPEMBytes)
+
+	logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") Creating certificate in '"+parentPathRaw+"'", r)
+	certCreated, certificate, messages, err := createNewCertificateFromCSR(absPath, certInfo.SigningPrivateKeyPassphrase, csr, certInfo.CertificateRequestInput.CertificateType, csrPublicKey, certInfo.ExpirationDate)
+	check(err)
+
+	if !certCreated {
+		// Certificate wasn't created, return error
+		logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") error-creating-cert", r)
+		returnData := &ReturnGenericMessage{
+			Status:   "certificate-creation-error",
+			Errors:   []string{"Error creating Certificate " + certName + " in '" + parentPathRaw + "'!"},
+			Messages: messages}
+		returnResponse, _ := json.Marshal(returnData)
+		fmt.Fprintf(w, string(returnResponse))
+		return
+	}
+
+	// Everything passed, send success
+	logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") cert-created in '"+parentPathRaw+"'", r)
+	returnData := &RESTPOSTCertificateJSONReturn{
+		Status:   "success",
+		Errors:   []string{},
+		Messages: []string{"Successfully created Certificate " + certName + " in '" + parentPathRaw + "'!"},
+		CertInfo: CertificateInfo{
+			Slug:           sluggedCertCommonName,
+			Certificate:    certificate,
+			CertificatePEM: B64EncodeBytesToStr(pemEncodeCertificate(certificate.Raw).Bytes())}}
+	returnResponse, _ := json.Marshal(returnData)
+	fmt.Fprintf(w, string(returnResponse))
+	return
 
 }
