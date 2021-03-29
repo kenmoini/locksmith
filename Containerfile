@@ -6,9 +6,9 @@ RUN make build
 
 FROM registry.access.redhat.com/ubi8/ubi-minimal:latest AS bin
 
-COPY --from=build /opt/app-root/src/dist/locksmith /usr/local/bin/
+COPY --from=build /opt/app-root/src/dist/locksmith /opt/app-root/bin/
 COPY container_root/ /
 
 EXPOSE 8080
 
-CMD [ "/etc/locksmith/container_start.sh" ]
+CMD [ "/opt/app-root/bin/container_start.sh" ]
