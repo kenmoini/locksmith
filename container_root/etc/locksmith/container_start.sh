@@ -1,3 +1,3 @@
 #!/bin/sh
 
-/usr/local/bin/locksmith -config /etc/locksmith/config.yml
+/usr/local/bin/locksmith -config /etc/locksmith/cfg/config.yml
