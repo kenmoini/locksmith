@@ -360,6 +360,10 @@ func createNewCertAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Generate a Certificate Bundle
+	caBundle := generateCABundle(parentPathRaw)
+	caBundleBytes := []byte(caBundle)
+
 	// Everything passed, send success
 	logNeworkRequestStdOut(certName+" ("+sluggedCertCommonName+") cert-created in '"+parentPathRaw+"'", r)
 	returnData := &RESTPOSTCertificateJSONReturn{
@@ -367,9 +371,10 @@ func createNewCertAPI(w http.ResponseWriter, r *http.Request) {
 		Errors:   []string{},
 		Messages: []string{"Successfully created Certificate " + certName + " in '" + parentPathRaw + "'!"},
 		CertInfo: CertificateInfo{
-			Slug:           sluggedCertCommonName,
-			Certificate:    certificate,
-			CertificatePEM: B64EncodeBytesToStr(pemEncodeCertificate(certificate.Raw).Bytes())}}
+			Slug:                          sluggedCertCommonName,
+			Certificate:                   certificate,
+			CertificatePEM:                B64EncodeBytesToStr(pemEncodeCertificate(certificate.Raw).Bytes()),
+			CertificateAuthorityPEMBundle: B64EncodeBytesToStr(caBundleBytes)}}
 	returnResponse, _ := json.Marshal(returnData)
 	fmt.Fprintf(w, string(returnResponse))
 	return

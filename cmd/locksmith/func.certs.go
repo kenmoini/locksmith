@@ -178,3 +178,23 @@ func ReadCertFromFile(path string) (*x509.Certificate, error) {
 	// Decode to Certfificate object
 	return x509.ParseCertificate(pem.Bytes)
 }
+
+// generateCABundle creates a certificate PEM bundle from a CA Path
+func generateCABundle(caPath string) string {
+	splitPath := splitCAPath(caPath)
+	var path string
+	var pemString string
+
+	for i, part := range splitPath {
+		path = path + slugger(part) + "/"
+		certBytes, err := ReadFileToBytes(readConfig.Locksmith.PKIRoot + "/roots/" + path + "certs/ca.pem")
+		check(err)
+
+		pemString = string(certBytes) + pemString
+
+		if i != (len(splitPath) - 1) {
+			path = path + "intermed-ca/"
+		}
+	}
+	return pemString
+}

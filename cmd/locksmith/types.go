@@ -413,9 +413,10 @@ type RESTPOSTCertificateJSONReturn struct {
 
 // CertificateInfo provides general Certificate information
 type CertificateInfo struct {
-	Slug           string            `json:"slug"`
-	CertificatePEM string            `json:"certificate_pem"`
-	Certificate    *x509.Certificate `json:"certificate"`
+	Slug                          string            `json:"slug"`
+	CertificatePEM                string            `json:"certificate_pem"`
+	Certificate                   *x509.Certificate `json:"certificate"`
+	CertificateAuthorityPEMBundle string            `json:"ca_bundle"`
 }
 
 /*====================================================================================================

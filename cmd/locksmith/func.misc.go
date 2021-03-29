@@ -224,7 +224,7 @@ func splitCommonNamesToPath(cnPath string) string {
 // or converts "example-labs-root-certificate-authority/example-labs-ica/signing-ca" to "example-labs-root-certificate-authority/intermed-ca/example-labs-ica/intermed-ca/signing-ca/"
 // you can even mix and match - the parts are slugged regardless of input and produce the same result
 func splitCACNChainToPath(cnPath string) string {
-	splitPath := strings.Split(strings.TrimSuffix(strings.TrimPrefix(strings.ToLower(cnPath), "/"), "/"), "/")
+	splitPath := splitCAPath(cnPath)
 	var path string
 	for i, part := range splitPath {
 		path = path + slugger(part) + "/"
@@ -233,6 +233,11 @@ func splitCACNChainToPath(cnPath string) string {
 		}
 	}
 	return path
+}
+
+// splitCAPath splits a raw CA Path to its parts
+func splitCAPath(cnPath string) []string {
+	return strings.Split(strings.TrimSuffix(strings.TrimPrefix(strings.ToLower(cnPath), "/"), "/"), "/")
 }
 
 // rmStrFromStrSlice removes a string from a string slice
