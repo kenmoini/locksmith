@@ -7,3 +7,9 @@ build:
 
 run:
 	go run main.go
+
+test-bundle:
+	./scripts/generate_test_pki.bundle.sh
+
+test-compare:
+	./scripts/generate_test_pki.compare.sh
