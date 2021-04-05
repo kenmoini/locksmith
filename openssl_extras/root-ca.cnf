@@ -136,11 +136,11 @@ email                   = certmaster@example.labs
 #
 # Certificate download addresses for the root CA
 [ auth_info_access ]
-caIssuers;URI           = https://ca.example.labs:443/certs/ca.example.labs_Root_Certification_Authority.cert.pem
+caIssuers;URI           = https://ca.example.labs:443/certs/example-labs-root-certificate-authority.cert.pem
 
 #
 # CRL Download address for the root CA
 [ crl_dist ]
-fullname                = URI:https://ca.example.labs:443/crl/ca.example.labs_Root_Certification_Authority.crl
+fullname                = URI:https://ca.example.labs:443/crl/example-labs-root-certificate-authority.crl
 
 # EOF

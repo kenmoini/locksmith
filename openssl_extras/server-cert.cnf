@@ -156,11 +156,11 @@ email                   = certmaster@ca.example.labs
 #
 # Certificate download addresses for the intermediate CA
 [ auth_info_access ]
-caIssuers;URI           = https://ca.example.labs:443/certs/signing-ca.example.labs_Signing_Certification_Authority.cert.pem
+caIssuers;URI           = https://ca.example.labs:443/certs/example-labs-signing-certificate-authority.cert.pem
 
 #
 # CRL Download address for the intermediate CA
 [ crl_dist ]
-fullname                = URI:https://ca.example.labs:443/crl/signing-ca.example.labs_Signing_Certification_Authority.crl
+fullname                = URI:https://ca.example.labs:443/crl/example-labs-signing-certificate-authority.crl
 
 # EOF
