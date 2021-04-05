@@ -43,7 +43,7 @@ unique_subject          = no
 countryName             = optional
 stateOrProvinceName     = optional
 localityName            = optional
-organizationName        = supplied
+organizationName        = optional
 organizationalUnitName  = optional
 commonName              = supplied
 
@@ -91,6 +91,18 @@ crlDistributionPoints   = crl_dist
 # Intermediate CA Certificate Extensions
 [ intermed-ca_ext ]
 basicConstraints        = critical, CA:true
+keyUsage                = critical, keyCertSign, cRLSign
+subjectKeyIdentifier    = hash
+subjectAltName          = @subject_alt_name
+authorityKeyIdentifier  = keyid:always
+issuerAltName           = issuer:copy
+authorityInfoAccess     = @auth_info_access
+crlDistributionPoints   = crl_dist
+
+#
+# Signing CA Certificate Extensions
+[ signing-ca_ext ]
+basicConstraints        = critical, CA:false
 keyUsage                = critical, keyCertSign, cRLSign
 subjectKeyIdentifier    = hash
 subjectAltName          = @subject_alt_name

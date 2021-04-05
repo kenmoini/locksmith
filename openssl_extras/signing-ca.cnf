@@ -1,5 +1,5 @@
 #
-# OpenSSL configuration for the Server Certificate from the Intermediate Authority.
+# OpenSSL configuration for the Intermediate Certification Authority.
 #
 
 #
@@ -67,7 +67,7 @@ emailAddress            = supplied
 #xmppAddr               = optional # Added to SubjAltName by req
 
 #
-# Signing CA request options
+# Intermediate CA request options
 [ req ]
 default_bits            = 4096
 default_keyfile         = private/ca.key
@@ -81,7 +81,7 @@ distinguished_name      = distinguished_name
 subjectAltName          = subject_alt_name
 
 #
-# Signing CA Request Extensions
+# Intermediate CA Request Extensions
 [ req_ext ]
 subjectKeyIdentifier    = hash
 subjectAltName          = @subject_alt_name
@@ -91,7 +91,7 @@ subjectAltName          = @subject_alt_name
 [ distinguished_name ]
 organizationName        = Example Labs
 organizationalUnitName  = Example Labs Cyber and Information Security
-commonName              = localhost
+commonName              = Example Labs Signing Certificate Authority
 
 #
 # OpenVPN Server Certificate Extensions
@@ -154,12 +154,12 @@ URI                     = https://ca.example.labs/
 email                   = certmaster@ca.example.labs
 
 #
-# Certificate download addresses for the intermediate CA
+# Certificate download addresses for the Signing CA
 [ auth_info_access ]
 caIssuers;URI           = https://ca.example.labs:443/certs/signing-ca.example.labs_Signing_Certification_Authority.cert.pem
 
 #
-# CRL Download address for the intermediate CA
+# CRL Download address for the Signing CA
 [ crl_dist ]
 fullname                = URI:https://ca.example.labs:443/crl/signing-ca.example.labs_Signing_Certification_Authority.crl
 

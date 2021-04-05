@@ -120,7 +120,7 @@ type CertificateConfiguration struct {
 // CertificateConfigurationSubject is simply a redefinition of pkix.Name
 type CertificateConfigurationSubject struct {
 	CommonName         string   `json:"common_name"`
-	Organization       []string `json:"organization"`
+	Organization       []string `json:"organization,omitempty"`
 	OrganizationalUnit []string `json:"organizational_unit,omitempty"`
 	Country            []string `json:"country,omitempty"`
 	Province           []string `json:"province,omitempty"`

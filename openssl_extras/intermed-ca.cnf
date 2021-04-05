@@ -57,9 +57,9 @@ commonName              = supplied
 #
 # Distinguished Name Policy for Personal Certificates
 [ user_policy ]
-countryName             = supplied
+countryName             = optional
 stateOrProvinceName     = optional
-localityName            = supplied
+localityName            = optional
 organizationName        = optional
 organizationalUnitName  = optional
 commonName              = supplied
@@ -150,17 +150,17 @@ issuerAltName           = issuer:copy
 #
 # Certificate Authorities Alternative Names
 [ subject_alt_name ]
-URI                     = https://intermed-ca.example.labs/
-email                   = certmaster@intermed-ca.example.labs
+URI                     = https://ca.example.labs/
+email                   = certmaster@ca.example.labs
 
 #
 # Certificate download addresses for the intermediate CA
 [ auth_info_access ]
-caIssuers;URI           = https://ca.example.labs:443/certs/intermed-ca.example.labs_Intermediate_Certification_Authority.cert.pem
+caIssuers;URI           = https://ca.example.labs:443/certs/ca.example.labs_Intermediate_Certification_Authority.cert.pem
 
 #
 # CRL Download address for the intermediate CA
 [ crl_dist ]
-fullname                = URI:https://ca.example.labs:443/crl/intermed-ca.example.labs_Intermediate_Certification_Authority.crl
+fullname                = URI:https://ca.example.labs:443/crl/ca.example.labs_Intermediate_Certification_Authority.crl
 
 # EOF
