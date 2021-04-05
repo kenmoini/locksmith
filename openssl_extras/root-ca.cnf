@@ -100,18 +100,6 @@ authorityInfoAccess     = @auth_info_access
 crlDistributionPoints   = crl_dist
 
 #
-# Signing CA Certificate Extensions
-[ signing-ca_ext ]
-basicConstraints        = critical, CA:false
-keyUsage                = critical, keyCertSign, cRLSign
-subjectKeyIdentifier    = hash
-subjectAltName          = @subject_alt_name
-authorityKeyIdentifier  = keyid:always
-issuerAltName           = issuer:copy
-authorityInfoAccess     = @auth_info_access
-crlDistributionPoints   = crl_dist
-
-#
 # CRL Certificate Extensions
 [ crl_ext ]
 authorityKeyIdentifier  = keyid:always

@@ -154,9 +154,13 @@ checkForProgramAndExit openssl
 CUR_DIR=$(pwd)
 
 OPENSSL_PKI_ROOT_DIR="${CUR_DIR}/.test_pki_root"
-OPENSSL_PKI_INTERMED_CA_DIR="${OPENSSL_PKI_ROOT_DIR}/intermed-ca"
+OPENSSL_PKI_INTERMED_CA_DIR="${OPENSSL_PKI_ROOT_DIR}/intermed-ca/example-labs-intermediate-certificate-authority"
+OPENSSL_PKI_SIGNING_CA_DIR="${OPENSSL_PKI_INTERMED_CA_DIR}/intermed-ca/example-labs-signing-certificate-authority"
+
 LOCKSMITH_PKI_ROOT_DIR="${CUR_DIR}/.generated/roots/example-labs-root-certificate-authority"
 LOCKSMITH_PKI_INTERMED_CA_DIR="${LOCKSMITH_PKI_ROOT_DIR}/intermed-ca/example-labs-intermediate-certificate-authority"
+LOCKSMITH_PKI_SIGNING_CA_DIR="${LOCKSMITH_PKI_INTERMED_CA_DIR}/intermed-ca/example-labs-signing-certificate-authority"
+
 OPENSSL_CA_CERT="ca.cert.pem"
 LOCKSMITH_CA_CERT="certs/ca.pem"
 

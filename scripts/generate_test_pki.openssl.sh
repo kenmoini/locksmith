@@ -82,7 +82,8 @@ echo -e "########### FINISHED CREATING ROOT CA!"
 echo -e "\n####################################################################"
 echo -e "########### START CREATING INTERMEDIATE CA...\n"
 
-INTERMED_CA_PKI_ROOT_DIR="${PKI_ROOT_DIR}/intermed-ca"
+INTERMED_CA_PKI_ROOT_DIR="${PKI_ROOT_DIR}/intermed-ca/example-labs-intermediate-certificate-authority"
+mkdir $INTERMED_CA_PKI_ROOT_DIR
 
 echo -e "########### Creating PKI Intermediate CA Certificate Path..."
 mkdir -p $INTERMED_CA_PKI_ROOT_DIR/{certreqs,certs,crl,newcerts,private,intermed-ca} && chmod 700 $INTERMED_CA_PKI_ROOT_DIR/private
@@ -136,42 +137,109 @@ openssl ca -gencrl -out $INTERMED_CA_PKI_ROOT_DIR/crl/ca.crl
 echo -e "\n####################################################################"
 echo -e "########### FINISHED CREATING INTERMEDIATE CA!"
 
+####################################################################
+## Setup Signing Certificate Authority
+
+echo -e "\n####################################################################"
+echo -e "########### START CREATING SIGNING CA...\n"
+
+SIGNING_CA_PKI_ROOT_DIR="${INTERMED_CA_PKI_ROOT_DIR}/intermed-ca/example-labs-signing-certificate-authority"
+mkdir $SIGNING_CA_PKI_ROOT_DIR
+
+echo -e "########### Creating PKI Signing CA Certificate Path..."
+mkdir -p $SIGNING_CA_PKI_ROOT_DIR/{certreqs,certs,crl,newcerts,private,intermed-ca} && chmod 700 $SIGNING_CA_PKI_ROOT_DIR/private
+
+echo -e "########### Creating PKI Signing CA Index DB file..."
+touch $SIGNING_CA_PKI_ROOT_DIR/ca.index
+
+echo -e "########### Creating PKI Signing CA Serial Number file..."
+echo "01" > $SIGNING_CA_PKI_ROOT_DIR/ca.serial
+
+echo -e "########### Creating PKI Signing CA CRL Number file..."
+echo "00" > $SIGNING_CA_PKI_ROOT_DIR/ca.crlnum
+
+# Set Signing CA OpenSSL Configuration
+echo -e "\n## Setting OpenSSL Configuration env var for Signing CA...\n"
+cp "${CUR_DIR}/openssl_extras/signing-ca.cnf" "${SIGNING_CA_PKI_ROOT_DIR}/ca.cnf"
+export OPENSSL_CONF="${SIGNING_CA_PKI_ROOT_DIR}/ca.cnf"
+cd $SIGNING_CA_PKI_ROOT_DIR
+
+echo -e "########### Creating PKI Signing CA Private Key..."
+openssl genrsa -out $SIGNING_CA_PKI_ROOT_DIR/private/ca.key.pem 4096 &>/dev/null
+chmod 0400 $SIGNING_CA_PKI_ROOT_DIR/private/ca.key.pem
+
+echo -e "########### Creating PKI Signing CA CSR..."
+openssl req -new -batch -out $SIGNING_CA_PKI_ROOT_DIR/certreqs/ca.req.pem -key $SIGNING_CA_PKI_ROOT_DIR/private/ca.key.pem
+
+####################################################################
+## Create Signing CA Certificate
+echo -e "\n## Setting OpenSSL Configuration env var for Intermediate CA...\n"
+export OPENSSL_CONF="${INTERMED_CA_PKI_ROOT_DIR}/ca.cnf"
+cd $INTERMED_CA_PKI_ROOT_DIR
+
+echo -e "########### Creating PKI Signing CA Certificate, signed by Intermediate CA..."
+openssl ca -batch -in $SIGNING_CA_PKI_ROOT_DIR/certreqs/ca.req.pem -out $SIGNING_CA_PKI_ROOT_DIR/ca.cert -extensions signing-ca_ext -startdate $(date -u -d "-1day" "+%y%m%d000000Z" 2>/dev/null || date -u -v "-1d" "+%y%m%d000000Z") -enddate `(date -u -d "+3years+1day" "+%y%m%d000000Z" 2>/dev/null || date -u -v "+3y" -v "+1d" "+%y%m%d000000Z")`
+
+CERT_START_LINE_NUM=$(awk '/BEGIN CERTIFICATE/{ print NR; exit }' $SIGNING_CA_PKI_ROOT_DIR/ca.cert)
+CERT_END_LINE_NUM=$(awk '/END CERTIFICATE/{ print NR; exit }' $SIGNING_CA_PKI_ROOT_DIR/ca.cert)
+
+echo -e "########### Creating PKI Signing CA Certificate PEM file..."
+tail -n +$CERT_START_LINE_NUM $SIGNING_CA_PKI_ROOT_DIR/ca.cert > $SIGNING_CA_PKI_ROOT_DIR/ca.cert.pem
+
+####################################################################
+# Set Signing CA OpenSSL Configuration
+echo -e "\n## Setting OpenSSL Configuration env var for Signing CA...\n"
+export OPENSSL_CONF="${SIGNING_CA_PKI_ROOT_DIR}/ca.cnf"
+cd $SIGNING_CA_PKI_ROOT_DIR
+
+echo -e "########### Creating PKI Signing CA Certificate Revocation List..."
+openssl ca -gencrl -out $SIGNING_CA_PKI_ROOT_DIR/crl/ca.crl
+
+echo -e "\n####################################################################"
+echo -e "########### FINISHED CREATING SIGNING CA!"
+
+
 echo -e "\n####################################################################"
 echo -e "########### START CREATING SERVER CERTIFICATE..."
 
 echo -e "########### Creating Server Certificate Private Key..."
-openssl genrsa -out $INTERMED_CA_PKI_ROOT_DIR/private/test.server.key.pem 4096 &>/dev/null
-chmod 0400 $INTERMED_CA_PKI_ROOT_DIR/private/test.server.key.pem
+openssl genrsa -out $SIGNING_CA_PKI_ROOT_DIR/private/test.server.key.pem 4096 &>/dev/null
+chmod 0400 $SIGNING_CA_PKI_ROOT_DIR/private/test.server.key.pem
 
 ####################################################################
-# Set Intermediate CA OpenSSL Configuration
+# Set Signing CA OpenSSL Configuration
 echo -e "\n## Setting OpenSSL Configuration env var for Server Certificate...\n"
-cp "${CUR_DIR}/openssl_extras/server-cert.cnf" "${INTERMED_CA_PKI_ROOT_DIR}/server.cnf"
-export OPENSSL_CONF="${INTERMED_CA_PKI_ROOT_DIR}/server.cnf"
-cd $INTERMED_CA_PKI_ROOT_DIR
+cp "${CUR_DIR}/openssl_extras/server-cert.cnf" "${SIGNING_CA_PKI_ROOT_DIR}/server.cnf"
+export OPENSSL_CONF="${SIGNING_CA_PKI_ROOT_DIR}/server.cnf"
+cd $SIGNING_CA_PKI_ROOT_DIR
 
 echo -e "########### Creating Server Certificate Request..."
-openssl req -new -batch -out $INTERMED_CA_PKI_ROOT_DIR/certreqs/test.server.req.pem -key $INTERMED_CA_PKI_ROOT_DIR/private/test.server.key.pem
+openssl req -new -batch -out $SIGNING_CA_PKI_ROOT_DIR/certreqs/test.server.req.pem -key $SIGNING_CA_PKI_ROOT_DIR/private/test.server.key.pem
 
 echo -e "########### Creating Server Certificate signed with Intermediate CA..."
-openssl ca -batch -in $INTERMED_CA_PKI_ROOT_DIR/certreqs/test.server.req.pem -out $INTERMED_CA_PKI_ROOT_DIR/certs/test.server.cert -extensions server_ext
+openssl ca -batch -in $SIGNING_CA_PKI_ROOT_DIR/certreqs/test.server.req.pem -out $SIGNING_CA_PKI_ROOT_DIR/certs/test.server.cert -extensions server_ext
 
-CERT_START_LINE_NUM=$(awk '/BEGIN CERTIFICATE/{ print NR; exit }' $INTERMED_CA_PKI_ROOT_DIR/certs/test.server.cert)
-CERT_END_LINE_NUM=$(awk '/END CERTIFICATE/{ print NR; exit }' $INTERMED_CA_PKI_ROOT_DIR/certs/test.server.cert)
+CERT_START_LINE_NUM=$(awk '/BEGIN CERTIFICATE/{ print NR; exit }' $SIGNING_CA_PKI_ROOT_DIR/certs/test.server.cert)
+CERT_END_LINE_NUM=$(awk '/END CERTIFICATE/{ print NR; exit }' $SIGNING_CA_PKI_ROOT_DIR/certs/test.server.cert)
 
 echo -e "########### Creating Server Certificate PEM file..."
-tail -n +$CERT_START_LINE_NUM $INTERMED_CA_PKI_ROOT_DIR/certs/test.server.cert > $INTERMED_CA_PKI_ROOT_DIR/certs/test.server.cert.pem
+tail -n +$CERT_START_LINE_NUM $SIGNING_CA_PKI_ROOT_DIR/certs/test.server.cert > $SIGNING_CA_PKI_ROOT_DIR/certs/test.server.cert.pem
 
 echo -e "########### Creating Server DH Params..."
-openssl dhparam -out $INTERMED_CA_PKI_ROOT_DIR/private/test.server.dhparams-1024.pem 1024 &>/dev/null
+openssl dhparam -out $SIGNING_CA_PKI_ROOT_DIR/private/test.server.dhparams-1024.pem 1024 &>/dev/null
 
 echo -e "\n####################################################################"
 echo -e "########### FINISHED CREATING SERVER CERTIFICATE!"
 
 echo -e "\n####################################################################"
-echo -e "## Creating Certificate Bundle File..."
+echo -e "## Creating Certificate Bundle Files..."
 cat ${PKI_ROOT_DIR}/ca.cert.pem > ${INTERMED_CA_PKI_ROOT_DIR}/ca-bundle.cert.pem
+cat ${PKI_ROOT_DIR}/ca.cert.pem > ${SIGNING_CA_PKI_ROOT_DIR}/ca-bundle.cert.pem
+
 cat ${INTERMED_CA_PKI_ROOT_DIR}/ca.cert.pem >> ${INTERMED_CA_PKI_ROOT_DIR}/ca-bundle.cert.pem
+cat ${INTERMED_CA_PKI_ROOT_DIR}/ca.cert.pem >> ${SIGNING_CA_PKI_ROOT_DIR}/ca-bundle.cert.pem
+
+cat ${SIGNING_CA_PKI_ROOT_DIR}/ca.cert.pem >> ${SIGNING_CA_PKI_ROOT_DIR}/ca-bundle.cert.pem
 
 echo -e "\n####################################################################"
 echo -e "########### Test PKI Created!"
