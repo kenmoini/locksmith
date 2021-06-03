@@ -96,7 +96,7 @@ commonName              = Example Labs Intermediate Certificate Authority
 #
 # Signing CA Certificate Extensions
 [ signing-ca_ext ]
-basicConstraints        = critical, CA:false
+basicConstraints        = critical, CA:TRUE
 keyUsage                = critical, keyCertSign, cRLSign
 subjectKeyIdentifier    = hash
 subjectAltName          = @subject_alt_name
@@ -163,7 +163,7 @@ issuerAltName           = issuer:copy
 # Certificate Authorities Alternative Names
 [ subject_alt_name ]
 URI                     = https://ca.example.labs/
-email                   = certmaster@ca.example.labs
+email                   = certmaster@example.labs
 
 #
 # Certificate download addresses for the intermediate CA
