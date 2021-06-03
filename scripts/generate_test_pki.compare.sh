@@ -139,8 +139,13 @@ function simpleCompare {
   if [[ "$1" == "$2" ]]; then
     COLOR=$GREEN
   fi
-  printf "${COLOR}OSSL: %s${NC}\n" "$1"
-  printf "${COLOR}Lock: %s${NC}\n" "$2"
+  if [[ "$COLOR" == "$GREEN" ]]; then
+    printf "${COLOR}%-75s OK!${NC}\n" "$3"
+  else
+    echo "$3"
+    printf "${COLOR}OSSL: %s${NC}\n" "$1"
+    printf "${COLOR}Lock: %s${NC}\n" "$2"
+  fi
 }
 function simpleCompareNoColor {
   printf "OSSL: %s\n" "$1"
@@ -168,35 +173,29 @@ echo -e "\n=====================================================================
 echo -e "===================================================================================== ROOT CA COMPARISON =========================================================================================="
 echo -e "===================================================================================================================================================================================================\n"
 
-echo -e "\n===== ISSUER COMPARISON\n"
 OSSL_ISSUER=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/${OPENSSL_CA_CERT} -noout -issuer)
 LOCK_ISSUER=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/${LOCKSMITH_CA_CERT} -noout -issuer)
-simpleCompare "$OSSL_ISSUER" "$LOCK_ISSUER"
+simpleCompare "$OSSL_ISSUER" "$LOCK_ISSUER" "===== ISSUER COMPARISON"
 
-echo -e "\n===== SUBJECT COMPARISON\n"
 OSSL_SUBJECT=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/${OPENSSL_CA_CERT} -noout -subject)
 LOCK_SUBJECT=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/${LOCKSMITH_CA_CERT} -noout -subject)
-simpleCompare "$OSSL_SUBJECT" "$LOCK_SUBJECT"
+simpleCompare "$OSSL_SUBJECT" "$LOCK_SUBJECT" "===== SUBJECT COMPARISON"
 
-echo -e "\n===== STARTDATE COMPARISON\n"
 OSSL_STARTDATE=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/${OPENSSL_CA_CERT} -noout -startdate)
 LOCK_STARTDATE=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/${LOCKSMITH_CA_CERT} -noout -startdate)
-simpleCompareNoColor "$OSSL_STARTDATE" "$LOCK_STARTDATE"
+simpleCompare "$OSSL_STARTDATE" "$LOCK_STARTDATE" "===== STARTDATE COMPARISON"
 
-echo -e "\n===== ENDDATE COMPARISON\n"
 OSSL_ENDDATE=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/${OPENSSL_CA_CERT} -noout -enddate)
 LOCK_ENDDATE=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/${LOCKSMITH_CA_CERT} -noout -enddate)
-simpleCompareNoColor "$OSSL_ENDDATE" "$LOCK_ENDDATE"
+simpleCompare "$OSSL_ENDDATE" "$LOCK_ENDDATE" "===== ENDDATE COMPARISON"
 
-echo -e "\n===== SERIAL COMPARISON\n"
 OSSL_SERIAL=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/${OPENSSL_CA_CERT} -noout -serial)
 LOCK_SERIAL=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/${LOCKSMITH_CA_CERT} -noout -serial)
-simpleCompare "$OSSL_SERIAL" "$LOCK_SERIAL"
+simpleCompare "$OSSL_SERIAL" "$LOCK_SERIAL" "===== SERIAL COMPARISON"
 
-echo -e "\n===== EMAIL COMPARISON\n"
 OSSL_EMAIL=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/${OPENSSL_CA_CERT} -noout -email)
 LOCK_EMAIL=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/${LOCKSMITH_CA_CERT} -noout -email)
-simpleCompare "$OSSL_EMAIL" "$LOCK_EMAIL"
+simpleCompare "$OSSL_EMAIL" "$LOCK_EMAIL" "===== EMAIL COMPARISON"
 
 echo -e "\n===== PURPOSE COMPARISON\n"
 OSSP_PURPOSE_CMD=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/${OPENSSL_CA_CERT} -noout -purpose)
@@ -217,35 +216,29 @@ echo -e "\n=====================================================================
 echo -e "================================================================================== INTERMEDIATE CA COMPARISON ====================================================================================="
 echo -e "===================================================================================================================================================================================================\n"
 
-echo -e "\n===== ISSUER COMPARISON\n"
 OSSL_ISSUER=$(openssl x509 -in ${OPENSSL_PKI_INTERMED_CA_DIR}/${OPENSSL_CA_CERT} -noout -issuer)
 LOCK_ISSUER=$(openssl x509 -in ${LOCKSMITH_PKI_INTERMED_CA_DIR}/${LOCKSMITH_CA_CERT} -noout -issuer)
-simpleCompare "$OSSL_ISSUER" "$LOCK_ISSUER"
+simpleCompare "$OSSL_ISSUER" "$LOCK_ISSUER" "===== ISSUER COMPARISON"
 
-echo -e "\n===== SUBJECT COMPARISON\n"
 OSSL_SUBJECT=$(openssl x509 -in ${OPENSSL_PKI_INTERMED_CA_DIR}/${OPENSSL_CA_CERT} -noout -subject)
 LOCK_SUBJECT=$(openssl x509 -in ${LOCKSMITH_PKI_INTERMED_CA_DIR}/${LOCKSMITH_CA_CERT} -noout -subject)
-simpleCompare "$OSSL_SUBJECT" "$LOCK_SUBJECT"
+simpleCompare "$OSSL_SUBJECT" "$LOCK_SUBJECT" "===== SUBJECT COMPARISON"
 
-echo -e "\n===== STARTDATE COMPARISON\n"
 OSSL_STARTDATE=$(openssl x509 -in ${OPENSSL_PKI_INTERMED_CA_DIR}/${OPENSSL_CA_CERT} -noout -startdate)
 LOCK_STARTDATE=$(openssl x509 -in ${LOCKSMITH_PKI_INTERMED_CA_DIR}/${LOCKSMITH_CA_CERT} -noout -startdate)
-simpleCompareNoColor "$OSSL_STARTDATE" "$LOCK_STARTDATE"
+simpleCompare "$OSSL_STARTDATE" "$LOCK_STARTDATE" "===== STARTDATE COMPARISON"
 
-echo -e "\n===== ENDDATE COMPARISON\n"
 OSSL_ENDDATE=$(openssl x509 -in ${OPENSSL_PKI_INTERMED_CA_DIR}/${OPENSSL_CA_CERT} -noout -enddate)
 LOCK_ENDDATE=$(openssl x509 -in ${LOCKSMITH_PKI_INTERMED_CA_DIR}/${LOCKSMITH_CA_CERT} -noout -enddate)
-simpleCompareNoColor "$OSSL_ENDDATE" "$LOCK_ENDDATE"
+simpleCompare "$OSSL_ENDDATE" "$LOCK_ENDDATE" "===== ENDDATE COMPARISON"
 
-echo -e "\n===== SERIAL COMPARISON\n"
 OSSL_SERIAL=$(openssl x509 -in ${OPENSSL_PKI_INTERMED_CA_DIR}/${OPENSSL_CA_CERT} -noout -serial)
 LOCK_SERIAL=$(openssl x509 -in ${LOCKSMITH_PKI_INTERMED_CA_DIR}/${LOCKSMITH_CA_CERT} -noout -serial)
-simpleCompare "$OSSL_SERIAL" "$LOCK_SERIAL"
+simpleCompare "$OSSL_SERIAL" "$LOCK_SERIAL" "===== SERIAL COMPARISON"
 
-echo -e "\n===== EMAIL COMPARISON\n"
 OSSL_EMAIL=$(openssl x509 -in ${OPENSSL_PKI_INTERMED_CA_DIR}/${OPENSSL_CA_CERT} -noout -email)
 LOCK_EMAIL=$(openssl x509 -in ${LOCKSMITH_PKI_INTERMED_CA_DIR}/${LOCKSMITH_CA_CERT} -noout -email)
-simpleCompare "$OSSL_EMAIL" "$LOCK_EMAIL"
+simpleCompare "$OSSL_EMAIL" "$LOCK_EMAIL" "===== EMAIL COMPARISON"
 
 echo -e "\n===== PURPOSE COMPARISON\n"
 OSSP_PURPOSE_CMD=$(openssl x509 -in ${OPENSSL_PKI_INTERMED_CA_DIR}/${OPENSSL_CA_CERT} -noout -purpose)
@@ -266,35 +259,29 @@ echo -e "\n=====================================================================
 echo -e "==================================================================================== SIGNING CA COMPARISON ========================================================================================="
 echo -e "=================================================================================================================================================================================================\n"
 
-echo -e "\n===== ISSUER COMPARISON\n"
 OSSL_ISSUER=$(openssl x509 -in ${OPENSSL_PKI_SIGNING_CA_DIR}/${OPENSSL_CA_CERT} -noout -issuer)
 LOCK_ISSUER=$(openssl x509 -in ${LOCKSMITH_PKI_SIGNING_CA_DIR}/${LOCKSMITH_CA_CERT} -noout -issuer)
-simpleCompare "$OSSL_ISSUER" "$LOCK_ISSUER"
+simpleCompare "$OSSL_ISSUER" "$LOCK_ISSUER" "===== ISSUER COMPARISON"
 
-echo -e "\n===== SUBJECT COMPARISON\n"
 OSSL_SUBJECT=$(openssl x509 -in ${OPENSSL_PKI_SIGNING_CA_DIR}/${OPENSSL_CA_CERT} -noout -subject)
 LOCK_SUBJECT=$(openssl x509 -in ${LOCKSMITH_PKI_SIGNING_CA_DIR}/${LOCKSMITH_CA_CERT} -noout -subject)
-simpleCompare "$OSSL_SUBJECT" "$LOCK_SUBJECT"
+simpleCompare "$OSSL_SUBJECT" "$LOCK_SUBJECT" "===== SUBJECT COMPARISON"
 
-echo -e "\n===== STARTDATE COMPARISON\n"
 OSSL_STARTDATE=$(openssl x509 -in ${OPENSSL_PKI_SIGNING_CA_DIR}/${OPENSSL_CA_CERT} -noout -startdate)
 LOCK_STARTDATE=$(openssl x509 -in ${LOCKSMITH_PKI_SIGNING_CA_DIR}/${LOCKSMITH_CA_CERT} -noout -startdate)
-simpleCompareNoColor "$OSSL_STARTDATE" "$LOCK_STARTDATE"
+simpleCompare "$OSSL_STARTDATE" "$LOCK_STARTDATE" "===== STARTDATE COMPARISON"
 
-echo -e "\n===== ENDDATE COMPARISON\n"
 OSSL_ENDDATE=$(openssl x509 -in ${OPENSSL_PKI_SIGNING_CA_DIR}/${OPENSSL_CA_CERT} -noout -enddate)
 LOCK_ENDDATE=$(openssl x509 -in ${LOCKSMITH_PKI_SIGNING_CA_DIR}/${LOCKSMITH_CA_CERT} -noout -enddate)
-simpleCompareNoColor "$OSSL_ENDDATE" "$LOCK_ENDDATE"
+simpleCompare "$OSSL_ENDDATE" "$LOCK_ENDDATE" "===== ENDDATE COMPARISON"
 
-echo -e "\n===== SERIAL COMPARISON\n"
 OSSL_SERIAL=$(openssl x509 -in ${OPENSSL_PKI_SIGNING_CA_DIR}/${OPENSSL_CA_CERT} -noout -serial)
 LOCK_SERIAL=$(openssl x509 -in ${LOCKSMITH_PKI_SIGNING_CA_DIR}/${LOCKSMITH_CA_CERT} -noout -serial)
-simpleCompare "$OSSL_SERIAL" "$LOCK_SERIAL"
+simpleCompare "$OSSL_SERIAL" "$LOCK_SERIAL" "===== SERIAL COMPARISON"
 
-echo -e "\n===== EMAIL COMPARISON\n"
 OSSL_EMAIL=$(openssl x509 -in ${OPENSSL_PKI_SIGNING_CA_DIR}/${OPENSSL_CA_CERT} -noout -email)
 LOCK_EMAIL=$(openssl x509 -in ${LOCKSMITH_PKI_SIGNING_CA_DIR}/${LOCKSMITH_CA_CERT} -noout -email)
-simpleCompare "$OSSL_EMAIL" "$LOCK_EMAIL"
+simpleCompare "$OSSL_EMAIL" "$LOCK_EMAIL" "===== EMAIL COMPARISON"
 
 echo -e "\n===== PURPOSE COMPARISON\n"
 OSSP_PURPOSE_CMD=$(openssl x509 -in ${OPENSSL_PKI_SIGNING_CA_DIR}/${OPENSSL_CA_CERT} -noout -purpose)
