@@ -207,10 +207,10 @@ OSSP_TEXT_CMD=$(openssl x509 -in ${OPENSSL_PKI_ROOT_DIR}/${OPENSSL_CA_CERT} -noo
 LOCK_TEXT_CMD=$(openssl x509 -in ${LOCKSMITH_PKI_ROOT_DIR}/${LOCKSMITH_CA_CERT} -noout -text)
 splitTextOutput "${OSSP_TEXT_CMD}" "${LOCK_TEXT_CMD}"
 
-echo -e "\n===== CRL TEXT COMPARISON\n"
-OSSP_TEXT_CMD=$(openssl crl -in ${OPENSSL_PKI_ROOT_DIR}/crl/ca.crl -noout -text)
-LOCK_TEXT_CMD=$(openssl crl -in ${LOCKSMITH_PKI_ROOT_DIR}/crl/ca.crl -noout -text)
-splitTextOutput "${OSSP_TEXT_CMD}" "${LOCK_TEXT_CMD}"
+#echo -e "\n===== CRL TEXT COMPARISON\n"
+#OSSP_TEXT_CMD=$(openssl crl -in ${OPENSSL_PKI_ROOT_DIR}/crl/ca.crl -noout -text)
+#LOCK_TEXT_CMD=$(openssl crl -in ${LOCKSMITH_PKI_ROOT_DIR}/crl/ca.crl -noout -text)
+#splitTextOutput "${OSSP_TEXT_CMD}" "${LOCK_TEXT_CMD}"
 
 echo -e "\n==================================================================================================================================================================================================="
 echo -e "================================================================================== INTERMEDIATE CA COMPARISON ====================================================================================="
@@ -250,10 +250,10 @@ OSSP_TEXT_CMD=$(openssl x509 -in ${OPENSSL_PKI_INTERMED_CA_DIR}/${OPENSSL_CA_CER
 LOCK_TEXT_CMD=$(openssl x509 -in ${LOCKSMITH_PKI_INTERMED_CA_DIR}/${LOCKSMITH_CA_CERT} -noout -text)
 splitTextOutput "${OSSP_TEXT_CMD}" "${LOCK_TEXT_CMD}"
 
-echo -e "\n===== CRL TEXT COMPARISON\n"
-OSSP_TEXT_CMD=$(openssl crl -in ${OPENSSL_PKI_INTERMED_CA_DIR}/crl/ca.crl -noout -text)
-LOCK_TEXT_CMD=$(openssl crl -in ${LOCKSMITH_PKI_INTERMED_CA_DIR}/crl/ca.crl -noout -text)
-splitTextOutput "${OSSP_TEXT_CMD}" "${LOCK_TEXT_CMD}"
+#echo -e "\n===== CRL TEXT COMPARISON\n"
+#OSSP_TEXT_CMD=$(openssl crl -in ${OPENSSL_PKI_INTERMED_CA_DIR}/crl/ca.crl -noout -text)
+#LOCK_TEXT_CMD=$(openssl crl -in ${LOCKSMITH_PKI_INTERMED_CA_DIR}/crl/ca.crl -noout -text)
+#splitTextOutput "${OSSP_TEXT_CMD}" "${LOCK_TEXT_CMD}"
 
 echo -e "\n================================================================================================================================================================================================="
 echo -e "==================================================================================== SIGNING CA COMPARISON ========================================================================================="
@@ -293,7 +293,7 @@ OSSP_TEXT_CMD=$(openssl x509 -in ${OPENSSL_PKI_SIGNING_CA_DIR}/${OPENSSL_CA_CERT
 LOCK_TEXT_CMD=$(openssl x509 -in ${LOCKSMITH_PKI_SIGNING_CA_DIR}/${LOCKSMITH_CA_CERT} -noout -text)
 splitTextOutput "${OSSP_TEXT_CMD}" "${LOCK_TEXT_CMD}"
 
-echo -e "\n===== CRL TEXT COMPARISON\n"
-OSSP_TEXT_CMD=$(openssl crl -in ${OPENSSL_PKI_SIGNING_CA_DIR}/crl/ca.crl -noout -text)
-LOCK_TEXT_CMD=$(openssl crl -in ${LOCKSMITH_PKI_SIGNING_CA_DIR}/crl/ca.crl -noout -text)
-splitTextOutput "${OSSP_TEXT_CMD}" "${LOCK_TEXT_CMD}"
+#echo -e "\n===== CRL TEXT COMPARISON\n"
+#OSSP_TEXT_CMD=$(openssl crl -in ${OPENSSL_PKI_SIGNING_CA_DIR}/crl/ca.crl -noout -text)
+#LOCK_TEXT_CMD=$(openssl crl -in ${LOCKSMITH_PKI_SIGNING_CA_DIR}/crl/ca.crl -noout -text)
+#splitTextOutput "${OSSP_TEXT_CMD}" "${LOCK_TEXT_CMD}"
