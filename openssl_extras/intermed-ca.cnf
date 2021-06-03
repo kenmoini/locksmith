@@ -95,7 +95,7 @@ commonName              = Example Labs Intermediate Certificate Authority
 
 #
 # Signing CA Certificate Extensions
-[ signing-ca_ext ]
+[ signing_ca_ext ]
 basicConstraints        = critical, CA:TRUE
 keyUsage                = critical, keyCertSign, cRLSign
 subjectKeyIdentifier    = hash

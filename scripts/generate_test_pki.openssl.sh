@@ -178,7 +178,7 @@ export OPENSSL_CONF="${INTERMED_CA_PKI_ROOT_DIR}/ca.cnf"
 cd $INTERMED_CA_PKI_ROOT_DIR
 
 echo -e "########### Creating PKI Signing CA Certificate, signed by Intermediate CA..."
-openssl ca -batch -in $SIGNING_CA_PKI_ROOT_DIR/certreqs/ca.req.pem -out $SIGNING_CA_PKI_ROOT_DIR/ca.cert -extensions signing-ca_ext -startdate $(date -u -d "-1day" "+%y%m%d000000Z" 2>/dev/null || date -u -v "-1d" "+%y%m%d000000Z") -enddate `(date -u -d "+3years+1day" "+%y%m%d000000Z" 2>/dev/null || date -u -v "+3y" -v "+1d" "+%y%m%d000000Z")`
+openssl ca -batch -in $SIGNING_CA_PKI_ROOT_DIR/certreqs/ca.req.pem -out $SIGNING_CA_PKI_ROOT_DIR/ca.cert -extensions signing_ca_ext -startdate $(date -u -d "-1day" "+%y%m%d000000Z" 2>/dev/null || date -u -v "-1d" "+%y%m%d000000Z") -enddate `(date -u -d "+3years+1day" "+%y%m%d000000Z" 2>/dev/null || date -u -v "+3y" -v "+1d" "+%y%m%d000000Z")`
 
 CERT_START_LINE_NUM=$(awk '/BEGIN CERTIFICATE/{ print NR; exit }' $SIGNING_CA_PKI_ROOT_DIR/ca.cert)
 CERT_END_LINE_NUM=$(awk '/END CERTIFICATE/{ print NR; exit }' $SIGNING_CA_PKI_ROOT_DIR/ca.cert)

@@ -94,6 +94,18 @@ organizationalUnitName  = Example Labs Cyber and Information Security
 commonName              = Example Labs Signing Certificate Authority
 
 #
+# Signing CA Certificate Extensions
+[ signing_ca_ext ]
+basicConstraints        = critical, CA:TRUE
+keyUsage                = critical, keyCertSign, cRLSign
+subjectKeyIdentifier    = hash
+subjectAltName          = @subject_alt_name
+authorityKeyIdentifier  = keyid:always
+issuerAltName           = issuer:copy
+authorityInfoAccess     = @auth_info_access
+crlDistributionPoints   = crl_dist
+
+#
 # OpenVPN Server Certificate Extensions
 [ openvpn_server_ext ]
 basicConstraints        = CA:FALSE
