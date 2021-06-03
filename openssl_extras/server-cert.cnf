@@ -151,7 +151,7 @@ issuerAltName           = issuer:copy
 # Certificate Authorities Alternative Names
 [ subject_alt_name ]
 URI                     = https://ca.example.labs/
-email                   = certmaster@ca.example.labs
+email                   = certmaster@example.labs
 
 #
 # Certificate download addresses for the intermediate CA
