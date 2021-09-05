@@ -3,6 +3,7 @@ config.yaml
 /locksmith
 nohup.out
 dist/locksmith
+dist/locksmith*
 .generated
 .generated/
 .generated/*
