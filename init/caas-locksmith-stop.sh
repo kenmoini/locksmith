@@ -2,7 +2,7 @@
 
 set -x
 
-source /etc/locksmith/caas_vars.sh
+source /etc/locksmith/caas-vars.sh
 
 echo "Killing container..."
 ${CONTAINER_RUNTIME} kill $CONTAINER_NAME
