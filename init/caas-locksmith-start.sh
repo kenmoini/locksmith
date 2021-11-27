@@ -2,9 +2,9 @@
 
 set -x
 
-source /etc/locksmith/caas_vars.sh
+source /etc/locksmith/caas-vars.sh
 
-/etc/locksmith/caas_stop.sh
+/etc/locksmith/caas-stop.sh
 
 sleep 3
 
