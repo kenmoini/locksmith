@@ -5,9 +5,8 @@ Wants=network-online.target
 
 [Service]
 TimeoutStartSec=5
-ExecStop=/etc/locksmith/caas_stop.sh
-ExecStart=/etc/locksmith/caas_start.sh
-
+ExecStop=/etc/locksmith/caas-stop.sh
+ExecStart=/etc/locksmith/caas-start.sh
 Type=forking
 Restart=on-failure
 
